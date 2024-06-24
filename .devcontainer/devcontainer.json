@@ -37,12 +37,13 @@
 					"formatting.local": "github.com/mlflow/mlflow-go",
 					"formatting.gofumpt": true
 				},
-				// "python.analysis.autoImportCompletions": false,
 				"[python]": {
-					"editor.defaultFormatter": "charliermarsh.ruff",
-					"editor.formatOnSave": true
+					"editor.codeActionsOnSave": {
+						"source.fixAll": "explicit",
+						"source.organizeImports": "explicit"
+					},
+					"editor.defaultFormatter": "charliermarsh.ruff"
 				}
-				// "python.formatting.provider": "none",
 			},
 			"extensions": [
 				"charliermarsh.ruff",
