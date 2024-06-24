@@ -1,0 +1,65 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/go-postgres
+{
+	"name": "MLflow Go",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "app",
+	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	"features": {
+		"ghcr.io/devcontainers/features/github-cli:1": {},
+		"ghcr.io/devcontainers/features/python:1": {
+			"version": "3.8"
+		},
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {},
+		"ghcr.io/devcontainers-contrib/features/k6:1": {},
+		"ghcr.io/devcontainers-contrib/features/pre-commit:2": {},
+		"ghcr.io/devcontainers-contrib/features/protoc-asdf:1": {
+			"version": "26.0"
+		},
+		"ghcr.io/devcontainers-contrib/features/ruff:1": {}
+	},
+
+	// Configure tool-specific properties.
+	"customizations": {
+		"vscode": {
+			"settings": {
+				"terminal.integrated.defaultProfile.linux": "zsh",
+				"editor.rulers": [
+					80,
+					100
+				],
+				"editor.formatOnSave": true,
+				"git.alwaysSignOff": true,
+				"go.lintTool": "golangci-lint",
+				"gopls": {
+					"formatting.local": "github.com/mlflow/mlflow-go",
+					"formatting.gofumpt": true
+				},
+				// "python.analysis.autoImportCompletions": false,
+				"[python]": {
+					"editor.defaultFormatter": "charliermarsh.ruff",
+					"editor.formatOnSave": true
+				}
+				// "python.formatting.provider": "none",
+			},
+			"extensions": [
+				"charliermarsh.ruff",
+				"golang.Go",
+				"humao.rest-client",
+				"pbkit.vscode-pbkit",
+				"tamasfe.even-better-toml"
+			]
+		}
+	}
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [5432],
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	// "postCreateCommand": "go version",
+
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	// "remoteUser": "root"
+}
