@@ -1,4 +1,3 @@
-//nolint:ireturn
 package parser
 
 import (
