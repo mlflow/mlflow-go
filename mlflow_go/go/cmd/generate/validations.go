@@ -26,4 +26,5 @@ var validations = map[string]string{
 	"Metric_Value":                       "required",
 	"CreateRun_ExperimentId":             "required,stringAsPositiveInteger",
 	"GetExperimentByName_ExperimentName": "required",
+	"GetLatestVersions_Name":             "required",
 }
