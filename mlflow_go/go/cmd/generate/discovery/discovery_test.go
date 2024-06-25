@@ -3,7 +3,7 @@ package discovery_test
 import (
 	"testing"
 
-	"github.com/mlflow/mlflow-go/mlflow_go/go/tools/generate/discovery"
+	"github.com/mlflow/mlflow-go/mlflow_go/go/cmd/generate/discovery"
 )
 
 func TestPattern(t *testing.T) {

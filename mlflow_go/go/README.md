@@ -38,7 +38,7 @@ mlflow-go server --backend-store-uri postgresql://postgres:postgres@localhost:54
 ## Request validation
 
 We use [Go validator](https://github.com/go-playground/validator) to validate all incoming request structs.
-As the proto files don't specify any validation rules, we map them manually in [mlflow_go/go/tools/generate/validations.go](./tools/generate/validations.go).
+As the proto files don't specify any validation rules, we map them manually in [mlflow_go/go/cmd/generate/validations.go](./cmd/generate/validations.go).
 
 Once the mapping has been done, validation will be invoked automatically in the generated fiber code.
 
@@ -79,7 +79,7 @@ See the [pytest documentation](https://docs.pytest.org/en/8.2.x/how-to/usage.htm
 
 ## Supported endpoints
 
-The currently supported endpoints can be found in [mlflow/tools/generate/endspoints.go](./tools/generate/endspoints.go).
+The currently supported endpoints can be found in [mlflow/cmd/generate/endspoints.go](./cmd/generate/endspoints.go).
 
 ## Linters
 
