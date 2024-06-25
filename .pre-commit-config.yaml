@@ -1,0 +1,42 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: end-of-file-fixer
+        files: \.(proto|txt|sh|rst)$
+  - repo: https://github.com/golangci/golangci-lint
+    rev: "v1.59.1"
+    hooks:
+      - id: golangci-lint-full
+  - repo: local
+    hooks:
+      # - id: ruff
+      #   name: ruff
+      #   entry: python dev/ruff.py
+      #   language: system
+      #   types_or: [python, jupyter]
+      #   stages: [commit]
+      #   require_serial: true
+
+      # - id: format
+      #   name: format
+      #   entry: python dev/format.py
+      #   language: system
+      #   types_or: [python, jupyter]
+      #   stages: [commit]
+      #   require_serial: true
+
+      # - id: rstcheck
+      #   name: rstcheck
+      #   entry: rstcheck
+      #   language: system
+      #   files: README.rst
+      #   stages: [commit]
+      #   require_serial: true
+
+      - id: must-have-signoff
+        name: must-have-signoff
+        entry: 'grep "Signed-off-by:"'
+        language: system
+        stages: [prepare-commit-msg]
+        require_serial: true
