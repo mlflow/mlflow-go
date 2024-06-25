@@ -2,5 +2,11 @@
 
 package service
 
+import (
+	"github.com/mlflow/mlflow-go/mlflow_go/go/protos"
+	"github.com/mlflow/mlflow-go/mlflow_go/go/contract"
+)
+
 type ModelRegistryService interface {
+	GetLatestVersions(input *protos.GetLatestVersions) (*protos.GetLatestVersions_Response, *contract.Error)
 }

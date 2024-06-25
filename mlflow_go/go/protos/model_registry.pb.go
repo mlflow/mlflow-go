@@ -729,7 +729,7 @@ type GetLatestVersions struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Registered model unique name identifier.
-	Name *string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty" query:"name"`
+	Name *string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty" query:"name" validate:"required"`
 	// List of stages.
 	Stages []string `protobuf:"bytes,2,rep,name=stages" json:"stages,omitempty" query:"stages"`
 }

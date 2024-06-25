@@ -1,5 +1,10 @@
 package models
 
+import (
+	"github.com/mlflow/mlflow-go/mlflow_go/go/protos"
+	"github.com/mlflow/mlflow-go/mlflow_go/go/utils"
+)
+
 // ModelVersion mapped from table <model_versions>.
 //
 //revive:disable:exported
@@ -17,4 +22,28 @@ type ModelVersion struct {
 	StatusMessage   *string `db:"status_message"    gorm:"column:status_message"`
 	RunLink         *string `db:"run_link"          gorm:"column:run_link"`
 	StorageLocation *string `db:"storage_location"  gorm:"column:storage_location"`
+}
+
+const StageDeletedInternal = "Deleted_Internal"
+
+func (mv ModelVersion) ToProto() *protos.ModelVersion {
+	var status *protos.ModelVersionStatus
+	if s, ok := protos.ModelVersionStatus_value[*mv.Status]; ok {
+		status = utils.PtrTo(protos.ModelVersionStatus(s))
+	}
+
+	return &protos.ModelVersion{
+		Name:                 mv.Name,
+		Version:              utils.ConvertInt32PointerToStringPointer(mv.Version),
+		CreationTimestamp:    mv.CreationTime,
+		LastUpdatedTimestamp: mv.LastUpdatedTime,
+		UserId:               mv.UserID,
+		CurrentStage:         mv.CurrentStage,
+		Description:          mv.Description,
+		Source:               mv.Source,
+		RunId:                mv.RunID,
+		Status:               status,
+		StatusMessage:        mv.StatusMessage,
+		RunLink:              mv.RunLink,
+	}
 }

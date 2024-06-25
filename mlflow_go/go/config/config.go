@@ -48,5 +48,6 @@ type Config struct {
 	ShutdownTimeout     Duration `json:"shutdownTimeout"`
 	StaticFolder        string   `json:"staticFolder"`
 	StoreURL            string   `json:"storeUrl"`
+	RegistryStoreURL    string   `json:"registryStoreUrl"`
 	Version             string   `json:"version"`
 }

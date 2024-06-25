@@ -3,3 +3,15 @@
 package main
 
 import "C"
+import (
+	"unsafe"
+	"github.com/mlflow/mlflow-go/mlflow_go/go/protos"
+)
+//export ModelRegistryServiceGetLatestVersions
+func ModelRegistryServiceGetLatestVersions(serviceID int64, requestData unsafe.Pointer, requestSize C.int, responseSize *C.int) unsafe.Pointer {
+	service, err := modelRegistryServices.Get(serviceID)
+	if err != nil {
+		return makePointerFromError(err, responseSize)
+	}
+	return invokeServiceMethod(service.GetLatestVersions, new(protos.GetLatestVersions), requestData, requestSize, responseSize)
+}

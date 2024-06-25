@@ -47,14 +47,14 @@ var ServiceInfoMap = map[string]ServiceGenerationInfo{
 	"ModelRegistryService": {
 		FileNameWithoutExtension: "model_registry",
 		ServiceName:              "ModelRegistryService",
-		ImplementedEndpoints:     []string{
+		ImplementedEndpoints: []string{
 			// "createRegisteredModel",
 			// "renameRegisteredModel",
 			// "updateRegisteredModel",
 			// "deleteRegisteredModel",
 			// "getRegisteredModel",
 			// "searchRegisteredModels",
-			// "getLatestVersions",
+			"getLatestVersions",
 			// "createModelVersion",
 			// "updateModelVersion",
 			// "transitionModelVersionStage",
