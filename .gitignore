@@ -1,3 +1,10 @@
+# Artifacts
 dist/
 *.egg-info/
 *.so
+
+# Runs
+mlruns/
+
+# Cache
+__pycache__/
