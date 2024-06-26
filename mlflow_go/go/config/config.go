@@ -39,15 +39,15 @@ func (d *Duration) UnmarshalJSON(b []byte) error {
 }
 
 type Config struct {
-	Address             string   `json:"address"`
-	DefaultArtifactRoot string   `json:"defaultArtifactRoot"`
-	LogLevel            string   `json:"logLevel"`
-	PythonAddress       string   `json:"pythonAddress"`
-	PythonCommand       []string `json:"pythonCommand"`
-	PythonEnv           []string `json:"pythonEnv"`
-	ShutdownTimeout     Duration `json:"shutdownTimeout"`
-	StaticFolder        string   `json:"staticFolder"`
-	StoreURL            string   `json:"storeUrl"`
-	RegistryStoreURL    string   `json:"registryStoreUrl"`
-	Version             string   `json:"version"`
+	Address               string   `json:"address"`
+	DefaultArtifactRoot   string   `json:"default_artifact_root"`
+	LogLevel              string   `json:"log_level"`
+	PythonAddress         string   `json:"python_address"`
+	PythonCommand         []string `json:"python_command"`
+	PythonEnv             []string `json:"python_env"`
+	ShutdownTimeout       Duration `json:"shutdown_timeout"`
+	StaticFolder          string   `json:"static_folder"`
+	TrackingStoreURI      string   `json:"tracking_store_uri"`
+	ModelRegistryStoreURI string   `json:"model_registry_store_uri"`
+	Version               string   `json:"version"`
 }

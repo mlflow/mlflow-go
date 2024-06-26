@@ -18,9 +18,9 @@ type TrackingSQLStore struct {
 }
 
 func NewTrackingSQLStore(logger *logrus.Logger, config *config.Config) (*TrackingSQLStore, error) {
-	database, err := sql.NewDatabase(logger, config.StoreURL)
+	database, err := sql.NewDatabase(logger, config.TrackingStoreURI)
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect to database %q: %w", config.StoreURL, err)
+		return nil, fmt.Errorf("failed to connect to database %q: %w", config.TrackingStoreURI, err)
 	}
 
 	return &TrackingSQLStore{config: config, db: database}, nil
