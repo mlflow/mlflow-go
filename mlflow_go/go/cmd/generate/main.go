@@ -14,6 +14,11 @@ func main() {
 		os.Exit(1)
 	}
 
+	if err := SyncProtos(); err != nil {
+		fmt.Printf("Error downloading protos: %s\n", err)
+		os.Exit(1)
+	}
+
 	pkgFolder := os.Args[1]
 	if _, err := os.Stat(pkgFolder); os.IsNotExist(err) {
 		fmt.Printf("The provided path does not exist: %s\n", pkgFolder)
