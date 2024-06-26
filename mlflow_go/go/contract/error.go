@@ -20,7 +20,7 @@ func (e ErrorCode) MarshalJSON() ([]byte, error) {
 }
 
 type Error struct {
-	Code    ErrorCode `json:"error_code"` //nolint:tagliatelle
+	Code    ErrorCode `json:"error_code"`
 	Message string    `json:"message"`
 	Inner   error     `json:"-"`
 }

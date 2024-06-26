@@ -39,6 +39,11 @@ linters-settings:
     module-path: github.com/mlflow/mlflow-go
     extra-rules: true
 
+  tagliatelle:
+    case:
+      rules:
+        json: snake
+
 issues:
   exclude-files:
     - ".*\\.g\\.go$"
