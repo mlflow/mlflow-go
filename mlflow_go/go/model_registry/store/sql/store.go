@@ -16,9 +16,9 @@ type ModelRegistrySQLStore struct {
 }
 
 func NewModelRegistrySQLStore(logger *logrus.Logger, config *config.Config) (*ModelRegistrySQLStore, error) {
-	database, err := sql.NewDatabase(logger, config.RegistryStoreURL)
+	database, err := sql.NewDatabase(logger, config.ModelRegistryStoreURI)
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect to database %q: %w", config.RegistryStoreURL, err)
+		return nil, fmt.Errorf("failed to connect to database %q: %w", config.ModelRegistryStoreURI, err)
 	}
 
 	return &ModelRegistrySQLStore{config: config, db: database}, nil
