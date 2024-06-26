@@ -67,8 +67,8 @@ func runProtoc(tempDir string) error {
 
 	arguments = append(
 		arguments,
-		`-I="`+tempDir+`"`,
-		`--go_out="."`,
+		"-I="+tempDir,
+		`--go_out=.`,
 		`--go_opt=module=github.com/mlflow/mlflow-go`,
 	)
 
@@ -104,7 +104,7 @@ func SyncProtos() error {
 		return err
 	}
 
-	// defer os.RemoveAll(tempDir)
+	defer os.RemoveAll(tempDir)
 
 	for fileName := range protoFiles {
 		if err := downloadProtosFile(fileName, tempDir); err != nil {

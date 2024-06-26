@@ -4,13 +4,17 @@ In order to increase the performance of the tracking server and the various stor
 
 ## General setup
 
-To ensure we stay compatible with the Python implementation, we aim to generate as much as possible based on the `.proto` files found upstream in [/mlflow/protos](https://github.com/mlflow/mlflow/blob/master/mlflow/protos/service.proto).
+To ensure we stay compatible with the Python implementation, we aim to generate as much as possible based on the `.proto` files.
 
-> [!WARNING]
-> TODO rewrite the next sentence
+By running 
 
-By running [dev/generate-protos.sh](../dev/generate-protos.sh) Go code will be generated.
-This incudes:
+```bash
+go run ./mlflow_go/go/cmd/generate/ ./mlflow_go/go
+```
+
+Go code will be generated. We download the protos files from GitHub based on a commit hash listed in [protos.go](./cmd/generate/protos.go).
+
+This incudes the generation of:
 
 - Structs for each endpoint. ([mlflow_go/go/protos](./protos/service.pb.go))
 - Go interfaces for each service. ([mlflow_go/go/contract/service/*.g.go](./contract/service/tracking.g.go))
