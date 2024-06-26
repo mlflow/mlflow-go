@@ -35,6 +35,14 @@ Any Go-specific options can be passed with `--go-opts`, which takes a comma-sepa
 mlflow-go server --backend-store-uri postgresql://postgres:postgres@localhost:5432/postgres --go-opts LogLevel=debug,ShutdownTimeout=5s
 ```
 
+## Building the Go binary
+
+To ensure everything still compiles:
+
+```bash
+go build -o /dev/null ./mlflow_go/go/cmd/server
+```
+
 ## Request validation
 
 We use [Go validator](https://github.com/go-playground/validator) to validate all incoming request structs.
