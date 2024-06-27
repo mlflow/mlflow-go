@@ -28,7 +28,6 @@ func main() {
 	}
 
 	loggerInstance.SetLevel(logLevel)
-	loggerInstance.Warn("The experimental Go server is not yet fully supported and may not work as expected")
 	loggerInstance.Debugf("Loaded config: %#v", config)
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -39,11 +38,11 @@ func main() {
 
 	go func() {
 		<-sigint
-		loggerInstance.Info("Shutting down MLflow experimental Go server")
+		loggerInstance.Info("Shutting down MLflow Go server")
 		cancel()
 	}()
 
-	loggerInstance.Infof("Starting MLflow experimental Go server on http://%s", config.Address)
+	loggerInstance.Infof("Starting MLflow Go server on http://%s", config.Address)
 
 	if err := server.Launch(ctx, loggerInstance, &config); err != nil {
 		loggerInstance.Fatal(err)

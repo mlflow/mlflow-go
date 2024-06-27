@@ -80,7 +80,7 @@ func launchServer(ctx context.Context, logger *logrus.Logger, cfg *config.Config
 		<-ctx.Done()
 
 		if err := app.ShutdownWithTimeout(cfg.ShutdownTimeout.Duration); err != nil {
-			logrus.Errorf("Failed to gracefully shutdown MLflow experimental Go server: %v", err)
+			logrus.Errorf("Failed to gracefully shutdown MLflow Go server: %v", err)
 		}
 	}()
 
@@ -105,7 +105,7 @@ func launchServer(ctx context.Context, logger *logrus.Logger, cfg *config.Config
 
 	err = app.Listen(cfg.Address)
 	if err != nil {
-		return fmt.Errorf("failed to start MLflow experimental Go server: %w", err)
+		return fmt.Errorf("failed to start MLflow Go server: %w", err)
 	}
 
 	return nil

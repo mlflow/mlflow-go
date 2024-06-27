@@ -1,37 +1,39 @@
 import os
-import shutil
-import subprocess
+import pathlib
+import sys
 from glob import glob
 from typing import List, Tuple
 
 from setuptools import Distribution, setup
 
+sys.path.insert(0, pathlib.Path(__file__).parent.joinpath("mlflow_go", "go").as_posix())
+from extension import build_lib
 
-def _is_go_installed() -> bool:
-    try:
-        subprocess.check_call(
-            ["go", "version"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
-        )
-        return True
-    except Exception:
-        return False
+
+def _prune_go_files(path: str):
+    for root, dirnames, filenames in os.walk(path, topdown=False):
+        for filename in filenames:
+            if filename.endswith(".go"):
+                os.unlink(os.path.join(root, filename))
+        for dirname in dirnames:
+            try:
+                os.rmdir(os.path.join(root, dirname))
+            except OSError:
+                pass
 
 
 def finalize_distribution_options(dist: Distribution) -> None:
-    go_installed = _is_go_installed()
+    dist.has_ext_modules = lambda: True
 
-    dist.has_ext_modules = lambda: super(Distribution, dist).has_ext_modules() or go_installed
+    # this allows us to set the tag for the wheel without the python version
+    bdist_wheel_base_class = dist.get_command_class("bdist_wheel")
 
-    # this allows us to set the tag for the wheel based on GOOS and GOARCH
-    if go_installed:
-        bdist_wheel_base_class = dist.get_command_class("bdist_wheel")
+    class bdist_wheel_go(bdist_wheel_base_class):
+        def get_tag(self) -> Tuple[str, str, str]:
+            _, _, plat = super().get_tag()
+            return "py3", "none", plat
 
-        class bdist_wheel_go(bdist_wheel_base_class):
-            def get_tag(self) -> Tuple[str, str, str]:
-                _, _, plat = super().get_tag()
-                return "py3", "none", plat
-
-        dist.cmdclass["bdist_wheel"] = bdist_wheel_go
+    dist.cmdclass["bdist_wheel"] = bdist_wheel_go
 
     # this allows us to build the go binary and add the Go source files to the sdist
     build_base_class = dist.get_command_class("build")
@@ -46,29 +48,11 @@ def finalize_distribution_options(dist: Distribution) -> None:
 
         def run(self) -> None:
             if not self.editable_mode:
-                shutil.rmtree(os.path.join(self.build_lib, "mlflow_go", "go"), ignore_errors=True)
-                if go_installed:
-                    env = os.environ.copy()
-                    env.update(
-                        {
-                            "CGO_ENABLED": "1",
-                        }
-                    )
-                    subprocess.check_call(
-                        [
-                            "go",
-                            "build",
-                            "-trimpath",
-                            "-ldflags",
-                            "-w -s",
-                            "-o",
-                            os.path.join(self.build_lib, "mlflow_go", "go", "libmlflow.so"),
-                            "-buildmode",
-                            "c-shared",
-                            "./mlflow_go/go/extension",
-                        ],
-                        env=env,
-                    )
+                _prune_go_files(self.build_lib)
+                build_lib(
+                    pathlib.Path("mlflow_go", "go", "extension"),
+                    pathlib.Path(self.build_lib).joinpath("mlflow_go", "go", "extension"),
+                )
 
         def get_source_files(self) -> List[str]:
             return ["go.mod", "go.sum", *glob("mlflow_go/go/**/*.go", recursive=True)]
