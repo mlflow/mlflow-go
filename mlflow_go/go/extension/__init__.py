@@ -48,7 +48,34 @@ def _get_lib():
     # initialize cffi
     ffi = cffi.FFI()
     ffi.cdef("""
-    extern int64_t LaunchServer(void* configData, int configSize);
+        extern int64_t LaunchServer(void* configData, int configSize);
+
+        extern int64_t CreateArtifactsService(void* configData, int configSize);
+        extern void DestroyArtifactsService(int64_t id);
+        extern int64_t CreateModelRegistryService(void* configData, int configSize);
+        extern void DestroyModelRegistryService(int64_t id);
+        extern int64_t CreateTrackingService(void* configData, int configSize);
+        extern void DestroyTrackingService(int64_t id);
+
+        extern void* ModelRegistryServiceGetLatestVersions(int64_t serviceID,
+            void* requestData, int requestSize, int* responseSize);
+
+        extern void* TrackingServiceGetExperimentByName(int64_t serviceID,
+            void* requestData, int requestSize, int* responseSize);
+        extern void* TrackingServiceCreateExperiment(int64_t serviceID,
+            void* requestData, int requestSize, int* responseSize);
+        extern void* TrackingServiceGetExperiment(int64_t serviceID,
+            void* requestData, int requestSize, int* responseSize);
+        extern void* TrackingServiceDeleteExperiment(int64_t serviceID,
+            void* requestData, int requestSize, int* responseSize);
+        extern void* TrackingServiceCreateRun(int64_t serviceID,
+            void* requestData, int requestSize, int* responseSize);
+        extern void* TrackingServiceSearchRuns(int64_t serviceID,
+            void* requestData, int requestSize, int* responseSize);
+        extern void* TrackingServiceLogBatch(int64_t serviceID,
+            void* requestData, int requestSize, int* responseSize);
+
+        void free(void*);
     """)
 
     # find Go package path
