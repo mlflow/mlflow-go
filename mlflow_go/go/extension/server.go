@@ -37,7 +37,6 @@ func LaunchServer(configData unsafe.Pointer, configSize C.int) int64 {
 
 	logger.SetLevel(logLevel)
 
-	logger.Warn("The experimental Go server is not yet fully supported and may not work as expected")
 	logger.Debugf("Loaded config: %#v", config)
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -48,11 +47,11 @@ func LaunchServer(configData unsafe.Pointer, configSize C.int) int64 {
 
 	go func() {
 		<-sigint
-		logger.Info("Shutting down MLflow experimental Go server")
+		logger.Info("Shutting down MLflow Go server")
 		cancel()
 	}()
 
-	logger.Infof("Starting MLflow experimental Go server on http://%s", config.Address)
+	logger.Infof("Starting MLflow Go server on http://%s", config.Address)
 
 	if err := server.Launch(ctx, logger, &config); err != nil {
 		logger.Error("Failed to launch server: ", err)

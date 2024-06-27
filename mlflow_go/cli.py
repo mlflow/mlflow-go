@@ -6,6 +6,8 @@ import click
 import mlflow.cli
 import mlflow.version
 
+from mlflow_go.go.extension import get_lib
+
 
 def _get_safe_port():
     """Returns an ephemeral port that is very likely to be free to bind to."""
@@ -75,9 +77,7 @@ def _get_commands():
         config_bytes = json.dumps(config).encode("utf-8")
 
         # start the Go server and check for errors
-        from mlflow_go.go import lib
-
-        ret = lib.LaunchServer(config_bytes, len(config_bytes))
+        ret = get_lib().LaunchServer(config_bytes, len(config_bytes))
         if ret != 0:
             raise click.ClickException(f"Non-zero exit code: {ret}")
 

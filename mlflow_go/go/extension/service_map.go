@@ -58,7 +58,6 @@ func (s *serviceMap[T]) Create(
 
 	logger.SetLevel(logLevel)
 
-	logger.Warn("The experimental Go server is not yet fully supported and may not work as expected")
 	logger.Debugf("Loaded config: %#v", config)
 
 	service, err := creator(logger, config)

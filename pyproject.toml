@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "mlflow-go"
 version = "2.14.1"
 description = "MLflow is an open source platform for the complete machine learning lifecycle"
-readme = "README.rst"
+readme = "README.md"
 keywords = ["mlflow", "ai", "databricks"]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
@@ -21,13 +21,12 @@ classifiers = [
   "Programming Language :: Python :: 3.8",
 ]
 requires-python = ">=3.8"
-dependencies = ["mlflow==2.14.1"]
+dependencies = ["mlflow==2.14.1", "cffi"]
+license = { file = "LICENSE.txt" }
+
 [[project.maintainers]]
 name = "Databricks"
 email = "mlflow-oss-maintainers@googlegroups.com"
-
-[project.license]
-file = "LICENSE.txt"
 
 [project.urls]
 homepage = "https://mlflow.org"
@@ -40,8 +39,8 @@ mlflow-go = "mlflow_go.cli:cli"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["mlflow_go"]
-exclude = ["tests"]
+include = ["mlflow_go", "mlflow_go.*"]
+exclude = ["tests", "tests.*"]
 
 [tool.ruff]
 line-length = 100
