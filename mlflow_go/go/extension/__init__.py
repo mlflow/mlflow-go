@@ -37,6 +37,7 @@ def build_lib(src_dir: pathlib.Path, out_dir: pathlib.Path) -> pathlib.Path:
             "c-shared",
             src_dir.resolve().as_posix(),
         ],
+        cwd=src_dir.resolve().as_posix(),
         env=env,
     )
     return out_path
