@@ -8,6 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/mlflow/mlflow-go/mlflow_go/go/config"
+	"github.com/mlflow/mlflow-go/mlflow_go/go/server/command"
 )
 
 func Launch(ctx context.Context, logger *logrus.Logger, cfg *config.Config) error {
@@ -31,7 +32,7 @@ func launchCommandAndServer(ctx context.Context, logger *logrus.Logger, cfg *con
 	go func() {
 		defer waitGroup.Done()
 
-		if err := launchCommand(cmdCtx, cfg); err != nil && cmdCtx.Err() == nil {
+		if err := command.LaunchCommand(cmdCtx, cfg); err != nil && cmdCtx.Err() == nil {
 			errs = append(errs, err)
 		}
 
