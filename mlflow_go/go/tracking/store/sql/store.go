@@ -13,6 +13,7 @@ import (
 )
 
 type TrackingSQLStore struct {
+	logger *logrus.Logger
 	config *config.Config
 	db     *gorm.DB
 }
@@ -23,5 +24,5 @@ func NewTrackingSQLStore(logger *logrus.Logger, config *config.Config) (*Trackin
 		return nil, fmt.Errorf("failed to connect to database %q: %w", config.TrackingStoreURI, err)
 	}
 
-	return &TrackingSQLStore{config: config, db: database}, nil
+	return &TrackingSQLStore{logger: logger, config: config, db: database}, nil
 }
