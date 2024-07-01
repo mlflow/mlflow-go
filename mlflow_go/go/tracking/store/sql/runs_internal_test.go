@@ -7,6 +7,7 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/ncruces/go-sqlite3/gormlite"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gorm.io/driver/mysql"
@@ -286,7 +287,7 @@ func assertTestData(
 
 	transaction := database.Model(&models.Run{})
 
-	contractErr := applyFilter(database, transaction, query)
+	contractErr := applyFilter(logrus.StandardLogger(), database, transaction, query)
 	if contractErr != nil {
 		t.Fatal("contractErr: ", contractErr)
 	}
@@ -336,7 +337,7 @@ func TestInvalidSearchRunsQuery(t *testing.T) {
 
 	transaction := database.Model(&models.Run{})
 
-	contractErr := applyFilter(database, transaction, "⚡✱*@❖$#&")
+	contractErr := applyFilter(logrus.StandardLogger(), database, transaction, "⚡✱*@❖$#&")
 	if contractErr == nil {
 		t.Fatal("expected contract error")
 	}
