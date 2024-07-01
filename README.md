@@ -46,7 +46,7 @@ Any incoming requests the Go server cannot process will be proxied to the existi
 Any Go-specific options can be passed with `--go-opts`, which takes a comma-separated list of key-value pairs.
 
 ```bash
-mlflow-go server --backend-store-uri postgresql://postgres:postgres@localhost:5432/postgres --go-opts LogLevel=debug,ShutdownTimeout=5s
+mlflow-go server --backend-store-uri postgresql://postgres:postgres@localhost:5432/postgres --go-opts log_level=debug,ShutdownTimeout=5s
 ```
 
 ## Building the Go binary
