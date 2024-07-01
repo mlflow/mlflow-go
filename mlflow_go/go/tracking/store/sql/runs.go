@@ -9,7 +9,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/gofiber/fiber/v2/log"
+	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
@@ -118,7 +118,7 @@ func getOffset(pageToken string) (int, *contract.Error) {
 }
 
 //nolint:funlen,cyclop,gocognit
-func applyFilter(database, transaction *gorm.DB, filter string) *contract.Error {
+func applyFilter(logger *logrus.Logger, database, transaction *gorm.DB, filter string) *contract.Error {
 	filterConditions, err := query.ParseFilter(filter)
 	if err != nil {
 		return contract.NewErrorWith(
@@ -128,7 +128,7 @@ func applyFilter(database, transaction *gorm.DB, filter string) *contract.Error 
 		)
 	}
 
-	log.Debugf("Filter conditions: %#v", filterConditions)
+	logger.Debugf("Filter conditions: %v", filterConditions)
 
 	for index, clause := range filterConditions {
 		var kind any
@@ -252,12 +252,12 @@ func applyFilter(database, transaction *gorm.DB, filter string) *contract.Error 
 }
 
 //nolint:funlen, cyclop
-func applyOrderBy(database, transaction *gorm.DB, orderBy []string) *contract.Error {
+func applyOrderBy(logger *logrus.Logger, database, transaction *gorm.DB, orderBy []string) *contract.Error {
 	startTimeOrder := false
 
 	for index, orderByClause := range orderBy {
 		components := runOrder.FindStringSubmatch(orderByClause)
-		log.Debugf("Components: %#v", components)
+		logger.Debugf("Components: %#v", components)
 		//nolint:mnd
 		if len(components) < 3 {
 			return contract.NewError(
@@ -361,13 +361,13 @@ func (s TrackingSQLStore) SearchRuns(
 	transaction.Offset(offset)
 
 	// Filter
-	contractError = applyFilter(s.db, transaction, filter)
+	contractError = applyFilter(s.logger, s.db, transaction, filter)
 	if contractError != nil {
 		return nil, contractError
 	}
 
 	// OrderBy
-	contractError = applyOrderBy(s.db, transaction, orderBy)
+	contractError = applyOrderBy(s.logger, s.db, transaction, orderBy)
 	if contractError != nil {
 		return nil, contractError
 	}
