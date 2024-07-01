@@ -2,6 +2,16 @@
 
 In order to increase the performance of the tracking server and the various stores, we propose to rewrite the server and store implementation in Go.
 
+## Temp stuff
+
+```bash
+pip install psycopg2-binary
+pip install -e .
+tar -C /usr/local/python/current/lib/python3.8/site-packages/mlflow -czvf ./ui.tgz ./server/js/build
+pip install git+https://github.com/jgiannuzzi/mlflow.git@server-signals
+tar -C /usr/local/python/current/lib/python3.8/site-packages/mlflow -xzvf ./ui.tgz
+```
+
 ## General setup
 
 To ensure we stay compatible with the Python implementation, we aim to generate as much as possible based on the `.proto` files.
@@ -36,7 +46,7 @@ Any incoming requests the Go server cannot process will be proxied to the existi
 Any Go-specific options can be passed with `--go-opts`, which takes a comma-separated list of key-value pairs.
 
 ```bash
-mlflow-go server --backend-store-uri postgresql://postgres:postgres@localhost:5432/postgres --go-opts LogLevel=debug,ShutdownTimeout=5s
+mlflow-go server --backend-store-uri postgresql://postgres:postgres@localhost:5432/postgres --go-opts log_level=debug,ShutdownTimeout=5s
 ```
 
 ## Building the Go binary

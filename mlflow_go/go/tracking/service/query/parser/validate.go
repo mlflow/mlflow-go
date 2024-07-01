@@ -60,6 +60,10 @@ type ValidCompareExpr struct {
 	Value      interface{}
 }
 
+func (v ValidCompareExpr) String() string {
+	return fmt.Sprintf("%s.%s %s %v", v.Identifier, v.Key, v.Operator, v.Value)
+}
+
 type ValidationError struct {
 	message string
 }
