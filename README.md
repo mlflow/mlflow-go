@@ -2,6 +2,16 @@
 
 In order to increase the performance of the tracking server and the various stores, we propose to rewrite the server and store implementation in Go.
 
+## Temp stuff
+
+```bash
+pip install psycopg2-binary
+pip install -e .
+tar -C /usr/local/python/current/lib/python3.8/site-packages/mlflow -czvf ./ui.tgz ./server/js/build
+pip install git+https://github.com/jgiannuzzi/mlflow.git@server-signals
+tar -C /usr/local/python/current/lib/python3.8/site-packages/mlflow -xzvf ./ui.tgz
+```
+
 ## General setup
 
 To ensure we stay compatible with the Python implementation, we aim to generate as much as possible based on the `.proto` files.
