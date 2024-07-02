@@ -1,0 +1,8 @@
+dir: "{{ .InterfaceDir }}"
+filename: "mock_{{ .InterfaceNameSnake }}.go"
+with-expecter: true
+inpackage: true
+packages:
+  github.com/mlflow/mlflow-go/pkg/tracking/store:
+    interfaces:
+      TrackingStore:
