@@ -1,6 +1,7 @@
 version: '3.8'
 
 volumes:
+  go-cache:
   postgres-data:
 
 services:
@@ -8,12 +9,12 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
-    env_file:
-        # Ensure that the variables in .env match the same variables in devcontainer.json
-        - .env
-
     volumes:
       - ../..:/workspaces:cached
+      - go-cache:/var/cache/go
+    environment:
+      - GOCACHE=/var/cache/go/build
+      - GOMODCACHE=/var/cache/go/mod
       
     # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
@@ -29,10 +30,11 @@ services:
     restart: unless-stopped
     volumes:
       - postgres-data:/var/lib/postgresql/data
-    env_file:
-      # Ensure that the variables in .env match the same variables in devcontainer.json
-      - .env
-
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+      - POSTGRES_HOSTNAME=localhost=value
 
     # Add "forwardPorts": ["5432"] to **devcontainer.json** to forward PostgreSQL locally.
     # (Adding the "ports" property to this file will not forward from a Codespace.)
