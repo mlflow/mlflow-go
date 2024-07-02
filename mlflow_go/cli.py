@@ -6,7 +6,7 @@ import click
 import mlflow.cli
 import mlflow.version
 
-from mlflow_go.go.extension import get_lib
+from mlflow_go.lib import get_lib
 
 
 def _get_safe_port():
