@@ -19,16 +19,16 @@ To ensure we stay compatible with the Python implementation, we aim to generate 
 By running 
 
 ```bash
-go run ./mlflow_go/go/cmd/generate/ ./mlflow_go/go
+go run ./pkg/cmd/generate/ ./pkg
 ```
 
 Go code will be generated. We download the protos files from GitHub based on a commit hash listed in [protos.go](./cmd/generate/protos.go).
 
 This incudes the generation of:
 
-- Structs for each endpoint. ([mlflow_go/go/protos](./protos/service.pb.go))
-- Go interfaces for each service. ([mlflow_go/go/contract/service/*.g.go](./contract/service/tracking.g.go))
-- [fiber](https://gofiber.io/) routes for each endpoint. ([mlflow_go/go/server/routes/*.g.go](./server/routes/tracking.g.go))
+- Structs for each endpoint. ([pkg/protos](./protos/service.pb.go))
+- Go interfaces for each service. ([pkg/contract/service/*.g.go](./contract/service/tracking.g.go))
+- [fiber](https://gofiber.io/) routes for each endpoint. ([pkg/server/routes/*.g.go](./server/routes/tracking.g.go))
 
 If there is any change in the proto files, this should ripple into the Go code.
 
@@ -54,17 +54,17 @@ mlflow-go server --backend-store-uri postgresql://postgres:postgres@localhost:54
 To ensure everything still compiles:
 
 ```bash
-go build -o /dev/null ./mlflow_go/go/cmd/server
+go build -o /dev/null ./pkg/cmd/server
 ```
 
 ## Request validation
 
 We use [Go validator](https://github.com/go-playground/validator) to validate all incoming request structs.
-As the proto files don't specify any validation rules, we map them manually in [mlflow_go/go/cmd/generate/validations.go](./cmd/generate/validations.go).
+As the proto files don't specify any validation rules, we map them manually in [pkg/cmd/generate/validations.go](./cmd/generate/validations.go).
 
 Once the mapping has been done, validation will be invoked automatically in the generated fiber code.
 
-When the need arises, we can write custom validation function in [mlflow_go/go/validation/validation.go](./validation/validation.go).
+When the need arises, we can write custom validation function in [pkg/validation/validation.go](./validation/validation.go).
 
 ## Data access
 

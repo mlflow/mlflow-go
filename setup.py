@@ -6,8 +6,8 @@ from typing import List, Tuple
 
 from setuptools import Distribution, setup
 
-sys.path.insert(0, pathlib.Path(__file__).parent.joinpath("mlflow_go", "go").as_posix())
-from extension import build_lib
+sys.path.insert(0, pathlib.Path(__file__).parent.joinpath("mlflow_go").as_posix())
+from lib import build_lib
 
 
 def _prune_go_files(path: str):
@@ -50,12 +50,12 @@ def finalize_distribution_options(dist: Distribution) -> None:
             if not self.editable_mode:
                 _prune_go_files(self.build_lib)
                 build_lib(
-                    pathlib.Path("mlflow_go", "go", "extension"),
-                    pathlib.Path(self.build_lib).joinpath("mlflow_go", "go", "extension"),
+                    pathlib.Path("pkg", "lib"),
+                    pathlib.Path(self.build_lib).joinpath("mlflow_go"),
                 )
 
         def get_source_files(self) -> List[str]:
-            return ["go.mod", "go.sum", *glob("mlflow_go/go/**/*.go", recursive=True)]
+            return ["go.mod", "go.sum", *glob("pkg/**/*.go", recursive=True)]
 
     dist.cmdclass["build_go"] = build_go
     build_base_class.sub_commands.append(("build_go", None))
