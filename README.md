@@ -24,7 +24,7 @@ pip install -e .mlflow.repo
 
 # Build the Go binary and run the tests
 libpath=$(mktemp -d)
-python -m mlflow_go.lib pkg/lib $libpath
+python -m mlflow_go.lib . $libpath
 MLFLOW_GO_LIBRARY_PATH=$libpath pytest --confcutdir=. .mlflow.repo/tests/tracking/test_rest_tracking.py .mlflow.repo/tests/tracking/test_model_registry.py
 rm -rf $libpath
 ```

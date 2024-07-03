@@ -35,7 +35,7 @@ def build_lib(src_dir: pathlib.Path, out_dir: pathlib.Path) -> pathlib.Path:
             out_path.resolve().as_posix(),
             "-buildmode",
             "c-shared",
-            src_dir.resolve().as_posix(),
+            src_dir.joinpath("pkg", "lib").resolve().as_posix(),
         ],
         cwd=src_dir.resolve().as_posix(),
         env=env,
@@ -94,7 +94,7 @@ def _get_lib():
 
     # build the library and load it
     path = build_lib(
-        pathlib.Path(__file__).parent.parent.joinpath("pkg", "lib"), pathlib.Path(tmpdir.name)
+        pathlib.Path(__file__).parent.parent, pathlib.Path(tmpdir.name)
     )
     return ffi.dlopen(path.as_posix())
 
@@ -112,9 +112,9 @@ def get_lib():
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("src")
-    parser.add_argument("out")
+    parser = argparse.ArgumentParser("build_lib", description='Build Go library')
+    parser.add_argument("src", help="the Go source directory")
+    parser.add_argument("out", help="the output directory")
     args = parser.parse_args()
 
     build_lib(pathlib.Path(args.src), pathlib.Path(args.out))
