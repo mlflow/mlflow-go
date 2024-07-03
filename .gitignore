@@ -8,3 +8,6 @@ mlruns/
 
 # Cache
 __pycache__/
+
+# MLflow repo
+.mlflow.repo/
