@@ -1,4 +1,4 @@
-package main
+package generate
 
 import (
 	"fmt"
@@ -90,7 +90,7 @@ func addQueryAnnotation(generatedGoFile string) error {
 var jsonFieldTagRegexp = regexp.MustCompile(`json:"([^"]+)"`)
 
 //nolint:err113
-func addQueryAnnotations(pkgFolder string) error {
+func AddQueryAnnotations(pkgFolder string) error {
 	protoFolder := filepath.Join(pkgFolder, "protos")
 
 	if _, pathError := os.Stat(protoFolder); os.IsNotExist(pathError) {
