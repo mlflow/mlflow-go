@@ -36,6 +36,8 @@ func launchCommandAndServer(ctx context.Context, logger *logrus.Logger, cfg *con
 			errs = append(errs, err)
 		}
 
+		logger.Debug("Python server has exited")
+
 		srvCancel()
 	}()
 
@@ -47,6 +49,8 @@ func launchCommandAndServer(ctx context.Context, logger *logrus.Logger, cfg *con
 		if err := launchServer(srvCtx, logger, cfg); err != nil && srvCtx.Err() == nil {
 			errs = append(errs, err)
 		}
+
+		logger.Debug("Go server has exited")
 
 		cmdCancel()
 	}()
