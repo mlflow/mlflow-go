@@ -50,7 +50,7 @@ def finalize_distribution_options(dist: Distribution) -> None:
             if not self.editable_mode:
                 _prune_go_files(self.build_lib)
                 build_lib(
-                    pathlib.Path("pkg", "lib"),
+                    pathlib.Path("."),
                     pathlib.Path(self.build_lib).joinpath("mlflow_go"),
                 )
 
