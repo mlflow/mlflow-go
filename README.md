@@ -12,6 +12,25 @@ pip install git+https://github.com/jgiannuzzi/mlflow.git@server-signals
 tar -C /usr/local/python/current/lib/python3.8/site-packages/mlflow -xzvf ./ui.tgz
 ```
 
+### Run the tests manually
+
+```bash
+# Clone the MLflow repo
+git clone https://github.com/jgiannuzzi/mlflow.git -b server-signals .mlflow.repo
+
+# Add the UI back to it
+tar -C .mlflow.repo/mlflow -xzvf ./ui.tgz
+
+# Install it in editable mode
+pip install -e .mlflow.repo
+
+# Build the Go binary and run the tests
+libpath=$(mktemp -d)
+python -m mlflow_go.lib pkg/lib $libpath
+MLFLOW_GO_LIBRARY_PATH=$libpath MLFLOW_GO_TESTING=1 pytest .mlflow.repo/tests/tracking/test_rest_tracking.py -k 'not [file and not test_gateway_proxy_handler_rejects_invalid_requests'
+rm -rf $libpath
+```
+
 ## General setup
 
 To ensure we stay compatible with the Python implementation, we aim to generate as much as possible based on the `.proto` files.
