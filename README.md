@@ -4,15 +4,18 @@ In order to increase the performance of the tracking server and the various stor
 
 ## Temp stuff
 
+### Dev setup
+
 ```bash
-pip install psycopg2-binary
+# Install our Python package and its dependencies
 pip install -e .
+
+# Install the dreaded psycho
+pip install psycopg2-binary
+
+# Archive the MLFlow pre-built UI
 tar -C /usr/local/python/current/lib/python3.8/site-packages/mlflow -czvf ./ui.tgz ./server/js/build
-```
 
-### Run the tests manually
-
-```bash
 # Clone the MLflow repo
 git clone https://github.com/jgiannuzzi/mlflow.git -b master .mlflow.repo
 
@@ -21,11 +24,19 @@ tar -C .mlflow.repo/mlflow -xzvf ./ui.tgz
 
 # Install it in editable mode
 pip install -e .mlflow.repo
+```
 
-# Build the Go binary and run the tests
+### Run the tests manually
+
+```bash
+# Build the Go binary in a temporary directory
 libpath=$(mktemp -d)
 python -m mlflow_go.lib . $libpath
+
+# Run the tests (currently just the server ones)
 MLFLOW_GO_LIBRARY_PATH=$libpath pytest --confcutdir=. .mlflow.repo/tests/tracking/test_rest_tracking.py .mlflow.repo/tests/tracking/test_model_registry.py
+
+# Remove the Go binary
 rm -rf $libpath
 ```
 
