@@ -62,7 +62,7 @@ def _get_commands():
             "default_artifact_root": mlflow.cli.resolve_default_artifact_root(
                 kwargs["serve_artifacts"], kwargs["default_artifact_root"], tracking_store_uri
             ),
-            "log_level": opts.get("log_level", "INFO"),
+            "log_level": opts.get("log_level", "DEBUG" if kwargs["dev"] else "INFO"),
             "python_address": f"""{python_args["host"]}:{python_args["port"]}""",
             "python_command": python_command,
             "shutdown_timeout": opts.get("shutdown_timeout", "1m"),
