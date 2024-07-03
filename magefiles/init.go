@@ -22,7 +22,7 @@ func git(args ...string) error {
 }
 
 const (
-	mlflowRepoFolderName = ".mlflow"
+	MLFlowRepoFolderName = ".mlflow"
 	reposityUrl          = "https://github.com/jgiannuzzi/mlflow.git"
 	branch               = "server-signals"
 )
@@ -36,7 +36,7 @@ func freshCheckout() error {
 		"clone",
 		"--branch", branch,
 		"--single-branch", reposityUrl,
-		mlflowRepoFolderName,
+		MLFlowRepoFolderName,
 	)
 }
 
@@ -47,7 +47,7 @@ func Init() error {
 		return err
 	}
 
-	repoPath := path.Join(pwd, mlflowRepoFolderName)
+	repoPath := path.Join(pwd, MLFlowRepoFolderName)
 
 	if folderExists(repoPath) {
 		return updateRepo(repoPath)

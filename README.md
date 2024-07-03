@@ -47,7 +47,7 @@ To ensure we stay compatible with the Python implementation, we aim to generate 
 By running 
 
 ```bash
-go run ./pkg/cmd/generate/ ./pkg
+mage generate
 ```
 
 Go code will be generated. We download the protos files from GitHub based on a commit hash listed in [protos.go](./cmd/generate/protos.go).
