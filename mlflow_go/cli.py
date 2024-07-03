@@ -1,22 +1,13 @@
 import json
 import pathlib
 import shlex
-import socket
 
 import click
 import mlflow.cli
 import mlflow.version
+from mlflow.utils import find_free_port
 
 from mlflow_go.lib import get_lib
-
-
-def _get_safe_port():
-    """Returns an ephemeral port that is very likely to be free to bind to."""
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.bind(("127.0.0.1", 0))
-    port = sock.getsockname()[1]
-    sock.close()
-    return port
 
 
 def _get_commands():
@@ -45,7 +36,7 @@ def _get_commands():
         else:
             # assign a random port for the Python server
             python_host = "127.0.0.1"
-            python_port = _get_safe_port()
+            python_port = find_free_port()
             python_address = f"{python_host}:{python_port}"
             python_args = kwargs.copy()
             python_args.update(
@@ -71,7 +62,7 @@ def _get_commands():
         # initialize the Go server configuration
         tracking_store_uri = kwargs["backend_store_uri"]
         config = {
-            "address": f"""{kwargs["host"]}:{kwargs["port"]}""",
+            "address": f'{kwargs["host"]}:{kwargs["port"]}',
             "default_artifact_root": mlflow.cli.resolve_default_artifact_root(
                 kwargs["serve_artifacts"], kwargs["default_artifact_root"], tracking_store_uri
             ),
