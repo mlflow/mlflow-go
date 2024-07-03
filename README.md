@@ -8,15 +8,13 @@ In order to increase the performance of the tracking server and the various stor
 pip install psycopg2-binary
 pip install -e .
 tar -C /usr/local/python/current/lib/python3.8/site-packages/mlflow -czvf ./ui.tgz ./server/js/build
-pip install git+https://github.com/jgiannuzzi/mlflow.git@server-signals
-tar -C /usr/local/python/current/lib/python3.8/site-packages/mlflow -xzvf ./ui.tgz
 ```
 
 ### Run the tests manually
 
 ```bash
 # Clone the MLflow repo
-git clone https://github.com/jgiannuzzi/mlflow.git -b server-signals .mlflow.repo
+git clone https://github.com/jgiannuzzi/mlflow.git -b master .mlflow.repo
 
 # Add the UI back to it
 tar -C .mlflow.repo/mlflow -xzvf ./ui.tgz
@@ -27,7 +25,7 @@ pip install -e .mlflow.repo
 # Build the Go binary and run the tests
 libpath=$(mktemp -d)
 python -m mlflow_go.lib pkg/lib $libpath
-MLFLOW_GO_LIBRARY_PATH=$libpath MLFLOW_GO_TESTING=1 pytest .mlflow.repo/tests/tracking/test_rest_tracking.py -k 'not [file and not test_gateway_proxy_handler_rejects_invalid_requests'
+MLFLOW_GO_LIBRARY_PATH=$libpath pytest --confcutdir=. .mlflow.repo/tests/tracking/test_rest_tracking.py .mlflow.repo/tests/tracking/test_model_registry.py
 rm -rf $libpath
 ```
 
