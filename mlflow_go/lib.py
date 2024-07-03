@@ -80,7 +80,9 @@ def _get_lib():
     """)
 
     # check if the library exists and load it
-    path = pathlib.Path(__file__).parent.joinpath(_get_lib_name())
+    path = pathlib.Path(
+        os.environ.get("MLFLOW_GO_LIBRARY_PATH", pathlib.Path(__file__).parent.as_posix())
+    ).joinpath(_get_lib_name())
     if path.is_file():
         return ffi.dlopen(path.as_posix())
 
@@ -105,3 +107,14 @@ def get_lib():
     if _lib is None:
         _lib = _get_lib()
     return _lib
+
+
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("src")
+    parser.add_argument("out")
+    args = parser.parse_args()
+
+    build_lib(pathlib.Path(args.src), pathlib.Path(args.out))
