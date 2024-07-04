@@ -8,7 +8,7 @@ import (
 	"github.com/mlflow/mlflow-go/pkg/tracking/service"
 )
 
-var trackingServices = newServiceMap[service.TrackingService]()
+var trackingServices = newInstanceMap[*service.TrackingService]()
 
 //export CreateTrackingService
 func CreateTrackingService(configData unsafe.Pointer, configSize C.int) int64 {

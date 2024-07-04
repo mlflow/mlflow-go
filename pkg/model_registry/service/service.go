@@ -1,9 +1,8 @@
 package service
 
 import (
+	"context"
 	"fmt"
-
-	"github.com/sirupsen/logrus"
 
 	"github.com/mlflow/mlflow-go/pkg/config"
 	"github.com/mlflow/mlflow-go/pkg/model_registry/store"
@@ -15,8 +14,8 @@ type ModelRegistryService struct {
 	config *config.Config
 }
 
-func NewModelRegistryService(logger *logrus.Logger, config *config.Config) (*ModelRegistryService, error) {
-	store, err := sql.NewModelRegistrySQLStore(logger, config)
+func NewModelRegistryService(ctx context.Context, config *config.Config) (*ModelRegistryService, error) {
+	store, err := sql.NewModelRegistrySQLStore(ctx, config)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create new sql store: %w", err)
 	}

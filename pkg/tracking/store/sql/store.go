@@ -1,6 +1,7 @@
 package sql
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/sirupsen/logrus"
@@ -8,19 +9,26 @@ import (
 
 	"github.com/mlflow/mlflow-go/pkg/config"
 	"github.com/mlflow/mlflow-go/pkg/sql"
+	"github.com/mlflow/mlflow-go/pkg/utils"
 )
 
 type TrackingSQLStore struct {
-	logger *logrus.Logger
 	config *config.Config
 	db     *gorm.DB
+	logger *logrus.Logger
 }
 
-func NewTrackingSQLStore(logger *logrus.Logger, config *config.Config) (*TrackingSQLStore, error) {
-	database, err := sql.NewDatabase(logger, config.TrackingStoreURI)
+func NewTrackingSQLStore(ctx context.Context, config *config.Config) (*TrackingSQLStore, error) {
+	logger := utils.GetLoggerFromContext(ctx)
+
+	database, err := sql.NewDatabase(ctx, config.TrackingStoreURI)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database %q: %w", config.TrackingStoreURI, err)
 	}
 
-	return &TrackingSQLStore{logger: logger, config: config, db: database}, nil
+	return &TrackingSQLStore{
+		config: config,
+		db:     database,
+		logger: logger,
+	}, nil
 }
