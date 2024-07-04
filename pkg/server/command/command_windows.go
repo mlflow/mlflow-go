@@ -1,13 +1,15 @@
 package command
 
 import (
+	"context"
 	"fmt"
 	"os/exec"
 	"syscall"
 	"unsafe"
 
-	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/windows"
+
+	"github.com/mlflow/mlflow-go/pkg/utils"
 )
 
 type processGroupCmd struct {
@@ -17,7 +19,9 @@ type processGroupCmd struct {
 
 const PROCESS_ALL_ACCESS = 2097151
 
-func newProcessGroupCommand(cmd *exec.Cmd) (*processGroupCmd, error) {
+func newProcessGroupCommand(ctx context.Context, cmd *exec.Cmd) (*processGroupCmd, error) {
+	logger := utils.GetLoggerFromContext(ctx)
+
 	// Get the job object handle
 	jobHandle, err := windows.CreateJobObject(nil, nil)
 	if err != nil {
@@ -40,7 +44,7 @@ func newProcessGroupCommand(cmd *exec.Cmd) (*processGroupCmd, error) {
 
 	// Terminate the job object (which will terminate all processes in the job)
 	cmd.Cancel = func() error {
-		logrus.Debug("Closing job object to terminate command process group")
+		logger.Debug("Closing job object to terminate command process group")
 
 		return windows.CloseHandle(jobHandle)
 	}

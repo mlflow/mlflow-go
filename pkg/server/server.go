@@ -13,7 +13,6 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/proxy"
 	"github.com/gofiber/fiber/v2/middleware/recover"
-	"github.com/sirupsen/logrus"
 
 	as "github.com/mlflow/mlflow-go/pkg/artifacts/service"
 	mr "github.com/mlflow/mlflow-go/pkg/model_registry/service"
@@ -24,9 +23,10 @@ import (
 	"github.com/mlflow/mlflow-go/pkg/protos"
 	"github.com/mlflow/mlflow-go/pkg/server/parser"
 	"github.com/mlflow/mlflow-go/pkg/server/routes"
+	"github.com/mlflow/mlflow-go/pkg/utils"
 )
 
-func configureApp(loggerInstance *logrus.Logger, cfg *config.Config) (*fiber.App, error) {
+func configureApp(ctx context.Context, cfg *config.Config) (*fiber.App, error) {
 	//nolint:mnd
 	app := fiber.New(fiber.Config{
 		BodyLimit:             16 * 1024 * 1024,
@@ -42,10 +42,10 @@ func configureApp(loggerInstance *logrus.Logger, cfg *config.Config) (*fiber.App
 	app.Use(recover.New(recover.Config{EnableStackTrace: true}))
 	app.Use(logger.New(logger.Config{
 		Format: "${status} - ${latency} ${method} ${path}\n",
-		Output: loggerInstance.Writer(),
+		Output: utils.GetLoggerFromContext(ctx).Writer(),
 	}))
 
-	apiApp, err := newAPIApp(loggerInstance, cfg)
+	apiApp, err := newAPIApp(ctx, cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -70,8 +70,10 @@ func configureApp(loggerInstance *logrus.Logger, cfg *config.Config) (*fiber.App
 	return app, nil
 }
 
-func launchServer(ctx context.Context, logger *logrus.Logger, cfg *config.Config) error {
-	app, err := configureApp(logger, cfg)
+func launchServer(ctx context.Context, cfg *config.Config) error {
+	logger := utils.GetLoggerFromContext(ctx)
+
+	app, err := configureApp(ctx, cfg)
 	if err != nil {
 		return err
 	}
@@ -79,12 +81,15 @@ func launchServer(ctx context.Context, logger *logrus.Logger, cfg *config.Config
 	go func() {
 		<-ctx.Done()
 
+		logger.Info("Shutting down MLflow Go server")
+
 		if err := app.ShutdownWithTimeout(cfg.ShutdownTimeout.Duration); err != nil {
-			logrus.Errorf("Failed to gracefully shutdown MLflow Go server: %v", err)
+			logger.Errorf("Failed to gracefully shutdown MLflow Go server: %v", err)
 		}
 	}()
 
-	// Wait until the Python server is ready
+	logger.Debugf("Waiting for Python server to be ready on http://%s", cfg.PythonAddress)
+
 	for {
 		dialer := &net.Dialer{}
 		conn, err := dialer.DialContext(ctx, "tcp", cfg.PythonAddress)
@@ -101,7 +106,9 @@ func launchServer(ctx context.Context, logger *logrus.Logger, cfg *config.Config
 
 		time.Sleep(1 * time.Second)
 	}
-	logrus.Debugf("Python server is ready")
+	logger.Debugf("Python server is ready on http://%s", cfg.PythonAddress)
+
+	logger.Infof("Launching MLflow Go server on http://%s", cfg.Address)
 
 	err = app.Listen(cfg.Address)
 	if err != nil {
@@ -135,15 +142,16 @@ func newFiberConfig() fiber.Config {
 
 			var logFn func(format string, args ...any)
 
+			logger := utils.GetLoggerFromContext(context.Context())
 			switch contractError.StatusCode() {
 			case fiber.StatusBadRequest:
-				logFn = logrus.Infof
+				logFn = logger.Infof
 			case fiber.StatusServiceUnavailable:
-				logFn = logrus.Warnf
+				logFn = logger.Warnf
 			case fiber.StatusNotFound:
-				logFn = logrus.Debugf
+				logFn = logger.Debugf
 			default:
-				logFn = logrus.Errorf
+				logFn = logger.Errorf
 			}
 
 			logFn("Error encountered in %s %s: %s", context.Method(), context.Path(), err)
@@ -153,7 +161,7 @@ func newFiberConfig() fiber.Config {
 	}
 }
 
-func newAPIApp(logger *logrus.Logger, cfg *config.Config) (*fiber.App, error) {
+func newAPIApp(ctx context.Context, cfg *config.Config) (*fiber.App, error) {
 	app := fiber.New(newFiberConfig())
 
 	parser, err := parser.NewHTTPRequestParser()
@@ -161,21 +169,21 @@ func newAPIApp(logger *logrus.Logger, cfg *config.Config) (*fiber.App, error) {
 		return nil, fmt.Errorf("failed to create new HTTP request parser: %w", err)
 	}
 
-	trackingService, err := ts.NewTrackingService(logger, cfg)
+	trackingService, err := ts.NewTrackingService(ctx, cfg)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create new tracking service: %w", err)
 	}
 
 	routes.RegisterTrackingServiceRoutes(trackingService, parser, app)
 
-	modelRegistryService, err := mr.NewModelRegistryService(logger, cfg)
+	modelRegistryService, err := mr.NewModelRegistryService(ctx, cfg)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create new model registry service: %w", err)
 	}
 
 	routes.RegisterModelRegistryServiceRoutes(modelRegistryService, parser, app)
 
-	artifactService, err := as.NewArtifactsService(logger, cfg)
+	artifactService, err := as.NewArtifactsService(ctx, cfg)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create new artifacts service: %w", err)
 	}

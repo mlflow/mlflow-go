@@ -42,11 +42,28 @@ type Config struct {
 	Address               string   `json:"address"`
 	DefaultArtifactRoot   string   `json:"default_artifact_root"`
 	LogLevel              string   `json:"log_level"`
+	ModelRegistryStoreURI string   `json:"model_registry_store_uri"`
 	PythonAddress         string   `json:"python_address"`
 	PythonCommand         []string `json:"python_command"`
 	ShutdownTimeout       Duration `json:"shutdown_timeout"`
 	StaticFolder          string   `json:"static_folder"`
 	TrackingStoreURI      string   `json:"tracking_store_uri"`
-	ModelRegistryStoreURI string   `json:"model_registry_store_uri"`
 	Version               string   `json:"version"`
+}
+
+func NewConfigFromBytes(cfgBytes []byte) (*Config, error) {
+	if len(cfgBytes) == 0 {
+		cfgBytes = []byte("{}")
+	}
+
+	var cfg Config
+	if err := json.Unmarshal(cfgBytes, &cfg); err != nil {
+		return nil, fmt.Errorf("failed to parse JSON config: %w", err)
+	}
+
+	return &cfg, nil
+}
+
+func NewConfigFromString(s string) (*Config, error) {
+	return NewConfigFromBytes([]byte(s))
 }

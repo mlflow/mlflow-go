@@ -8,7 +8,7 @@ import (
 	"github.com/mlflow/mlflow-go/pkg/model_registry/service"
 )
 
-var modelRegistryServices = newServiceMap[service.ModelRegistryService]()
+var modelRegistryServices = newInstanceMap[*service.ModelRegistryService]()
 
 //export CreateModelRegistryService
 func CreateModelRegistryService(configData unsafe.Pointer, configSize C.int) int64 {

@@ -1,9 +1,9 @@
 package sql
 
 import (
+	"context"
 	"fmt"
 
-	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 
 	"github.com/mlflow/mlflow-go/pkg/config"
@@ -15,11 +15,14 @@ type ModelRegistrySQLStore struct {
 	db     *gorm.DB
 }
 
-func NewModelRegistrySQLStore(logger *logrus.Logger, config *config.Config) (*ModelRegistrySQLStore, error) {
-	database, err := sql.NewDatabase(logger, config.ModelRegistryStoreURI)
+func NewModelRegistrySQLStore(ctx context.Context, config *config.Config) (*ModelRegistrySQLStore, error) {
+	database, err := sql.NewDatabase(ctx, config.ModelRegistryStoreURI)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database %q: %w", config.ModelRegistryStoreURI, err)
 	}
 
-	return &ModelRegistrySQLStore{config: config, db: database}, nil
+	return &ModelRegistrySQLStore{
+		config: config,
+		db:     database,
+	}, nil
 }

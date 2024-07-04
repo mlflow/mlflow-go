@@ -3,13 +3,16 @@
 package command
 
 import (
+	"context"
 	"os/exec"
 	"syscall"
 
-	"github.com/sirupsen/logrus"
+	"github.com/mlflow/mlflow-go/pkg/utils"
 )
 
-func newProcessGroupCommand(cmd *exec.Cmd) (*exec.Cmd, error) {
+func newProcessGroupCommand(ctx context.Context, cmd *exec.Cmd) (*exec.Cmd, error) {
+	logger := utils.GetLoggerFromContext(ctx)
+
 	// Create the process in a new process group
 	cmd.SysProcAttr = &syscall.SysProcAttr{
 		Setpgid: true,
@@ -18,7 +21,7 @@ func newProcessGroupCommand(cmd *exec.Cmd) (*exec.Cmd, error) {
 
 	// Terminate the process group
 	cmd.Cancel = func() error {
-		logrus.Debug("Sending interrupt signal to command process group")
+		logger.Debug("Sending interrupt signal to command process group")
 
 		return syscall.Kill(-cmd.Process.Pid, syscall.SIGINT)
 	}
