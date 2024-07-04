@@ -14,6 +14,10 @@ import (
 	"github.com/magefile/mage/sh"
 )
 
+const (
+	MLFlowRepoFolderName = ".mlflow.repo"
+)
+
 func folderExists(path string) bool {
 	info, err := os.Stat(path)
 	if os.IsNotExist(err) {
@@ -38,12 +42,6 @@ func gitMlflowRepoOutput(args ...string) (string, error) {
 
 	return sh.Output("git", allArgs...)
 }
-
-const (
-	MLFlowRepoFolderName = ".mlflow.repo"
-	reposityURL          = "https://github.com/jgiannuzzi/mlflow.git"
-	branch               = "server-signals"
-)
 
 type gitReference struct {
 	remote    string
@@ -116,7 +114,7 @@ func checkBranch(gitReference gitReference) bool {
 }
 
 func checkTag(gitReference gitReference) bool {
-	// git -C .mlflow  describe --exact-match --tags HEAD
+	// git -C .mlflow  describe --tags HEAD
 	output, err := gitMlflowRepoOutput("describe", "--tags", "HEAD")
 	if err != nil {
 		return false
@@ -126,13 +124,32 @@ func checkTag(gitReference gitReference) bool {
 }
 
 func checkCommit(gitReference gitReference) bool {
-	// git -C .mlflow rev-parse --short HEAD
+	// git -C .mlflow rev-parse HEAD
 	output, err := gitMlflowRepoOutput("rev-parse", "HEAD")
 	if err != nil {
 		return false
 	}
 
 	return strings.TrimSpace(output) == gitReference.reference
+}
+
+func checkReference(gitReference gitReference) bool {
+	switch {
+	case checkBranch(gitReference):
+		log.Printf("Already on branch %q", gitReference.reference)
+
+		return true
+	case checkTag(gitReference):
+		log.Printf("Already on tag %q", gitReference.reference)
+
+		return true
+	case checkCommit(gitReference):
+		log.Printf("Already on commit %q", gitReference.reference)
+
+		return true
+	}
+
+	return false
 }
 
 func syncRepo(gitReference gitReference) error {
@@ -157,7 +174,7 @@ func syncRepo(gitReference gitReference) error {
 	return nil
 }
 
-// Clone or reset the .mlflow fork.
+// Clone or reset the .mlflow.repo fork.
 func Init() error {
 	gitReference, err := readGitReference()
 	if err != nil {
@@ -177,24 +194,13 @@ func Init() error {
 	}
 
 	// Verify reference
-	switch {
-	case checkBranch(gitReference):
-		log.Printf("Already on branch %q", gitReference.reference)
+	if !checkReference(gitReference) {
+		log.Printf("The current reference %q no longer matches", gitReference.reference)
 
-		return nil
-	case checkTag(gitReference):
-		log.Printf("Already on tag %q", gitReference.reference)
-
-		return nil
-	case checkCommit(gitReference):
-		log.Printf("Already on commit %q", gitReference.reference)
-
-		return nil
+		return syncRepo(gitReference)
 	}
 
-	log.Printf("The current reference %q no longer matches", gitReference.reference)
-
-	return syncRepo(gitReference)
+	return nil
 }
 
 // Forcefully update the .mlflow.repo according to the .mlflow.ref.
