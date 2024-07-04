@@ -145,7 +145,10 @@ func checkCommit(gitReference gitReference) bool {
 func syncRepo(gitReference gitReference) error {
 	print("Syncing mlflow repo\n")
 
-	if err := git("remote", "set-url", "origin", gitReference.remote); err != nil {
+	if err := git(
+		"-C", MLFlowRepoFolderName,
+		"remote", "set-url", "origin", gitReference.remote,
+	); err != nil {
 		return err
 	}
 
