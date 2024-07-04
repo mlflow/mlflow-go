@@ -18,7 +18,7 @@ func LaunchCommand(ctx context.Context, cfg *config.Config) error {
 		exec.CommandContext(ctx, cfg.PythonCommand[0], cfg.PythonCommand[1:]...),
 	)
 	if err != nil {
-		return fmt.Errorf("could not create process group command: %w", err)
+		return fmt.Errorf("failed to create process group command: %w", err)
 	}
 
 	cmd.Env = os.Environ()
@@ -29,7 +29,7 @@ func LaunchCommand(ctx context.Context, cfg *config.Config) error {
 	logrus.Debugf("Launching command: %v", cmd)
 
 	if err := cmd.Start(); err != nil {
-		return fmt.Errorf("command could not launch: %w", err)
+		return fmt.Errorf("failed to launch command: %w", err)
 	}
 
 	if err := cmd.Wait(); err != nil {

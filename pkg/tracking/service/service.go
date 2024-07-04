@@ -18,7 +18,7 @@ type TrackingService struct {
 func NewTrackingService(logger *logrus.Logger, config *config.Config) (*TrackingService, error) {
 	store, err := sql.NewTrackingSQLStore(logger, config)
 	if err != nil {
-		return nil, fmt.Errorf("could not create new sql store: %w", err)
+		return nil, fmt.Errorf("failed to create new sql store: %w", err)
 	}
 
 	return &TrackingService{
