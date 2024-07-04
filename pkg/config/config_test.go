@@ -30,7 +30,7 @@ func TestValidDuration(t *testing.T) {
 		t.Run(currentSample.input, func(t *testing.T) {
 			t.Parallel()
 
-			jsonConfig := fmt.Sprintf(`{ "shutdownTimeout": %s }`, currentSample.input)
+			jsonConfig := fmt.Sprintf(`{ "shutdown_timeout": %s }`, currentSample.input)
 
 			var cfg config.Config
 
@@ -47,7 +47,7 @@ func TestInvalidDuration(t *testing.T) {
 
 	var cfg config.Config
 
-	if err := json.Unmarshal([]byte(`{ "shutdownTimeout": "two seconds" }`), &cfg); err == nil {
+	if err := json.Unmarshal([]byte(`{ "shutdown_timeout": "two seconds" }`), &cfg); err == nil {
 		t.Error("expected error")
 	}
 }
