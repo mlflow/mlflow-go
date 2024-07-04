@@ -1,12 +1,14 @@
 //go:build mage
 
+//nolint:wrapcheck
 package main
 
 import (
+	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
 )
 
-func pip_install(args ...string) error {
+func pipInstall(args ...string) error {
 	allArgs := append([]string{"install"}, args...)
 
 	return sh.RunV("pip", allArgs...)
@@ -17,11 +19,11 @@ func tar(args ...string) error {
 }
 
 func Temp() error {
-	if err := pip_install("psycopg2-binary"); err != nil {
+	if err := pipInstall("psycopg2-binary"); err != nil {
 		return err
 	}
 
-	if err := pip_install("-e", "."); err != nil {
+	if err := pipInstall("-e", "."); err != nil {
 		return err
 	}
 
@@ -34,7 +36,7 @@ func Temp() error {
 		return err
 	}
 
-	if err := pip_install("git+https://github.com/jgiannuzzi/mlflow.git@server-signals"); err != nil {
+	if err := pipInstall("git+https://github.com/jgiannuzzi/mlflow.git@server-signals"); err != nil {
 		return err
 	}
 
@@ -52,6 +54,8 @@ func Temp() error {
 
 // Start the mlflow-go dev server connecting to postgres.
 func Dev() error {
+	mg.Deps(Generate)
+
 	return sh.RunV(
 		"mlflow-go",
 		"server",

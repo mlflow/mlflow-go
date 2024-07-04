@@ -1,12 +1,13 @@
 //go:build mage
 
+//nolint:wrapcheck
 package main
 
 import (
-	"fmt"
 	"os"
 	"path"
 
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/magefile/mage/mg"
 
 	"github.com/mlflow/mlflow-go/magefiles/generate"
@@ -37,7 +38,7 @@ func Generate() error {
 		return err
 	}
 
-	fmt.Println("Successfully added query annotations and generated services!")
+	log.Info("Successfully added query annotations and generated services!")
 
 	return nil
 }

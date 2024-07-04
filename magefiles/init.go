@@ -1,10 +1,12 @@
 //go:build mage
 
+//nolint:wrapcheck
 package main
 
 import (
 	"errors"
 	"fmt"
+	"log"
 	"os"
 	"path"
 	"strings"
@@ -17,6 +19,7 @@ func folderExists(path string) bool {
 	if os.IsNotExist(err) {
 		return false
 	}
+
 	return info.IsDir()
 }
 
@@ -24,24 +27,23 @@ func git(args ...string) error {
 	return sh.RunV("git", args...)
 }
 
+func gitMlflowRepo(args ...string) error {
+	allArgs := append([]string{"-C", MLFlowRepoFolderName}, args...)
+
+	return sh.RunV("git", allArgs...)
+}
+
+func gitMlflowRepoOutput(args ...string) (string, error) {
+	allArgs := append([]string{"-C", MLFlowRepoFolderName}, args...)
+
+	return sh.Output("git", allArgs...)
+}
+
 const (
-	MLFlowRepoFolderName = ".mlflow"
+	MLFlowRepoFolderName = ".mlflow.repo"
 	reposityURL          = "https://github.com/jgiannuzzi/mlflow.git"
 	branch               = "server-signals"
 )
-
-// remote (url)
-// reference (branch, tag, sha)
-
-// content of mlfow.ref file
-
-func updateRepo(repoPath string) error {
-	// if sha didn't change, skip
-
-	// set remote
-	// git fetch
-	return git("--work-tree", repoPath, "reset", "--hard")
-}
 
 type gitReference struct {
 	remote    string
@@ -56,6 +58,7 @@ func readFile(filename string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	return string(content), nil
 }
 
@@ -69,6 +72,7 @@ func readGitReference() (gitReference, error) {
 
 	content, err := readFile(path.Join(pwd, refFileName))
 	if err != nil {
+		return gitReference{}, err
 	}
 
 	parts := strings.Split(content, "#")
@@ -88,15 +92,12 @@ func freshCheckout(gitReference gitReference) error {
 		return err
 	}
 
-	return git("-C", MLFlowRepoFolderName, "checkout", gitReference.reference)
+	return gitMlflowRepo("checkout", gitReference.reference)
 }
 
 func checkRemote(gitReference gitReference) bool {
 	// git -C .mlflow remote get-url origin
-	output, err := sh.Output(
-		"git", "-C", MLFlowRepoFolderName,
-		"remote", "get-url", "origin",
-	)
+	output, err := gitMlflowRepoOutput("remote", "get-url", "origin")
 	if err != nil {
 		return false
 	}
@@ -106,9 +107,7 @@ func checkRemote(gitReference gitReference) bool {
 
 func checkBranch(gitReference gitReference) bool {
 	// git -C .mlflow rev-parse --abbrev-ref HEAD
-	output, err := sh.Output(
-		"git", "-C", MLFlowRepoFolderName,
-		"rev-parse", "--abbrev-ref", "HEAD")
+	output, err := gitMlflowRepoOutput("rev-parse", "--abbrev-ref", "HEAD")
 	if err != nil {
 		return false
 	}
@@ -118,10 +117,7 @@ func checkBranch(gitReference gitReference) bool {
 
 func checkTag(gitReference gitReference) bool {
 	// git -C .mlflow  describe --exact-match --tags HEAD
-	output, err := sh.Output(
-		"git", "-C", MLFlowRepoFolderName,
-		"describe", "--tags", "HEAD",
-	)
+	output, err := gitMlflowRepoOutput("describe", "--tags", "HEAD")
 	if err != nil {
 		return false
 	}
@@ -131,10 +127,7 @@ func checkTag(gitReference gitReference) bool {
 
 func checkCommit(gitReference gitReference) bool {
 	// git -C .mlflow rev-parse --short HEAD
-	output, err := sh.Output(
-		"git", "-C", MLFlowRepoFolderName,
-		"rev-parse", "--short", "HEAD",
-	)
+	output, err := gitMlflowRepoOutput("rev-parse", "HEAD")
 	if err != nil {
 		return false
 	}
@@ -143,20 +136,25 @@ func checkCommit(gitReference gitReference) bool {
 }
 
 func syncRepo(gitReference gitReference) error {
-	print("Syncing mlflow repo\n")
+	log.Printf("syncing mlflow repo to %s#%s", gitReference.remote, gitReference.reference)
 
-	if err := git(
-		"-C", MLFlowRepoFolderName,
-		"remote", "set-url", "origin", gitReference.remote,
-	); err != nil {
+	if err := gitMlflowRepo("remote", "set-url", "origin", gitReference.remote); err != nil {
 		return err
 	}
 
-	if err := git("-C", MLFlowRepoFolderName, "fetch", "origin"); err != nil {
+	if err := gitMlflowRepo("fetch", "origin"); err != nil {
 		return err
 	}
 
-	return git("-C", MLFlowRepoFolderName, "checkout", gitReference.reference)
+	if err := gitMlflowRepo("checkout", gitReference.reference); err != nil {
+		return err
+	}
+
+	if checkBranch(gitReference) {
+		return gitMlflowRepo("pull")
+	}
+
+	return nil
 }
 
 // Clone or reset the .mlflow fork.
@@ -173,29 +171,38 @@ func Init() error {
 
 	// Verify remote
 	if !checkRemote(gitReference) {
+		log.Printf("Remote %s no longer matches", gitReference.remote)
+
 		return syncRepo(gitReference)
 	}
 
 	// Verify reference
 	switch {
 	case checkBranch(gitReference):
+		log.Printf("Already on branch %q", gitReference.reference)
+
 		return nil
 	case checkTag(gitReference):
+		log.Printf("Already on tag %q", gitReference.reference)
+
 		return nil
 	case checkCommit(gitReference):
+		log.Printf("Already on commit %q", gitReference.reference)
+
 		return nil
 	}
+
+	log.Printf("The current reference %q no longer matches", gitReference.reference)
 
 	return syncRepo(gitReference)
 }
 
-// SHA => config file SHA
-
-// set remote
-// git fetch
-// compare with existing SHA
-
+// Forcefully update the .mlflow.repo according to the .mlflow.ref.
 func Update() error {
-	// Always do fetch
-	return nil
+	gitReference, err := readGitReference()
+	if err != nil {
+		return err
+	}
+
+	return syncRepo(gitReference)
 }
