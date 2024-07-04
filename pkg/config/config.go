@@ -45,6 +45,7 @@ type Config struct {
 	ModelRegistryStoreURI string   `json:"model_registry_store_uri"`
 	PythonAddress         string   `json:"python_address"`
 	PythonCommand         []string `json:"python_command"`
+	PythonEnv             []string `json:"python_env"`
 	ShutdownTimeout       Duration `json:"shutdown_timeout"`
 	StaticFolder          string   `json:"static_folder"`
 	TrackingStoreURI      string   `json:"tracking_store_uri"`
