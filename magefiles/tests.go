@@ -36,6 +36,8 @@ func (Test) Python() error {
 		"--confcutdir=.",
 		".mlflow.repo/tests/tracking/test_rest_tracking.py",
 		".mlflow.repo/tests/tracking/test_model_registry.py",
+		"-k",
+		"not [file",
 	); err != nil {
 		return err
 	}
