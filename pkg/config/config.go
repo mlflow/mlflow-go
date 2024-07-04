@@ -61,9 +61,41 @@ func NewConfigFromBytes(cfgBytes []byte) (*Config, error) {
 		return nil, fmt.Errorf("failed to parse JSON config: %w", err)
 	}
 
+	cfg.applyDefaults()
+
 	return &cfg, nil
 }
 
 func NewConfigFromString(s string) (*Config, error) {
 	return NewConfigFromBytes([]byte(s))
+}
+
+func (c *Config) applyDefaults() {
+	if c.Address == "" {
+		c.Address = "localhost:5000"
+	}
+
+	if c.DefaultArtifactRoot == "" {
+		c.DefaultArtifactRoot = "mlflow-artifacts:/"
+	}
+
+	if c.LogLevel == "" {
+		c.LogLevel = "INFO"
+	}
+
+	if c.ShutdownTimeout.Duration == 0 {
+		c.ShutdownTimeout.Duration = time.Minute
+	}
+
+	if c.TrackingStoreURI == "" {
+		c.TrackingStoreURI = "sqlite:///mlflow.db"
+	}
+
+	if c.ModelRegistryStoreURI == "" {
+		c.ModelRegistryStoreURI = c.TrackingStoreURI
+	}
+
+	if c.Version == "" {
+		c.Version = "dev"
+	}
 }
