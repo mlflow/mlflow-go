@@ -98,7 +98,7 @@ func freshCheckout(gitReference gitReference) error {
 }
 
 func checkRemote(gitReference gitReference) bool {
-	// git -C .mlflow remote get-url origin
+	// git -C .mlflow.repo remote get-url origin
 	output, err := gitMlflowRepoOutput("remote", "get-url", "origin")
 	if err != nil {
 		return false
@@ -108,7 +108,7 @@ func checkRemote(gitReference gitReference) bool {
 }
 
 func checkBranch(gitReference gitReference) bool {
-	// git -C .mlflow rev-parse --abbrev-ref HEAD
+	// git -C .mlflow.repo rev-parse --abbrev-ref HEAD
 	output, err := gitMlflowRepoOutput("rev-parse", "--abbrev-ref", "HEAD")
 	if err != nil {
 		return false
@@ -118,7 +118,7 @@ func checkBranch(gitReference gitReference) bool {
 }
 
 func checkTag(gitReference gitReference) bool {
-	// git -C .mlflow  describe --tags HEAD
+	// git -C .mlflow.repo  describe --tags HEAD
 	output, err := gitMlflowRepoOutput("describe", "--tags", "HEAD")
 	if err != nil {
 		return false
@@ -128,7 +128,7 @@ func checkTag(gitReference gitReference) bool {
 }
 
 func checkCommit(gitReference gitReference) bool {
-	// git -C .mlflow rev-parse HEAD
+	// git -C .mlflow.repo rev-parse HEAD
 	output, err := gitMlflowRepoOutput("rev-parse", "HEAD")
 	if err != nil {
 		return false
