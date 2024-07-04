@@ -1,14 +1,14 @@
 import contextlib
 import logging
-import os
 import sys
-from subprocess import Popen
 
 import mlflow
 import pytest
 from mlflow.server import ARTIFACT_ROOT_ENV_VAR, BACKEND_STORE_URI_ENV_VAR
 from mlflow.server.handlers import ModelRegistryStoreRegistryWrapper, TrackingStoreRegistryWrapper
 from mlflow.utils import find_free_port
+
+from mlflow_go.server import server
 
 from tests.helper_functions import LOCALHOST
 from tests.tracking.integration_test_utils import _await_server_up_or_die
@@ -43,40 +43,35 @@ def _init_server(backend_uri, root_artifact_uri, extra_env=None, app="mlflow.ser
         f"Launching tracking server on {url} with backend URI {backend_uri} and "
         f"artifact root {root_artifact_uri}"
     )
-    with Popen(
-        [
+
+    with server(
+        address=f"{LOCALHOST}:{server_port}",
+        default_artifact_root=root_artifact_uri,
+        log_level="debug",
+        model_registry_store_uri=backend_uri,
+        python_address=f"{LOCALHOST}:{python_port}",
+        python_command=[
             sys.executable,
             "-m",
-            "mlflow_go.cli",
-            "server",
+            "flask",
+            "--app",
+            app,
+            "run",
             "--host",
             LOCALHOST,
             "--port",
-            str(server_port),
-            "--backend-store-uri",
-            backend_uri,
-            "--default-artifact-root",
-            root_artifact_uri,
-            "--go-opts",
-            ",".join(
-                (
-                    "log_level=debug",
-                    f"python_address={LOCALHOST}:{python_port}",
-                    f"python_command={sys.executable} -m flask --app {app} "
-                    f"run --host {LOCALHOST} --port {python_port}",
-                    "shutdown_timeout=5s",
-                )
-            ),
+            str(python_port),
         ],
-        env={
-            **os.environ,
-            BACKEND_STORE_URI_ENV_VAR: backend_uri,
-            ARTIFACT_ROOT_ENV_VAR: root_artifact_uri,
-            **(extra_env or {}),
-        },
-    ) as proc:
-        try:
-            _await_server_up_or_die(server_port)
-            yield url
-        finally:
-            proc.terminate()
+        python_env=[
+            f"{k}={v}"
+            for k, v in {
+                BACKEND_STORE_URI_ENV_VAR: backend_uri,
+                ARTIFACT_ROOT_ENV_VAR: root_artifact_uri,
+                **(extra_env or {}),
+            }.items()
+        ],
+        shutdown_timeout="5s",
+        tracking_store_uri=backend_uri,
+    ):
+        _await_server_up_or_die(server_port)
+        yield url
