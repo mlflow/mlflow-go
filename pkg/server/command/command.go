@@ -7,14 +7,16 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/sirupsen/logrus"
-
 	"github.com/mlflow/mlflow-go/pkg/config"
+	"github.com/mlflow/mlflow-go/pkg/utils"
 )
 
 func LaunchCommand(ctx context.Context, cfg *config.Config) error {
+	logger := utils.GetLoggerFromContext(ctx)
+
 	//nolint:gosec
 	cmd, err := newProcessGroupCommand(
+		ctx,
 		exec.CommandContext(ctx, cfg.PythonCommand[0], cfg.PythonCommand[1:]...),
 	)
 	if err != nil {
@@ -22,11 +24,11 @@ func LaunchCommand(ctx context.Context, cfg *config.Config) error {
 	}
 
 	cmd.Env = os.Environ()
-	cmd.Stdout = logrus.StandardLogger().Writer()
-	cmd.Stderr = logrus.StandardLogger().Writer()
+	cmd.Stdout = logger.Writer()
+	cmd.Stderr = logger.Writer()
 	cmd.WaitDelay = 5 * time.Second //nolint:mnd
 
-	logrus.Debugf("Launching command: %v", cmd)
+	logger.Debugf("Launching command: %v", cmd)
 
 	if err := cmd.Start(); err != nil {
 		return fmt.Errorf("failed to launch command: %w", err)

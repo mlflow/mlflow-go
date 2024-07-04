@@ -1,19 +1,23 @@
 package sql
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"strings"
 
-	"github.com/sirupsen/logrus"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/driver/sqlserver"
 	"gorm.io/gorm"
+
+	"github.com/mlflow/mlflow-go/pkg/utils"
 )
 
-func NewDatabase(logger *logrus.Logger, storeURL string) (*gorm.DB, error) {
+func NewDatabase(ctx context.Context, storeURL string) (*gorm.DB, error) {
+	logger := utils.GetLoggerFromContext(ctx)
+
 	uri, err := url.Parse(storeURL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse store URL %q: %w", storeURL, err)

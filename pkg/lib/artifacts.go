@@ -8,7 +8,7 @@ import (
 	"github.com/mlflow/mlflow-go/pkg/artifacts/service"
 )
 
-var artifactsServices = newServiceMap[service.ArtifactsService]()
+var artifactsServices = newInstanceMap[*service.ArtifactsService]()
 
 //export CreateArtifactsService
 func CreateArtifactsService(configData unsafe.Pointer, configSize C.int) int64 {
