@@ -42,7 +42,7 @@ MLFLOW_GO_LIBRARY_PATH=$libpath pytest --confcutdir=. .mlflow.repo/tests/trackin
 rm -rf $libpath
 ```
 
-Or run the `mage tests` target.
+Or run the `mage test:python` target.
 
 ## General setup
 
