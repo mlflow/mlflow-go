@@ -2,6 +2,7 @@ import atexit
 import logging
 import os
 import pathlib
+import re
 import subprocess
 import sys
 import tempfile
@@ -44,47 +45,12 @@ def build_lib(src_dir: pathlib.Path, out_dir: pathlib.Path) -> pathlib.Path:
 
 
 def _get_lib():
-    import cffi
-
-    # initialize cffi
-    ffi = cffi.FFI()
-    ffi.cdef("""
-        extern int64_t LaunchServer(void* configData, int configSize);
-
-        extern int64_t CreateArtifactsService(void* configData, int configSize);
-        extern void DestroyArtifactsService(int64_t id);
-        extern int64_t CreateModelRegistryService(void* configData, int configSize);
-        extern void DestroyModelRegistryService(int64_t id);
-        extern int64_t CreateTrackingService(void* configData, int configSize);
-        extern void DestroyTrackingService(int64_t id);
-
-        extern void* ModelRegistryServiceGetLatestVersions(int64_t serviceID,
-            void* requestData, int requestSize, int* responseSize);
-
-        extern void* TrackingServiceGetExperimentByName(int64_t serviceID,
-            void* requestData, int requestSize, int* responseSize);
-        extern void* TrackingServiceCreateExperiment(int64_t serviceID,
-            void* requestData, int requestSize, int* responseSize);
-        extern void* TrackingServiceGetExperiment(int64_t serviceID,
-            void* requestData, int requestSize, int* responseSize);
-        extern void* TrackingServiceDeleteExperiment(int64_t serviceID,
-            void* requestData, int requestSize, int* responseSize);
-        extern void* TrackingServiceCreateRun(int64_t serviceID,
-            void* requestData, int requestSize, int* responseSize);
-        extern void* TrackingServiceSearchRuns(int64_t serviceID,
-            void* requestData, int requestSize, int* responseSize);
-        extern void* TrackingServiceLogBatch(int64_t serviceID,
-            void* requestData, int requestSize, int* responseSize);
-
-        void free(void*);
-    """)
-
     # check if the library exists and load it
     path = pathlib.Path(
         os.environ.get("MLFLOW_GO_LIBRARY_PATH", pathlib.Path(__file__).parent.as_posix())
     ).joinpath(_get_lib_name())
     if path.is_file():
-        return ffi.dlopen(path.as_posix())
+        return _load_lib(path)
 
     logging.getLogger(__name__).warn("Go library not found, building it now")
 
@@ -93,10 +59,42 @@ def _get_lib():
     atexit.register(tmpdir.cleanup)
 
     # build the library and load it
-    path = build_lib(
-        pathlib.Path(__file__).parent.parent, pathlib.Path(tmpdir.name)
+    return _load_lib(
+        build_lib(
+            pathlib.Path(__file__).parent.parent,
+            pathlib.Path(tmpdir.name),
+        )
     )
-    return ffi.dlopen(path.as_posix())
+
+
+def _load_lib(path: pathlib.Path):
+    import cffi
+
+    ffi = cffi.FFI()
+
+    # load from header file
+    ffi.cdef(_parse_header(path.with_suffix(".h")))
+
+    # load the library
+    lib = ffi.dlopen(path.as_posix())
+
+    # make sure the library is closed when the program exits
+    atexit.register(ffi.dlclose, lib)
+
+    return lib
+
+
+def _parse_header(path: pathlib.Path):
+    with open(path) as file:
+        content = file.read()
+
+    # Find all matches in the header
+    functions = re.findall(r"extern\s+\w+\s+\w+\s*\([^)]*\);", content, re.MULTILINE)
+
+    # Replace GoInt64 with int64_t in each function
+    transformed_functions = [func.replace("GoInt64", "int64_t") for func in functions]
+
+    return "\n".join(transformed_functions)
 
 
 _lib = None
@@ -112,7 +110,7 @@ def get_lib():
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser("build_lib", description='Build Go library')
+    parser = argparse.ArgumentParser("build_lib", description="Build Go library")
     parser.add_argument("src", help="the Go source directory")
     parser.add_argument("out", help="the output directory")
     args = parser.parse_args()
