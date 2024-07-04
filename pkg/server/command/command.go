@@ -23,7 +23,7 @@ func LaunchCommand(ctx context.Context, cfg *config.Config) error {
 		return fmt.Errorf("failed to create process group command: %w", err)
 	}
 
-	cmd.Env = os.Environ()
+	cmd.Env = append(os.Environ(), cfg.PythonEnv...)
 	cmd.Stdout = logger.Writer()
 	cmd.Stderr = logger.Writer()
 	cmd.WaitDelay = 5 * time.Second //nolint:mnd
