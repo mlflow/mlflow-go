@@ -5,10 +5,10 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/ncruces/go-sqlite3/gormlite"
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
+	"gorm.io/driver/sqlite"
 	"gorm.io/driver/sqlserver"
 	"gorm.io/gorm"
 )
@@ -34,7 +34,7 @@ func NewDatabase(logger *logrus.Logger, storeURL string) (*gorm.DB, error) {
 	case "sqlite":
 		uri.Scheme = ""
 		uri.Path = uri.Path[1:]
-		dialector = gormlite.Open(uri.String())
+		dialector = sqlite.Open(uri.String())
 	default:
 		return nil, fmt.Errorf("unsupported store URL scheme %q", uri.Scheme) //nolint:err113
 	}
