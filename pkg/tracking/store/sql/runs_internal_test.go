@@ -6,12 +6,12 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/ncruces/go-sqlite3/gormlite"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
+	"gorm.io/driver/sqlite"
 	"gorm.io/driver/sqlserver"
 	"gorm.io/gorm"
 
@@ -249,9 +249,14 @@ func newPostgresDialector() gorm.Dialector {
 }
 
 func newSqliteDialector() gorm.Dialector {
-	mockedDB, _, _ := sqlmock.New()
+	mockedDB, mock, _ := sqlmock.New()
+	mock.ExpectQuery("select sqlite_version()").WillReturnRows(
+		sqlmock.NewRows([]string{"sqlite_version()"}).AddRow("3.41.1"))
 
-	return gormlite.OpenDB(mockedDB)
+	return sqlite.New(sqlite.Config{
+		DriverName: "sqlite3",
+		Conn:       mockedDB,
+	})
 }
 
 func newSQLServerDialector() gorm.Dialector {
@@ -329,10 +334,7 @@ func TestSearchRuns(t *testing.T) {
 func TestInvalidSearchRunsQuery(t *testing.T) {
 	t.Parallel()
 
-	db, _, err := sqlmock.New()
-	require.NoError(t, err)
-
-	database, err := gorm.Open(gormlite.OpenDB(db), &gorm.Config{DryRun: true})
+	database, err := gorm.Open(newSqliteDialector(), &gorm.Config{DryRun: true})
 	require.NoError(t, err)
 
 	transaction := database.Model(&models.Run{})
