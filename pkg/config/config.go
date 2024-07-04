@@ -16,7 +16,7 @@ var ErrDuration = errors.New("invalid duration")
 func (d *Duration) UnmarshalJSON(b []byte) error {
 	var v interface{}
 	if err := json.Unmarshal(b, &v); err != nil {
-		return fmt.Errorf("could not unmarshall duration: %w", err)
+		return fmt.Errorf("failed to unmarshal duration: %w", err)
 	}
 
 	switch value := v.(type) {
@@ -29,7 +29,7 @@ func (d *Duration) UnmarshalJSON(b []byte) error {
 
 		d.Duration, err = time.ParseDuration(value)
 		if err != nil {
-			return fmt.Errorf("could not parse duration \"%s\": %w", value, err)
+			return fmt.Errorf("failed to parse duration \"%s\": %w", value, err)
 		}
 
 		return nil

@@ -109,7 +109,7 @@ func AddQueryAnnotations(pkgFolder string) error {
 		return err
 	})
 	if err != nil {
-		return fmt.Errorf("could not add query annotation: %w", err)
+		return fmt.Errorf("failed to add query annotation: %w", err)
 	}
 
 	return nil

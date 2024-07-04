@@ -47,7 +47,7 @@ func RunProtoc(protoDir string) error {
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf(
-			"could not run protoc %s process, err: %s: %w",
+			"failed to run protoc %s process, err: %s: %w",
 			strings.Join(arguments, " "),
 			output,
 			err,

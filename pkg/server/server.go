@@ -96,7 +96,7 @@ func launchServer(ctx context.Context, logger *logrus.Logger, cfg *config.Config
 		}
 
 		if errors.Is(err, context.Canceled) {
-			return fmt.Errorf("could not connect to Python server: %w", err)
+			return fmt.Errorf("failed to connect to Python server: %w", err)
 		}
 
 		time.Sleep(1 * time.Second)
@@ -158,26 +158,26 @@ func newAPIApp(logger *logrus.Logger, cfg *config.Config) (*fiber.App, error) {
 
 	parser, err := parser.NewHTTPRequestParser()
 	if err != nil {
-		return nil, fmt.Errorf("could not create new HTTP request parser: %w", err)
+		return nil, fmt.Errorf("failed to create new HTTP request parser: %w", err)
 	}
 
 	trackingService, err := ts.NewTrackingService(logger, cfg)
 	if err != nil {
-		return nil, fmt.Errorf("could not create new tracking service: %w", err)
+		return nil, fmt.Errorf("failed to create new tracking service: %w", err)
 	}
 
 	routes.RegisterTrackingServiceRoutes(trackingService, parser, app)
 
 	modelRegistryService, err := mr.NewModelRegistryService(logger, cfg)
 	if err != nil {
-		return nil, fmt.Errorf("could not create new model registry service: %w", err)
+		return nil, fmt.Errorf("failed to create new model registry service: %w", err)
 	}
 
 	routes.RegisterModelRegistryServiceRoutes(modelRegistryService, parser, app)
 
 	artifactService, err := as.NewArtifactsService(logger, cfg)
 	if err != nil {
-		return nil, fmt.Errorf("could not create new artifacts service: %w", err)
+		return nil, fmt.Errorf("failed to create new artifacts service: %w", err)
 	}
 
 	routes.RegisterArtifactsServiceRoutes(artifactService, parser, app)
