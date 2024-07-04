@@ -21,7 +21,7 @@ func newProcessGroupCommand(cmd *exec.Cmd) (*processGroupCmd, error) {
 	// Get the job object handle
 	jobHandle, err := windows.CreateJobObject(nil, nil)
 	if err != nil {
-		return nil, fmt.Errorf("could not create job object: %w", err)
+		return nil, fmt.Errorf("failed to create job object: %w", err)
 	}
 
 	// Set the job object to kill processes when the job is closed
@@ -35,7 +35,7 @@ func newProcessGroupCommand(cmd *exec.Cmd) (*processGroupCmd, error) {
 		windows.JobObjectExtendedLimitInformation,
 		uintptr(unsafe.Pointer(&info)),
 		uint32(unsafe.Sizeof(info))); err != nil {
-		return nil, fmt.Errorf("could not set job object information: %w", err)
+		return nil, fmt.Errorf("failed to set job object information: %w", err)
 	}
 
 	// Terminate the job object (which will terminate all processes in the job)
@@ -54,19 +54,19 @@ func newProcessGroupCommand(cmd *exec.Cmd) (*processGroupCmd, error) {
 func (pgc *processGroupCmd) Start() error {
 	// Start the command
 	if err := pgc.Cmd.Start(); err != nil {
-		return fmt.Errorf("could not start command: %w", err)
+		return fmt.Errorf("failed to start command: %w", err)
 	}
 
 	// Get the process handle
 	hProc, err := windows.OpenProcess(PROCESS_ALL_ACCESS, true, uint32(pgc.Process.Pid))
 	if err != nil {
-		return fmt.Errorf("could not open process: %w", err)
+		return fmt.Errorf("failed to open process: %w", err)
 	}
 	defer windows.CloseHandle(hProc)
 
 	// Assign the process to the job object
 	if err := windows.AssignProcessToJobObject(pgc.job, hProc); err != nil {
-		return fmt.Errorf("could not assign process to job object: %w", err)
+		return fmt.Errorf("failed to assign process to job object: %w", err)
 	}
 
 	return nil

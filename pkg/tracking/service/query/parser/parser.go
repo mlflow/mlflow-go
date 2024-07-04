@@ -120,7 +120,7 @@ func (p *parser) parseValue() (Value, error) {
 	case lexer.Number:
 		n, err := strconv.ParseFloat(p.advance().Value, 64)
 		if err != nil {
-			return nil, fmt.Errorf("number token could not be parsed to float: %w", err)
+			return nil, fmt.Errorf("failed to parse number token to float: %w", err)
 		}
 
 		return NumberExpr{Value: n}, nil

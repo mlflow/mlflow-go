@@ -18,7 +18,7 @@ type ModelRegistryService struct {
 func NewModelRegistryService(logger *logrus.Logger, config *config.Config) (*ModelRegistryService, error) {
 	store, err := sql.NewModelRegistrySQLStore(logger, config)
 	if err != nil {
-		return nil, fmt.Errorf("could not create new sql store: %w", err)
+		return nil, fmt.Errorf("failed to create new sql store: %w", err)
 	}
 
 	return &ModelRegistryService{

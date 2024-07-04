@@ -23,7 +23,7 @@ func assertModelExists(db *gorm.DB, name string) *contract.Error {
 
 		return contract.NewErrorWith(
 			protos.ErrorCode_INTERNAL_ERROR,
-			fmt.Sprintf("could not query registered model with name=%q", name),
+			fmt.Sprintf("failed to query registered model with name=%q", name),
 			err,
 		)
 	}
@@ -58,7 +58,7 @@ func (m *ModelRegistrySQLStore) GetLatestVersions(
 	if err != nil {
 		return nil, contract.NewErrorWith(
 			protos.ErrorCode_INTERNAL_ERROR,
-			fmt.Sprintf("could not query latest model version for %q", name),
+			fmt.Sprintf("failed to query latest model version for %q", name),
 			err,
 		)
 	}
