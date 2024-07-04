@@ -3,8 +3,6 @@
 //nolint:wrapcheck
 package main
 
-// rename to repo.go
-
 import (
 	"errors"
 	"fmt"
