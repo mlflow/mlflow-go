@@ -10,8 +10,10 @@ import (
 	"github.com/magefile/mage/sh"
 )
 
+type Test mg.Namespace
+
 // Run mlflow Python tests against the Go backend.
-func Tests() error {
+func (Test) Python() error {
 	mg.Deps(Generate)
 
 	libpath, err := os.MkdirTemp("", "")
@@ -39,4 +41,14 @@ func Tests() error {
 	}
 
 	return nil
+}
+
+// Run the Go unit tests.
+func (Test) Unit() error {
+	return sh.RunV("go", "test", "./pkg/...")
+}
+
+// Run all tests.
+func (Test) All() {
+	mg.Deps(Test.Unit, Test.Python)
 }
