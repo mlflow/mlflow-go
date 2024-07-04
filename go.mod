@@ -10,6 +10,7 @@ require (
 	github.com/iancoleman/strcase v0.3.0
 	github.com/ncruces/go-sqlite3 v0.15.0
 	github.com/ncruces/go-sqlite3/gormlite v0.14.0
+	github.com/magefile/mage v1.15.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.8.4
 	github.com/tidwall/gjson v1.17.1
@@ -39,7 +40,6 @@ require (
 	github.com/klauspost/compress v1.17.8 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
-	github.com/magefile/mage v1.15.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect
