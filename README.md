@@ -26,6 +26,8 @@ tar -C .mlflow.repo/mlflow -xzvf ./ui.tgz
 pip install -e .mlflow.repo
 ```
 
+or run `mage temp`.
+
 ### Run the tests manually
 
 ```bash
@@ -40,17 +42,47 @@ MLFLOW_GO_LIBRARY_PATH=$libpath pytest --confcutdir=. .mlflow.repo/tests/trackin
 rm -rf $libpath
 ```
 
+Or run the `mage test:python` target.
+
 ## General setup
+
+### Mage
+
+This repository uses [mage](https://magefile.org/) to streamline some utilily functions.
+
+```bash
+# Install mage (already done in the dev container)
+go install github.com/magefile/mage@v1.15.0
+
+# See all targets
+mage
+
+# Execute single target
+mage dev
+```
+
+The beauty of Mage is that we can use regular Go code for our scripting.  
+That being said, we are not married to this tool.
+
+### mlflow source code
+
+To integrate with MLflow, you need to include the source code. The [mlflow/mlflow](https://github.com/mlflow/mlflow/) repository contains proto files that define the tracking API. It also includes Python tests that we use to verify our Go implementation produces identical behaviour.
+
+We use a `.mlflow.ref` file to specify the exact location from which to pull our sources. The format should be `remote#reference`, where `remote` is a git remote and `reference` is a branch, tag, or commit SHA.
+
+If the `.mlflow.ref` file is modified and becomes out of sync with the current source files, the mage target will automatically detect this. To manually force a sync, you can run `mage repo:update`.
+
+### Protos
 
 To ensure we stay compatible with the Python implementation, we aim to generate as much as possible based on the `.proto` files.
 
 By running 
 
 ```bash
-go run ./pkg/cmd/generate/ ./pkg
+mage generate
 ```
 
-Go code will be generated. We download the protos files from GitHub based on a commit hash listed in [protos.go](./cmd/generate/protos.go).
+Go code will be generated. Use the protos files from `.mlflow.repo` repository.
 
 This incudes the generation of:
 

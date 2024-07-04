@@ -1,4 +1,4 @@
-package main
+package generate
 
 import (
 	"bufio"
@@ -12,7 +12,7 @@ import (
 
 	"github.com/iancoleman/strcase"
 
-	"github.com/mlflow/mlflow-go/pkg/cmd/generate/discovery"
+	"github.com/mlflow/mlflow-go/magefiles/generate/discovery"
 )
 
 func mkMethodInfoInputPointerType(methodInfo discovery.MethodInfo) *ast.StarExpr {
@@ -417,7 +417,7 @@ func generateEndpoints(
 	return mkGeneratedFile("main", outputPath, decls)
 }
 
-func generateSourceCode(pkgFolder string) error {
+func SourceCode(pkgFolder string) error {
 	services, err := discovery.GetServiceInfos()
 	if err != nil {
 		return fmt.Errorf("could not get service info: %w", err)
