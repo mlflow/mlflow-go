@@ -53,10 +53,12 @@ func configureApp(ctx context.Context, cfg *config.Config) (*fiber.App, error) {
 	app.Mount("/api/2.0", apiApp)
 	app.Mount("/ajax-api/2.0", apiApp)
 
-	app.Static("/static-files", cfg.StaticFolder)
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendFile(filepath.Join(cfg.StaticFolder, "index.html"))
-	})
+	if cfg.StaticFolder != "" {
+		app.Static("/static-files", cfg.StaticFolder)
+		app.Get("/", func(c *fiber.Ctx) error {
+			return c.SendFile(filepath.Join(cfg.StaticFolder, "index.html"))
+		})
+	}
 
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.SendString("OK")
@@ -65,7 +67,9 @@ func configureApp(ctx context.Context, cfg *config.Config) (*fiber.App, error) {
 		return c.SendString(cfg.Version)
 	})
 
-	app.Use(proxy.BalancerForward([]string{cfg.PythonAddress}))
+	if cfg.PythonAddress != "" {
+		app.Use(proxy.BalancerForward([]string{cfg.PythonAddress}))
+	}
 
 	return app, nil
 }
@@ -88,25 +92,27 @@ func launchServer(ctx context.Context, cfg *config.Config) error {
 		}
 	}()
 
-	logger.Debugf("Waiting for Python server to be ready on http://%s", cfg.PythonAddress)
+	if cfg.PythonAddress != "" {
+		logger.Debugf("Waiting for Python server to be ready on http://%s", cfg.PythonAddress)
 
-	for {
-		dialer := &net.Dialer{}
-		conn, err := dialer.DialContext(ctx, "tcp", cfg.PythonAddress)
+		for {
+			dialer := &net.Dialer{}
+			conn, err := dialer.DialContext(ctx, "tcp", cfg.PythonAddress)
 
-		if err == nil {
-			conn.Close()
+			if err == nil {
+				conn.Close()
 
-			break
+				break
+			}
+
+			if errors.Is(err, context.Canceled) {
+				return fmt.Errorf("failed to connect to Python server: %w", err)
+			}
+
+			time.Sleep(50 * time.Millisecond) //nolint:mnd
 		}
-
-		if errors.Is(err, context.Canceled) {
-			return fmt.Errorf("failed to connect to Python server: %w", err)
-		}
-
-		time.Sleep(1 * time.Second)
+		logger.Debugf("Python server is ready on http://%s", cfg.PythonAddress)
 	}
-	logger.Debugf("Python server is ready on http://%s", cfg.PythonAddress)
 
 	logger.Infof("Launching MLflow Go server on http://%s", cfg.Address)
 
