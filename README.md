@@ -1,5 +1,7 @@
 # Go backend for MLflow
 
+TODO: add a pointer about Mage: we are not married to this tool.
+
 In order to increase the performance of the tracking server and the various stores, we propose to rewrite the server and store implementation in Go.
 
 ## Temp stuff
