@@ -1,7 +1,5 @@
 # Go backend for MLflow
 
-TODO: add a pointer about Mage: we are not married to this tool.
-
 In order to increase the performance of the tracking server and the various stores, we propose to rewrite the server and store implementation in Go.
 
 ## Temp stuff
@@ -28,6 +26,8 @@ tar -C .mlflow.repo/mlflow -xzvf ./ui.tgz
 pip install -e .mlflow.repo
 ```
 
+or run `mage temp`.
+
 ### Run the tests manually
 
 ```bash
@@ -42,7 +42,29 @@ MLFLOW_GO_LIBRARY_PATH=$libpath pytest --confcutdir=. .mlflow.repo/tests/trackin
 rm -rf $libpath
 ```
 
+Or run the `mage tests` target.
+
 ## General setup
+
+### Mage
+
+This repository uses [mage](https://magefile.org/) to streamline some utilily functions.
+
+```bash
+# Install mage (already done in the dev container)
+go install github.com/magefile/mage@v1.15.0
+
+# See all targets
+mage
+
+# Execute single target
+mage dev
+```
+
+The beauty of Mage is that we can use regular Go code for our scripting.  
+That being said, we are not married to this tool.
+
+### Protos
 
 To ensure we stay compatible with the Python implementation, we aim to generate as much as possible based on the `.proto` files.
 
@@ -52,7 +74,7 @@ By running
 mage generate
 ```
 
-Go code will be generated. We download the protos files from GitHub based on a commit hash listed in [protos.go](./cmd/generate/protos.go).
+Go code will be generated. Use the protos files from `mlflow.repo` repository.
 
 This incudes the generation of:
 
