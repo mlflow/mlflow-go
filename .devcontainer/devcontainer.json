@@ -34,7 +34,8 @@
 				"go.lintTool": "golangci-lint",
 				"gopls": {
 					"formatting.local": "github.com/mlflow/mlflow-go",
-					"formatting.gofumpt": true
+					"formatting.gofumpt": true,
+					"build.buildFlags": ["-tags=mage"]
 				},
 				"[python]": {
 					"editor.codeActionsOnSave": {
