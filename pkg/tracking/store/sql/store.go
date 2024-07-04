@@ -8,8 +8,6 @@ import (
 
 	"github.com/mlflow/mlflow-go/pkg/config"
 	"github.com/mlflow/mlflow-go/pkg/sql"
-
-	_ "github.com/ncruces/go-sqlite3/embed" // embed sqlite3 driver
 )
 
 type TrackingSQLStore struct {
