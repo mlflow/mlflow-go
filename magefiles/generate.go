@@ -4,8 +4,8 @@
 package main
 
 import (
-	"os"
 	"path"
+	"path/filepath"
 
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/magefile/mage/mg"
@@ -15,20 +15,21 @@ import (
 
 // Generate Go files based on proto files and other configuration.
 func Generate() error {
-	mg.Deps(Init)
+	mg.Deps(Repo.Init)
 
-	pwd, err := os.Getwd()
+	protoFolder, err := filepath.Abs(path.Join(MLFlowRepoFolderName, "mlflow", "protos"))
 	if err != nil {
 		return err
 	}
-
-	protoFolder := path.Join(pwd, MLFlowRepoFolderName, "mlflow", "protos")
 
 	if err := generate.RunProtoc(protoFolder); err != nil {
 		return err
 	}
 
-	pkgFolder := path.Join(pwd, "pkg")
+	pkgFolder, err := filepath.Abs("pkg")
+	if err != nil {
+		return err
+	}
 
 	if err := generate.AddQueryAnnotations(pkgFolder); err != nil {
 		return err

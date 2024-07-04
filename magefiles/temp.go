@@ -5,7 +5,7 @@ package main
 
 import (
 	"os"
-	"path"
+	"path/filepath"
 
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
@@ -22,7 +22,7 @@ func tar(args ...string) error {
 }
 
 func Temp() error {
-	mg.Deps(Init)
+	mg.Deps(Repo.Init)
 
 	// Install our Python package and its dependencies
 	if err := pipInstall("-e", "."); err != nil {
@@ -44,12 +44,10 @@ func Temp() error {
 		return err
 	}
 
-	pwd, err := os.Getwd()
+	mlflowRepoPath, err := filepath.Abs(MLFlowRepoFolderName)
 	if err != nil {
 		return err
 	}
-
-	mlflowRepoPath := path.Join(pwd, MLFlowRepoFolderName)
 
 	// Add the UI back to it
 	if err := tar(
@@ -60,7 +58,12 @@ func Temp() error {
 	}
 
 	// Remove tar file
-	defer os.RemoveAll(path.Join(pwd, "ui.tgz"))
+	tarPath, err := filepath.Abs("ui.tgz")
+	if err != nil {
+		return err
+	}
+
+	defer os.Remove(tarPath)
 
 	// Install it in editable mode
 	if err := pipInstall("-e", mlflowRepoPath); err != nil {

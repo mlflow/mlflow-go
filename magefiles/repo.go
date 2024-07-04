@@ -3,20 +3,25 @@
 //nolint:wrapcheck
 package main
 
+// rename to repo.go
+
 import (
 	"errors"
 	"fmt"
 	"log"
 	"os"
-	"path"
+	"path/filepath"
 	"strings"
 
+	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
 )
 
 const (
 	MLFlowRepoFolderName = ".mlflow.repo"
 )
+
+type Repo mg.Namespace
 
 func folderExists(path string) bool {
 	info, err := os.Stat(path)
@@ -46,7 +51,6 @@ func gitMlflowRepoOutput(args ...string) (string, error) {
 type gitReference struct {
 	remote    string
 	reference string
-	pwd       string
 }
 
 const refFileName = ".mlflow.ref"
@@ -63,12 +67,12 @@ func readFile(filename string) (string, error) {
 var ErrInvalidGitRefFormat = errors.New("invalid format in .mlflow.ref file: expected 'remote#reference'")
 
 func readGitReference() (gitReference, error) {
-	pwd, err := os.Getwd()
+	refFilePath, err := filepath.Abs(refFileName)
 	if err != nil {
-		return gitReference{}, fmt.Errorf("failed to get working directory: %w", err)
+		return gitReference{}, fmt.Errorf("failed to get .mlflow.ref: %w", err)
 	}
 
-	content, err := readFile(path.Join(pwd, refFileName))
+	content, err := readFile(refFilePath)
 	if err != nil {
 		return gitReference{}, err
 	}
@@ -82,7 +86,7 @@ func readGitReference() (gitReference, error) {
 	remote := strings.TrimSpace(parts[0])
 	reference := strings.TrimSpace(parts[1])
 
-	return gitReference{remote: remote, reference: reference, pwd: pwd}, nil
+	return gitReference{remote: remote, reference: reference}, nil
 }
 
 func freshCheckout(gitReference gitReference) error {
@@ -175,13 +179,17 @@ func syncRepo(gitReference gitReference) error {
 }
 
 // Clone or reset the .mlflow.repo fork.
-func Init() error {
+func (Repo) Init() error {
 	gitReference, err := readGitReference()
 	if err != nil {
 		return err
 	}
 
-	repoPath := path.Join(gitReference.pwd, MLFlowRepoFolderName)
+	repoPath, err := filepath.Abs(MLFlowRepoFolderName)
+	if err != nil {
+		return err
+	}
+
 	if !folderExists(repoPath) {
 		return freshCheckout(gitReference)
 	}
@@ -204,7 +212,7 @@ func Init() error {
 }
 
 // Forcefully update the .mlflow.repo according to the .mlflow.ref.
-func Update() error {
+func (Repo) Update() error {
 	gitReference, err := readGitReference()
 	if err != nil {
 		return err
