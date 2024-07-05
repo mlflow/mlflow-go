@@ -89,7 +89,11 @@ func (c *Config) applyDefaults() {
 	}
 
 	if c.TrackingStoreURI == "" {
-		c.TrackingStoreURI = "sqlite:///mlflow.db"
+		if c.ModelRegistryStoreURI != "" {
+			c.TrackingStoreURI = c.ModelRegistryStoreURI
+		} else {
+			c.TrackingStoreURI = "sqlite:///mlflow.db"
+		}
 	}
 
 	if c.ModelRegistryStoreURI == "" {
