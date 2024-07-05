@@ -87,7 +87,7 @@ def _parse_header(path: pathlib.Path):
         content = file.read()
 
     # Find all matches in the header
-    functions = re.findall(r"extern\s+\w+\s+\w+\s*\([^)]*\);", content, re.MULTILINE)
+    functions = re.findall(r"extern\s+\w+\s*\*?\s+\w+\s*\([^)]*\);", content, re.MULTILINE)
 
     # Replace GoInt64 with int64_t in each function
     transformed_functions = [func.replace("GoInt64", "int64_t") for func in functions]
