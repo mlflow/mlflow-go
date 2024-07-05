@@ -1,4 +1,3 @@
-import atexit
 import logging
 import os
 import pathlib
@@ -54,17 +53,14 @@ def _get_lib():
 
     logging.getLogger(__name__).warn("Go library not found, building it now")
 
-    # create temporary directory
-    tmpdir = tempfile.TemporaryDirectory()
-    atexit.register(tmpdir.cleanup)
-
-    # build the library and load it
-    return _load_lib(
-        build_lib(
-            pathlib.Path(__file__).parent.parent,
-            pathlib.Path(tmpdir.name),
+    # build the library in a temporary directory and load it
+    with tempfile.TemporaryDirectory() as tmpdir:
+        return _load_lib(
+            build_lib(
+                pathlib.Path(__file__).parent.parent,
+                pathlib.Path(tmpdir),
+            )
         )
-    )
 
 
 def _load_lib(path: pathlib.Path):
@@ -74,12 +70,7 @@ def _load_lib(path: pathlib.Path):
     ffi.cdef(_parse_header(path.with_suffix(".h")))
 
     # load the library
-    lib = ffi.dlopen(path.as_posix())
-
-    # make sure the library is closed when the program exits
-    atexit.register(ffi.dlclose, lib)
-
-    return lib
+    return ffi.dlopen(path.as_posix())
 
 
 def _parse_header(path: pathlib.Path):
