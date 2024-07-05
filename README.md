@@ -36,10 +36,23 @@ libpath=$(mktemp -d)
 python -m mlflow_go.lib . $libpath
 
 # Run the tests (currently just the server ones)
-MLFLOW_GO_LIBRARY_PATH=$libpath pytest --confcutdir=. .mlflow.repo/tests/tracking/test_rest_tracking.py .mlflow.repo/tests/tracking/test_model_registry.py
+MLFLOW_GO_LIBRARY_PATH=$libpath pytest --confcutdir=. \
+  .mlflow.repo/tests/tracking/test_rest_tracking.py \
+  .mlflow.repo/tests/tracking/test_model_registry.py \
+  .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py \
+  .mlflow.repo/tests/store/model_registry/test_sqlalchemy_store.py \
+  -k 'not [file'
 
 # Remove the Go binary
 rm -rf $libpath
+
+# If you want to run a specific test with more verbosity
+# -s for live output
+# --log-level=debug for more verbosity (passed down to the Go server/stores)
+MLFLOW_GO_LIBRARY_PATH=$libpath pytest --confcutdir=. \
+  .mlflow.repo/tests/tracking/test_rest_tracking.py::test_create_experiment_validation \
+  -k 'not [file' \
+  -s --log-level=debug
 ```
 
 Or run the `mage test:python` target.
