@@ -68,9 +68,7 @@ def _get_lib():
 
 
 def _load_lib(path: pathlib.Path):
-    import cffi
-
-    ffi = cffi.FFI()
+    ffi = get_ffi()
 
     # load from header file
     ffi.cdef(_parse_header(path.with_suffix(".h")))
@@ -95,6 +93,23 @@ def _parse_header(path: pathlib.Path):
     transformed_functions = [func.replace("GoInt64", "int64_t") for func in functions]
 
     return "\n".join(transformed_functions)
+
+
+def _get_ffi():
+    import cffi
+
+    return cffi.FFI()
+
+
+_ffi = None
+
+
+def get_ffi():
+    global _ffi
+    if _ffi is None:
+        _ffi = _get_ffi()
+        _ffi.cdef("void free(void*);")
+    return _ffi
 
 
 _lib = None
