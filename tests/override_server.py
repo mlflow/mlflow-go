@@ -47,7 +47,7 @@ def _init_server(backend_uri, root_artifact_uri, extra_env=None, app="mlflow.ser
     with server(
         address=f"{LOCALHOST}:{server_port}",
         default_artifact_root=root_artifact_uri,
-        log_level="debug",
+        log_level=logging.getLevelName(_logger.getEffectiveLevel()),
         model_registry_store_uri=backend_uri,
         python_address=f"{LOCALHOST}:{python_port}",
         python_command=[
