@@ -14,7 +14,7 @@ type Run struct {
 	SourceType     *string `db:"source_type"      gorm:"column:source_type"`
 	SourceName     *string `db:"source_name"      gorm:"column:source_name"`
 	EntryPointName *string `db:"entry_point_name" gorm:"column:entry_point_name"`
-	UserID         *string `db:"user_id"          gorm:"column:user_id"`
+	UserID         string  `db:"user_id"          gorm:"column:user_id"`
 	Status         *string `db:"status"           gorm:"column:status"`
 	StartTime      *int64  `db:"start_time"       gorm:"column:start_time"`
 	EndTime        *int64  `db:"end_time"         gorm:"column:end_time"`
@@ -69,7 +69,7 @@ func (r Run) ToProto() *protos.Run {
 		RunUuid:        r.ID,
 		RunName:        r.Name,
 		ExperimentId:   utils.ConvertInt32PointerToStringPointer(r.ExperimentID),
-		UserId:         r.UserID,
+		UserId:         utils.PtrTo(r.UserID),
 		Status:         RunStatusToProto(r.Status),
 		StartTime:      r.StartTime,
 		EndTime:        r.EndTime,
@@ -120,12 +120,17 @@ func NewRunFromCreateRunProto(run *protos.CreateRun) *Run {
 		tags = append(tags, NewTagFromProto(nil, tag))
 	}
 
+	userID := ""
+	if run.UserId != nil {
+		userID = *run.UserId
+	}
+
 	return &Run{
 		ID:             utils.NewUUID(),
 		Name:           run.RunName,
 		ExperimentID:   utils.ConvertStringPointerToInt32Pointer(run.ExperimentId),
 		StartTime:      run.StartTime,
-		UserID:         run.UserId,
+		UserID:         userID,
 		Tags:           tags,
 		LifecycleStage: utils.PtrTo(string(LifecycleStageActive)),
 		Status:         utils.PtrTo(string(RunStatusRunnig)),
