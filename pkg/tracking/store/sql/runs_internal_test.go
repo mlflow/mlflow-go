@@ -279,6 +279,15 @@ var tests = []testData{
 		orderBy:      []string{"status DESC"},
 		expectedVars: []any{},
 	},
+	{
+		name:  "order by run_name",
+		query: "",
+		expectedSQL: map[string]string{
+			"postgres": `SELECT "run_uuid" FROM "runs" ORDER BY "name",runs.start_time DESC,runs.run_uuid`,
+		},
+		orderBy:      []string{"run_name"},
+		expectedVars: []any{},
+	},
 }
 
 func newPostgresDialector() gorm.Dialector {
