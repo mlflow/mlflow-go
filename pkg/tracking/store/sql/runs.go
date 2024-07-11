@@ -254,6 +254,8 @@ type orderByExpr struct {
 
 var ErrInvalidOrderClauseInput = errors.New("input string is empty or only contains quote characters")
 
+const tableAndColumn = 2
+
 func processOrderByClause(input string) (orderByExpr, error) {
 	lowerInput := strings.ToLower(input)
 	replacer := strings.NewReplacer("`", "", "'", "", "\"", "")
@@ -268,7 +270,7 @@ func processOrderByClause(input string) (orderByExpr, error) {
 
 	identifierKey := strings.Split(parts[0], ".")
 
-	if len(identifierKey) == 2 {
+	if len(identifierKey) == tableAndColumn {
 		expr.identifier = &identifierKey[0]
 		expr.key = identifierKey[1]
 	} else if len(identifierKey) == 1 {
@@ -302,18 +304,19 @@ func applyOrderBy(logger *logrus.Logger, database, transaction *gorm.DB, orderBy
 
 		var kind any
 
-		switch {
-		case orderByExpr.identifier == nil:
-		case *orderByExpr.identifier == "attribute":
-			if orderByExpr.key == "start_time" {
+		if orderByExpr.identifier == nil && orderByExpr.key == "start_time" {
+			startTimeOrder = true
+		} else if orderByExpr.identifier != nil {
+			switch {
+			case *orderByExpr.identifier == "attribute" && orderByExpr.key == "start_time":
 				startTimeOrder = true
+			case *orderByExpr.identifier == "metric":
+				kind = &models.LatestMetric{}
+			case *orderByExpr.identifier == "param":
+				kind = &models.Param{}
+			case *orderByExpr.identifier == "tag":
+				kind = &models.Tag{}
 			}
-		case *orderByExpr.identifier == "metric":
-			kind = &models.LatestMetric{}
-		case *orderByExpr.identifier == "param":
-			kind = &models.Param{}
-		case *orderByExpr.identifier == "tag":
-			kind = &models.Tag{}
 		}
 
 		if kind != nil {
