@@ -1,0 +1,118 @@
+package sql
+
+import (
+	"fmt"
+
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+
+	"github.com/mlflow/mlflow-go/pkg/contract"
+	"github.com/mlflow/mlflow-go/pkg/protos"
+	"github.com/mlflow/mlflow-go/pkg/tracking/store/sql/models"
+)
+
+const paramsBatchSize = 100
+
+func verifyBatchParamsInserts(
+	transaction *gorm.DB, runID string, deduplicatedParamsMap map[string]string,
+) *contract.Error {
+	keys := make([]string, 0, len(deduplicatedParamsMap))
+	for key := range deduplicatedParamsMap {
+		keys = append(keys, key)
+	}
+
+	var existingParams []models.Param
+
+	err := transaction.
+		Model(&models.Param{}).
+		Select("key, value").
+		Where("run_uuid = ?", runID).
+		Where("key IN ?", keys).
+		Find(&existingParams).Error
+	if err != nil {
+		return contract.NewErrorWith(
+			protos.ErrorCode_INTERNAL_ERROR,
+			fmt.Sprintf(
+				"failed to get existing params to check if duplicates for run_id %q",
+				runID,
+			),
+			err)
+	}
+
+	for _, existingParam := range existingParams {
+		if currentValue, ok := deduplicatedParamsMap[*existingParam.Key]; ok && currentValue != *existingParam.Value {
+			return contract.NewError(
+				protos.ErrorCode_INVALID_PARAMETER_VALUE,
+				fmt.Sprintf(
+					"Changing param values is not allowed. "+
+						"Params with key=%q was already logged "+
+						"with value=%q for run ID=%q. "+
+						"Attempted logging new value %q",
+					*existingParam.Key,
+					*existingParam.Value,
+					runID,
+					currentValue,
+				),
+			)
+		}
+	}
+
+	return nil
+}
+
+func (s TrackingSQLStore) logParamsWithTransaction(
+	transaction *gorm.DB, runID string, params []*protos.Param,
+) *contract.Error {
+	deduplicatedParamsMap := make(map[string]string, len(params))
+	deduplicatedParams := make([]models.Param, 0, len(deduplicatedParamsMap))
+
+	for _, param := range params {
+		oldValue, paramIsPresent := deduplicatedParamsMap[param.GetKey()]
+		if paramIsPresent && param.GetValue() != oldValue {
+			return contract.NewError(
+				protos.ErrorCode_INVALID_PARAMETER_VALUE,
+				fmt.Sprintf(
+					"Changing param values is not allowed. "+
+						"Params with key=%q was already logged "+
+						"with value=%q for run ID=%q. "+
+						"Attempted logging new value %q",
+					param.GetKey(),
+					oldValue,
+					runID,
+					param.GetValue(),
+				),
+			)
+		}
+
+		if !paramIsPresent {
+			deduplicatedParamsMap[param.GetKey()] = param.GetValue()
+			deduplicatedParams = append(deduplicatedParams, models.NewParamFromProto(runID, param))
+		}
+	}
+
+	// Try and create all params.
+	// Params are unique by (run_uuid, key) so any potentially conflicts will not be inserted.
+	err := transaction.
+		Clauses(clause.OnConflict{
+			Columns:   []clause.Column{{Name: "run_uuid"}, {Name: "key"}},
+			DoNothing: true,
+		}).
+		CreateInBatches(deduplicatedParams, paramsBatchSize).Error
+	if err != nil {
+		return contract.NewErrorWith(
+			protos.ErrorCode_INTERNAL_ERROR,
+			fmt.Sprintf("error creating params in batch for run_uuid %q", runID),
+			err,
+		)
+	}
+
+	// if there were ignored conflicts, we assert that the values are the same.
+	if transaction.RowsAffected != int64(len(params)) {
+		contractError := verifyBatchParamsInserts(transaction, runID, deduplicatedParamsMap)
+		if contractError != nil {
+			return contractError
+		}
+	}
+
+	return nil
+}
