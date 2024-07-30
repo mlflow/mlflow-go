@@ -79,16 +79,6 @@ func (ts TrackingService) DeleteExperiment(
 	return &protos.DeleteExperiment_Response{}, nil
 }
 
-func (ts TrackingService) RestoreExperiment(
-	input *protos.RestoreExperiment,
-) (*protos.RestoreExperiment_Response, *contract.Error) {
-	err := ts.Store.RestoreExperiment(input.GetExperimentId())
-	if err != nil {
-		return nil, err
-	}
-	return &protos.RestoreExperiment_Response{}, nil
-}
-
 func (ts TrackingService) GetExperimentByName(
 	input *protos.GetExperimentByName,
 ) (*protos.GetExperimentByName_Response, *contract.Error) {

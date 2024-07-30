@@ -11,6 +11,3 @@ __pycache__/
 
 # MLflow repo
 .mlflow.repo/
-
-# JetBrains
-.idea
