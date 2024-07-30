@@ -4,9 +4,9 @@ package routes
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/mlflow/mlflow-go/pkg/server/parser"
 	"github.com/mlflow/mlflow-go/pkg/contract/service"
 	"github.com/mlflow/mlflow-go/pkg/protos"
+	"github.com/mlflow/mlflow-go/pkg/server/parser"
 )
 
 func RegisterTrackingServiceRoutes(service service.TrackingService, parser *parser.HTTPRequestParser, app *fiber.App) {
@@ -49,6 +49,17 @@ func RegisterTrackingServiceRoutes(service service.TrackingService, parser *pars
 			return err
 		}
 		output, err := service.DeleteExperiment(input)
+		if err != nil {
+			return err
+		}
+		return ctx.JSON(output)
+	})
+	app.Post("/mlflow/experiments/restore", func(ctx *fiber.Ctx) error {
+		input := &protos.RestoreExperiment{}
+		if err := parser.ParseBody(ctx, input); err != nil {
+			return err
+		}
+		output, err := service.RestoreExperiment(input)
 		if err != nil {
 			return err
 		}
