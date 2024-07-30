@@ -1393,7 +1393,7 @@ func (x *GetExperiment) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetExperiment.ProtoReflect.Descriptor instead.
+// Deprecated: Use GetExperimentByID.ProtoReflect.Descriptor instead.
 func (*GetExperiment) Descriptor() ([]byte, []int) {
 	return file_service_proto_rawDescGZIP(), []int{14}
 }
@@ -6229,7 +6229,7 @@ var file_service_proto_goTypes = []interface{}{
 	(*Dataset)(nil),                               // 15: mlflow.Dataset
 	(*CreateExperiment)(nil),                      // 16: mlflow.CreateExperiment
 	(*SearchExperiments)(nil),                     // 17: mlflow.SearchExperiments
-	(*GetExperiment)(nil),                         // 18: mlflow.GetExperiment
+	(*GetExperiment)(nil),                         // 18: mlflow.GetExperimentByID
 	(*DeleteExperiment)(nil),                      // 19: mlflow.DeleteExperiment
 	(*RestoreExperiment)(nil),                     // 20: mlflow.RestoreExperiment
 	(*UpdateExperiment)(nil),                      // 21: mlflow.UpdateExperiment
@@ -6267,7 +6267,7 @@ var file_service_proto_goTypes = []interface{}{
 	(*SearchDatasets)(nil),                        // 53: mlflow.SearchDatasets
 	(*CreateExperiment_Response)(nil),             // 54: mlflow.CreateExperiment.Response
 	(*SearchExperiments_Response)(nil),            // 55: mlflow.SearchExperiments.Response
-	(*GetExperiment_Response)(nil),                // 56: mlflow.GetExperiment.Response
+	(*GetExperiment_Response)(nil),                // 56: mlflow.GetExperimentByID.Response
 	(*DeleteExperiment_Response)(nil),             // 57: mlflow.DeleteExperiment.Response
 	(*RestoreExperiment_Response)(nil),            // 58: mlflow.RestoreExperiment.Response
 	(*UpdateExperiment_Response)(nil),             // 59: mlflow.UpdateExperiment.Response
@@ -6328,7 +6328,7 @@ var file_service_proto_depIdxs = []int32{
 	43, // 26: mlflow.EndTrace.request_metadata:type_name -> mlflow.TraceRequestMetadata
 	44, // 27: mlflow.EndTrace.tags:type_name -> mlflow.TraceTag
 	12, // 28: mlflow.SearchExperiments.Response.experiments:type_name -> mlflow.Experiment
-	12, // 29: mlflow.GetExperiment.Response.experiment:type_name -> mlflow.Experiment
+	12, // 29: mlflow.GetExperimentByID.Response.experiment:type_name -> mlflow.Experiment
 	6,  // 30: mlflow.CreateRun.Response.run:type_name -> mlflow.Run
 	11, // 31: mlflow.UpdateRun.Response.run_info:type_name -> mlflow.RunInfo
 	6,  // 32: mlflow.GetRun.Response.run:type_name -> mlflow.Run
@@ -6345,7 +6345,7 @@ var file_service_proto_depIdxs = []int32{
 	41, // 43: mlflow.MlflowService.getExperimentByName:input_type -> mlflow.GetExperimentByName
 	16, // 44: mlflow.MlflowService.createExperiment:input_type -> mlflow.CreateExperiment
 	17, // 45: mlflow.MlflowService.searchExperiments:input_type -> mlflow.SearchExperiments
-	18, // 46: mlflow.MlflowService.getExperiment:input_type -> mlflow.GetExperiment
+	18, // 46: mlflow.MlflowService.getExperiment:input_type -> mlflow.GetExperimentByID
 	19, // 47: mlflow.MlflowService.deleteExperiment:input_type -> mlflow.DeleteExperiment
 	20, // 48: mlflow.MlflowService.restoreExperiment:input_type -> mlflow.RestoreExperiment
 	21, // 49: mlflow.MlflowService.updateExperiment:input_type -> mlflow.UpdateExperiment
@@ -6377,7 +6377,7 @@ var file_service_proto_depIdxs = []int32{
 	77, // 75: mlflow.MlflowService.getExperimentByName:output_type -> mlflow.GetExperimentByName.Response
 	54, // 76: mlflow.MlflowService.createExperiment:output_type -> mlflow.CreateExperiment.Response
 	55, // 77: mlflow.MlflowService.searchExperiments:output_type -> mlflow.SearchExperiments.Response
-	56, // 78: mlflow.MlflowService.getExperiment:output_type -> mlflow.GetExperiment.Response
+	56, // 78: mlflow.MlflowService.getExperiment:output_type -> mlflow.GetExperimentByID.Response
 	57, // 79: mlflow.MlflowService.deleteExperiment:output_type -> mlflow.DeleteExperiment.Response
 	58, // 80: mlflow.MlflowService.restoreExperiment:output_type -> mlflow.RestoreExperiment.Response
 	59, // 81: mlflow.MlflowService.updateExperiment:output_type -> mlflow.UpdateExperiment.Response

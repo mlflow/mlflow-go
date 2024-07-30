@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"github.com/mlflow/mlflow-go/pkg/utils"
 	"net/url"
 	"path/filepath"
 	"runtime"
@@ -56,7 +57,7 @@ func (ts TrackingService) CreateExperiment(input *protos.CreateExperiment) (
 
 // GetExperiment implements TrackingService.
 func (ts TrackingService) GetExperiment(input *protos.GetExperiment) (*protos.GetExperiment_Response, *contract.Error) {
-	experiment, err := ts.Store.GetExperiment(input.GetExperimentId())
+	experiment, err := ts.Store.GetExperimentByID(input.GetExperimentId())
 	if err != nil {
 		return nil, err
 	}
@@ -87,6 +88,23 @@ func (ts TrackingService) RestoreExperiment(
 		return nil, err
 	}
 	return &protos.RestoreExperiment_Response{}, nil
+}
+
+func (ts TrackingService) UpdateExperiment(
+	input *protos.UpdateExperiment,
+) (*protos.UpdateExperiment_Response, *contract.Error) {
+	experiment, err := ts.Store.GetExperimentByID(input.GetExperimentId())
+	if err != nil {
+		return nil, err
+	}
+	if input.NewName != nil {
+		experiment.Name = utils.PtrTo(input.GetNewName())
+		if err := ts.Store.UpdateExperiment(experiment); err != nil {
+			return nil, err
+		}
+	}
+
+	return &protos.UpdateExperiment_Response{}, nil
 }
 
 func (ts TrackingService) GetExperimentByName(

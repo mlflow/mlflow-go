@@ -464,7 +464,7 @@ func ensureRunName(runModel *models.Run) *contract.Error {
 }
 
 func (s TrackingSQLStore) CreateRun(input *protos.CreateRun) (*protos.Run, *contract.Error) {
-	experiment, err := s.GetExperiment(input.GetExperimentId())
+	experiment, err := s.GetExperimentByID(input.GetExperimentId())
 	if err != nil {
 		return nil, err
 	}

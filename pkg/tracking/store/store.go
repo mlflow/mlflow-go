@@ -7,11 +7,13 @@ import (
 
 //go:generate mockery
 type TrackingStore interface {
-	// Get an experiment by the experiment ID.
+	// GetExperimentByID returns experiment by the experiment ID.
 	// The experiment should contain the linked tags.
-	GetExperiment(id string) (*protos.Experiment, *contract.Error)
+	GetExperimentByID(id string) (*protos.Experiment, *contract.Error)
+	GetExperimentByName(name string) (*protos.Experiment, *contract.Error)
 
 	CreateExperiment(input *protos.CreateExperiment) (string, *contract.Error)
+	UpdateExperiment(experiment *protos.Experiment) *contract.Error
 
 	SearchRuns(
 		experimentIDs []string,
@@ -32,8 +34,6 @@ type TrackingStore interface {
 		tags []*protos.RunTag) *contract.Error
 
 	CreateRun(input *protos.CreateRun) (*protos.Run, *contract.Error)
-
-	GetExperimentByName(name string) (*protos.Experiment, *contract.Error)
 }
 
 type PagedList[T any] struct {
