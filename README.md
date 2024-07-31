@@ -2,6 +2,64 @@
 
 In order to increase the performance of the tracking server and the various stores, we propose to rewrite the server and store implementation in Go.
 
+## Usage
+
+### Installation
+
+This package is not yet available on PyPI and currently requires the [Go SDK](https://go.dev) to be installed.
+
+You can then install the package via pip:
+```bash
+pip install git+https://github.com/jgiannuzzi/mlflow-go.git
+```
+
+### Using the Go server
+
+```bash
+# With SQLite
+mlflow-go server --backend-store-uri sqlite:///mlflow.db
+
+# With Postgres
+mlflow-go server --backend-store-uri postgresql://postgres:postgres@localhost:5432/postgres
+```
+
+```python
+import mlflow
+
+# Use the Go server
+mlflow.set_tracking_uri("http://localhost:5000")
+
+# Use MLflow as usual
+mlflow.set_experiment("my-experiment")
+
+with mlflow.start_run():
+    mlflow.log_param("param", 1)
+    mlflow.log_metric("metric", 2)
+```
+
+### Using the client-side Go implementation
+
+```python
+import mlflow
+import mlflow_go
+
+# Enable the Go client implementation (disabled by default)
+mlflow_go.enable_go()
+
+# With SQLite
+mlflow.set_tracking_uri("sqlite:///mlflow.db")
+
+# With Postgres
+#mlflow.set_tracking_uri("postgresql://postgres:postgres@localhost:5432/postgres")
+
+# Use MLflow as usual
+mlflow.set_experiment("my-experiment")
+
+with mlflow.start_run():
+    mlflow.log_param("param", 1)
+    mlflow.log_metric("metric", 2)
+```
+
 ## Temp stuff
 
 ### Dev setup
