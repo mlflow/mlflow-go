@@ -20,7 +20,7 @@ pip install git+https://github.com/jgiannuzzi/mlflow-go.git
 mlflow-go server --backend-store-uri sqlite:///mlflow.db
 
 # With Postgres
-mlflow-go server --backend-store-uri postgresql://postgres:postgres@localhost:5432/postgres
+mlflow-go server --backend-store-uri postgresql://postgres:postgres@localhost/postgres
 ```
 
 ```python
@@ -50,7 +50,7 @@ mlflow_go.enable_go()
 mlflow.set_tracking_uri("sqlite:///mlflow.db")
 
 # With Postgres
-#mlflow.set_tracking_uri("postgresql://postgres:postgres@localhost:5432/postgres")
+#mlflow.set_tracking_uri("postgresql://postgres:postgres@localhost/postgres")
 
 # Use MLflow as usual
 mlflow.set_experiment("my-experiment")
@@ -114,6 +114,39 @@ MLFLOW_GO_LIBRARY_PATH=$libpath pytest --confcutdir=. \
 ```
 
 Or run the `mage test:python` target.
+
+### Use the Go store directly in Python
+
+```python
+import logging
+import mlflow
+import mlflow_go
+
+# Enable debug logging
+logging.basicConfig()
+logging.getLogger('mlflow_go').setLevel(logging.DEBUG)
+
+# Enable the Go client implementation (disabled by default)
+mlflow_go.enable_go()
+
+# Instantiate the tracking store with SQLite
+tracking_store = mlflow.tracking._tracking_service.utils._get_store('sqlite:///mlflow.db')
+
+# Instantiate the tracking store with Postgres
+# tracking_store = mlflow.tracking._tracking_service.utils._get_store('postgresql://postgres:postgres@localhost/postgres')
+
+# Call any tracking store method
+tracking_store.get_experiment(0)
+
+# Instantiate the model registry store with SQLite
+model_registry_store = mlflow.tracking._model_registry.utils._get_store('sqlite:///mlflow.db')
+
+# Instantiate the model registry store with Postgres
+#model_registry_store = mlflow.tracking._model_registry.utils._get_store('postgresql://postgres:postgres@localhost/postgres')
+
+# Call any model registry store method
+model_registry_store.get_latest_versions("model")
+```
 
 ## General setup
 
