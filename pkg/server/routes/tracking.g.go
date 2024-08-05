@@ -54,6 +54,17 @@ func RegisterTrackingServiceRoutes(service service.TrackingService, parser *pars
 		}
 		return ctx.JSON(output)
 	})
+	app.Post("/mlflow/experiments/restore", func(ctx *fiber.Ctx) error {
+		input := &protos.RestoreExperiment{}
+		if err := parser.ParseBody(ctx, input); err != nil {
+			return err
+		}
+		output, err := service.RestoreExperiment(input)
+		if err != nil {
+			return err
+		}
+		return ctx.JSON(output)
+	})
 	app.Post("/mlflow/runs/create", func(ctx *fiber.Ctx) error {
 		input := &protos.CreateRun{}
 		if err := parser.ParseBody(ctx, input); err != nil {
