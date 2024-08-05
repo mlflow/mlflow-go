@@ -3,8 +3,8 @@
 package service
 
 import (
-	"github.com/mlflow/mlflow-go/pkg/contract"
 	"github.com/mlflow/mlflow-go/pkg/protos"
+	"github.com/mlflow/mlflow-go/pkg/contract"
 )
 
 type TrackingService interface {

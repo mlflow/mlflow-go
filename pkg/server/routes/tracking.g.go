@@ -4,9 +4,9 @@ package routes
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/mlflow/mlflow-go/pkg/server/parser"
 	"github.com/mlflow/mlflow-go/pkg/contract/service"
 	"github.com/mlflow/mlflow-go/pkg/protos"
-	"github.com/mlflow/mlflow-go/pkg/server/parser"
 )
 
 func RegisterTrackingServiceRoutes(service service.TrackingService, parser *parser.HTTPRequestParser, app *fiber.App) {
