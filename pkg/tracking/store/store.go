@@ -23,6 +23,7 @@ type TrackingStore interface {
 	) (pagedList *PagedList[*protos.Run], err *contract.Error)
 
 	DeleteExperiment(id string) *contract.Error
+	RestoreExperiment(id string) *contract.Error
 
 	LogBatch(
 		runID string,
