@@ -80,7 +80,7 @@ class _TrackingStore:
         request = DeleteExperiment(experiment_id=str(experiment_id))
         self.service.call_endpoint(get_lib().TrackingServiceDeleteExperiment, request)
 
-    def restore_experment(self, experiment_id):
+    def restore_experiment(self, experiment_id):
         request = RestoreExperiment(experiment_id=str(experiment_id))
         self.service.call_endpoint(get_lib().TrackingServiceRestoreExperiment, request)
 
