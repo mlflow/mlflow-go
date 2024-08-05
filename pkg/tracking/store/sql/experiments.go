@@ -148,6 +148,7 @@ func (s TrackingSQLStore) RestoreExperiment(id string) *contract.Error {
 		// Update experiment
 		uex := transaction.Model(&models.Experiment{}).
 			Where("experiment_id = ?", idInt).
+			Where("lifecycle_stage = ?", models.LifecycleStageDeleted).
 			Updates(&models.Experiment{
 				LifecycleStage: utils.PtrTo(string(models.LifecycleStageActive)),
 				LastUpdateTime: utils.PtrTo(time.Now().UnixMilli()),
