@@ -13,6 +13,7 @@ type TrackingStore interface {
 	GetExperimentByName(name string) (*protos.Experiment, *contract.Error)
 
 	CreateExperiment(input *protos.CreateExperiment) (string, *contract.Error)
+	RestoreExperiment(id string) *contract.Error
 	RenameExperiment(experiment *protos.Experiment) *contract.Error
 
 	SearchRuns(

@@ -407,6 +407,54 @@ func (_c *MockTrackingStore_RenameExperiment_Call) RunAndReturn(run func(*protos
 	return _c
 }
 
+// RestoreExperiment provides a mock function with given fields: id
+func (_m *MockTrackingStore) RestoreExperiment(id string) *contract.Error {
+	ret := _m.Called(id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for RestoreExperiment")
+	}
+
+	var r0 *contract.Error
+	if rf, ok := ret.Get(0).(func(string) *contract.Error); ok {
+		r0 = rf(id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*contract.Error)
+		}
+	}
+
+	return r0
+}
+
+// MockTrackingStore_RestoreExperiment_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RestoreExperiment'
+type MockTrackingStore_RestoreExperiment_Call struct {
+	*mock.Call
+}
+
+// RestoreExperiment is a helper method to define mock.On call
+//   - id string
+func (_e *MockTrackingStore_Expecter) RestoreExperiment(id interface{}) *MockTrackingStore_RestoreExperiment_Call {
+	return &MockTrackingStore_RestoreExperiment_Call{Call: _e.mock.On("RestoreExperiment", id)}
+}
+
+func (_c *MockTrackingStore_RestoreExperiment_Call) Run(run func(id string)) *MockTrackingStore_RestoreExperiment_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *MockTrackingStore_RestoreExperiment_Call) Return(_a0 *contract.Error) *MockTrackingStore_RestoreExperiment_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockTrackingStore_RestoreExperiment_Call) RunAndReturn(run func(string) *contract.Error) *MockTrackingStore_RestoreExperiment_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SearchRuns provides a mock function with given fields: experimentIDs, filter, runViewType, maxResults, orderBy, pageToken
 func (_m *MockTrackingStore) SearchRuns(experimentIDs []string, filter string, runViewType protos.ViewType, maxResults int, orderBy []string, pageToken string) (*PagedList[*protos.Run], *contract.Error) {
 	ret := _m.Called(experimentIDs, filter, runViewType, maxResults, orderBy, pageToken)
