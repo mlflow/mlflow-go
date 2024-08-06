@@ -15,12 +15,14 @@ from mlflow.protos.service_pb2 import (
     GetExperiment,
     GetExperimentByName,
     LogBatch,
+    RestoreExperiment,
     SearchRuns,
 )
 from mlflow.utils.uri import resolve_uri_if_local
 
+from mlflow_go import is_go_enabled
 from mlflow_go.lib import get_lib
-from mlflow_go.store import ServiceProxy
+from mlflow_go.store._service_proxy import _ServiceProxy
 
 _logger = logging.getLogger(__name__)
 
@@ -40,7 +42,7 @@ class _TrackingStore:
                 "log_level": logging.getLevelName(_logger.getEffectiveLevel()),
             }
         ).encode("utf-8")
-        self.service = ServiceProxy(get_lib().CreateTrackingService(config, len(config)))
+        self.service = _ServiceProxy(get_lib().CreateTrackingService(config, len(config)))
         super().__init__(store_uri, default_artifact_root)
 
     def __del__(self):
@@ -78,6 +80,10 @@ class _TrackingStore:
     def delete_experiment(self, experiment_id):
         request = DeleteExperiment(experiment_id=str(experiment_id))
         self.service.call_endpoint(get_lib().TrackingServiceDeleteExperiment, request)
+
+    def restore_experiment(self, experiment_id):
+        request = RestoreExperiment(experiment_id=str(experiment_id))
+        self.service.call_endpoint(get_lib().TrackingServiceRestoreExperiment, request)
 
     def create_run(self, experiment_id, user_id, start_time, tags, run_name):
         request = CreateRun(
@@ -117,3 +123,16 @@ class _TrackingStore:
 
 def TrackingStore(cls):
     return type(cls.__name__, (_TrackingStore, cls), {})
+
+
+def _get_sqlalchemy_store(store_uri, artifact_uri):
+    from mlflow.store.tracking import DEFAULT_LOCAL_FILE_AND_ARTIFACT_PATH
+    from mlflow.store.tracking.sqlalchemy_store import SqlAlchemyStore
+
+    if is_go_enabled():
+        SqlAlchemyStore = TrackingStore(SqlAlchemyStore)
+
+    if artifact_uri is None:
+        artifact_uri = DEFAULT_LOCAL_FILE_AND_ARTIFACT_PATH
+
+    return SqlAlchemyStore(store_uri, artifact_uri)

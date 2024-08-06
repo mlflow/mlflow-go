@@ -37,6 +37,18 @@ repository = "https://github.com/mlflow/mlflow-go"
 [project.scripts]
 mlflow-go = "mlflow_go.cli:cli"
 
+[project.entry-points."mlflow.tracking_store"]
+mssql = "mlflow_go.store.tracking:_get_sqlalchemy_store"
+mysql = "mlflow_go.store.tracking:_get_sqlalchemy_store"
+postgresql = "mlflow_go.store.tracking:_get_sqlalchemy_store"
+sqlite = "mlflow_go.store.tracking:_get_sqlalchemy_store"
+
+[project.entry-points."mlflow.model_registry_store"]
+mssql = "mlflow_go.store.model_registry:_get_sqlalchemy_store"
+mysql = "mlflow_go.store.model_registry:_get_sqlalchemy_store"
+postgresql = "mlflow_go.store.model_registry:_get_sqlalchemy_store"
+sqlite = "mlflow_go.store.model_registry:_get_sqlalchemy_store"
+
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["mlflow_go", "mlflow_go.*"]
