@@ -10,7 +10,6 @@ import (
 
 	"github.com/mlflow/mlflow-go/pkg/contract"
 	"github.com/mlflow/mlflow-go/pkg/protos"
-	"github.com/mlflow/mlflow-go/pkg/utils"
 )
 
 // CreateExperiment implements TrackingService.
@@ -105,7 +104,7 @@ func (ts TrackingService) UpdateExperiment(
 		)
 	}
 	if input.NewName != nil {
-		experiment.Name = utils.PtrTo(input.GetNewName())
+		experiment.Name = input.NewName
 		if err := ts.Store.RenameExperiment(experiment); err != nil {
 			return nil, err
 		}
