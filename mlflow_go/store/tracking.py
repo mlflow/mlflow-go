@@ -17,6 +17,7 @@ from mlflow.protos.service_pb2 import (
     LogBatch,
     RestoreExperiment,
     SearchRuns,
+    UpdateExperiment,
 )
 from mlflow.utils.uri import resolve_uri_if_local
 
@@ -82,6 +83,10 @@ class _TrackingStore:
 
     def restore_experiment(self, experiment_id):
         request = RestoreExperiment(experiment_id=str(experiment_id))
+        self.service.call_endpoint(get_lib().TrackingServiceRestoreExperiment, request)
+
+    def rename_experiment(self, experiment_id, new_name):
+        request = UpdateExperiment(experiment_id=str(experiment_id), new_name=new_name)
         self.service.call_endpoint(get_lib().TrackingServiceRestoreExperiment, request)
 
     def create_run(self, experiment_id, user_id, start_time, tags, run_name):

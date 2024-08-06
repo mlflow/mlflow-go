@@ -7,13 +7,13 @@ import (
 
 //go:generate mockery
 type TrackingStore interface {
-	// GetExperimentByID returns experiment by the experiment ID.
+	// GetExperiment returns experiment by the experiment ID.
 	// The experiment should contain the linked tags.
-	GetExperimentByID(id string) (*protos.Experiment, *contract.Error)
+	GetExperiment(id string) (*protos.Experiment, *contract.Error)
 	GetExperimentByName(name string) (*protos.Experiment, *contract.Error)
 
 	CreateExperiment(input *protos.CreateExperiment) (string, *contract.Error)
-	UpdateExperiment(experiment *protos.Experiment) *contract.Error
+	RenameExperiment(experiment *protos.Experiment) *contract.Error
 
 	SearchRuns(
 		experimentIDs []string,

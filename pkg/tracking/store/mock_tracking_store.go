@@ -220,7 +220,7 @@ func (_m *MockTrackingStore) GetExperimentByID(id string) (*protos.Experiment, *
 	return r0, r1
 }
 
-// MockTrackingStore_GetExperiment_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetExperimentByID'
+// MockTrackingStore_GetExperiment_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetExperiment'
 type MockTrackingStore_GetExperiment_Call struct {
 	*mock.Call
 }
@@ -228,7 +228,7 @@ type MockTrackingStore_GetExperiment_Call struct {
 // GetExperiment is a helper method to define mock.On call
 //   - id string
 func (_e *MockTrackingStore_Expecter) GetExperiment(id interface{}) *MockTrackingStore_GetExperiment_Call {
-	return &MockTrackingStore_GetExperiment_Call{Call: _e.mock.On("GetExperimentByID", id)}
+	return &MockTrackingStore_GetExperiment_Call{Call: _e.mock.On("GetExperiment", id)}
 }
 
 func (_c *MockTrackingStore_GetExperiment_Call) Run(run func(id string)) *MockTrackingStore_GetExperiment_Call {

@@ -321,8 +321,8 @@ func mkCEndpointBody(serviceName string, method discovery.MethodInfo) *ast.Block
 				),
 			),
 			//	return invokeServiceMethod(
-			// 		service.GetExperimentByID,
-			//		new(protos.GetExperimentByID),
+			// 		service.GetExperiment,
+			//		new(protos.GetExperiment),
 			// 		requestData,
 			// 		requestSize,
 			// 		responseSize,
