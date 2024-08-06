@@ -189,7 +189,7 @@ func (_c *MockTrackingStore_DeleteExperiment_Call) RunAndReturn(run func(string)
 }
 
 // GetExperiment provides a mock function with given fields: id
-func (_m *MockTrackingStore) GetExperimentByID(id string) (*protos.Experiment, *contract.Error) {
+func (_m *MockTrackingStore) GetExperiment(id string) (*protos.Experiment, *contract.Error) {
 	ret := _m.Called(id)
 
 	if len(ret) == 0 {
@@ -359,17 +359,17 @@ func (_c *MockTrackingStore_LogBatch_Call) RunAndReturn(run func(string, []*prot
 	return _c
 }
 
-// RestoreExperiment provides a mock function with given fields: id
-func (_m *MockTrackingStore) RestoreExperiment(id string) *contract.Error {
-	ret := _m.Called(id)
+// RenameExperiment provides a mock function with given fields: experiment
+func (_m *MockTrackingStore) RenameExperiment(experiment *protos.Experiment) *contract.Error {
+	ret := _m.Called(experiment)
 
 	if len(ret) == 0 {
-		panic("no return value specified for RestoreExperiment")
+		panic("no return value specified for RenameExperiment")
 	}
 
 	var r0 *contract.Error
-	if rf, ok := ret.Get(0).(func(string) *contract.Error); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(*protos.Experiment) *contract.Error); ok {
+		r0 = rf(experiment)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*contract.Error)
@@ -379,30 +379,30 @@ func (_m *MockTrackingStore) RestoreExperiment(id string) *contract.Error {
 	return r0
 }
 
-// MockTrackingStore_RestoreExperiment_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RestoreExperiment'
-type MockTrackingStore_RestoreExperiment_Call struct {
+// MockTrackingStore_RenameExperiment_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RenameExperiment'
+type MockTrackingStore_RenameExperiment_Call struct {
 	*mock.Call
 }
 
-// RestoreExperiment is a helper method to define mock.On call
-//   - id string
-func (_e *MockTrackingStore_Expecter) RestoreExperiment(id interface{}) *MockTrackingStore_RestoreExperiment_Call {
-	return &MockTrackingStore_RestoreExperiment_Call{Call: _e.mock.On("RestoreExperiment", id)}
+// RenameExperiment is a helper method to define mock.On call
+//   - experiment *protos.Experiment
+func (_e *MockTrackingStore_Expecter) RenameExperiment(experiment interface{}) *MockTrackingStore_RenameExperiment_Call {
+	return &MockTrackingStore_RenameExperiment_Call{Call: _e.mock.On("RenameExperiment", experiment)}
 }
 
-func (_c *MockTrackingStore_RestoreExperiment_Call) Run(run func(id string)) *MockTrackingStore_RestoreExperiment_Call {
+func (_c *MockTrackingStore_RenameExperiment_Call) Run(run func(experiment *protos.Experiment)) *MockTrackingStore_RenameExperiment_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string))
+		run(args[0].(*protos.Experiment))
 	})
 	return _c
 }
 
-func (_c *MockTrackingStore_RestoreExperiment_Call) Return(_a0 *contract.Error) *MockTrackingStore_RestoreExperiment_Call {
+func (_c *MockTrackingStore_RenameExperiment_Call) Return(_a0 *contract.Error) *MockTrackingStore_RenameExperiment_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *MockTrackingStore_RestoreExperiment_Call) RunAndReturn(run func(string) *contract.Error) *MockTrackingStore_RestoreExperiment_Call {
+func (_c *MockTrackingStore_RenameExperiment_Call) RunAndReturn(run func(*protos.Experiment) *contract.Error) *MockTrackingStore_RenameExperiment_Call {
 	_c.Call.Return(run)
 	return _c
 }
