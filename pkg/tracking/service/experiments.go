@@ -2,12 +2,12 @@ package service
 
 import (
 	"fmt"
-	"github.com/mlflow/mlflow-go/pkg/utils"
 	"net/url"
 	"path/filepath"
 	"runtime"
 	"strings"
 
+	"github.com/mlflow/mlflow-go/pkg/utils"
 	"github.com/mlflow/mlflow-go/pkg/contract"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 )
