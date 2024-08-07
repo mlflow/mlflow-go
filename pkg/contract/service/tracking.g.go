@@ -13,6 +13,7 @@ type TrackingService interface {
 	GetExperiment(input *protos.GetExperiment) (*protos.GetExperiment_Response, *contract.Error)
 	DeleteExperiment(input *protos.DeleteExperiment) (*protos.DeleteExperiment_Response, *contract.Error)
 	RestoreExperiment(input *protos.RestoreExperiment) (*protos.RestoreExperiment_Response, *contract.Error)
+	UpdateExperiment(input *protos.UpdateExperiment) (*protos.UpdateExperiment_Response, *contract.Error)
 	CreateRun(input *protos.CreateRun) (*protos.CreateRun_Response, *contract.Error)
 	SearchRuns(input *protos.SearchRuns) (*protos.SearchRuns_Response, *contract.Error)
 	LogBatch(input *protos.LogBatch) (*protos.LogBatch_Response, *contract.Error)
