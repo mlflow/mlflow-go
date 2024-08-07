@@ -3,18 +3,19 @@
 package service
 
 import (
-	"github.com/mlflow/mlflow-go/pkg/protos"
+	"github.com/gofiber/fiber/v2"
 	"github.com/mlflow/mlflow-go/pkg/contract"
+	"github.com/mlflow/mlflow-go/pkg/protos"
 )
 
 type TrackingService interface {
-	GetExperimentByName(input *protos.GetExperimentByName) (*protos.GetExperimentByName_Response, *contract.Error)
-	CreateExperiment(input *protos.CreateExperiment) (*protos.CreateExperiment_Response, *contract.Error)
-	GetExperiment(input *protos.GetExperiment) (*protos.GetExperiment_Response, *contract.Error)
-	DeleteExperiment(input *protos.DeleteExperiment) (*protos.DeleteExperiment_Response, *contract.Error)
-	RestoreExperiment(input *protos.RestoreExperiment) (*protos.RestoreExperiment_Response, *contract.Error)
-	UpdateExperiment(input *protos.UpdateExperiment) (*protos.UpdateExperiment_Response, *contract.Error)
-	CreateRun(input *protos.CreateRun) (*protos.CreateRun_Response, *contract.Error)
-	SearchRuns(input *protos.SearchRuns) (*protos.SearchRuns_Response, *contract.Error)
-	LogBatch(input *protos.LogBatch) (*protos.LogBatch_Response, *contract.Error)
+	GetExperimentByName(ctx *fiber.Ctx, input *protos.GetExperimentByName) (*protos.GetExperimentByName_Response, *contract.Error)
+	CreateExperiment(ctx *fiber.Ctx, input *protos.CreateExperiment) (*protos.CreateExperiment_Response, *contract.Error)
+	GetExperiment(ctx *fiber.Ctx, input *protos.GetExperiment) (*protos.GetExperiment_Response, *contract.Error)
+	DeleteExperiment(ctx *fiber.Ctx, input *protos.DeleteExperiment) (*protos.DeleteExperiment_Response, *contract.Error)
+	RestoreExperiment(ctx *fiber.Ctx, input *protos.RestoreExperiment) (*protos.RestoreExperiment_Response, *contract.Error)
+	UpdateExperiment(ctx *fiber.Ctx, input *protos.UpdateExperiment) (*protos.UpdateExperiment_Response, *contract.Error)
+	CreateRun(ctx *fiber.Ctx, input *protos.CreateRun) (*protos.CreateRun_Response, *contract.Error)
+	SearchRuns(ctx *fiber.Ctx, input *protos.SearchRuns) (*protos.SearchRuns_Response, *contract.Error)
+	LogBatch(ctx *fiber.Ctx, input *protos.LogBatch) (*protos.LogBatch_Response, *contract.Error)
 }
