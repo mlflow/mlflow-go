@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"github.com/mlflow/mlflow-go/pkg/tracking/store/sql/models"
 	"net/url"
 	"path/filepath"
 	"runtime"
@@ -87,6 +88,29 @@ func (ts TrackingService) RestoreExperiment(
 		return nil, err
 	}
 	return &protos.RestoreExperiment_Response{}, nil
+}
+
+func (ts TrackingService) UpdateExperiment(
+	input *protos.UpdateExperiment,
+) (*protos.UpdateExperiment_Response, *contract.Error) {
+	experiment, err := ts.Store.GetExperiment(input.GetExperimentId())
+	if err != nil {
+		return nil, err
+	}
+	if *experiment.LifecycleStage != string(models.LifecycleStageActive) {
+		return nil, contract.NewError(
+			protos.ErrorCode_INVALID_STATE,
+			"Cannot rename a non-active experiment.",
+		)
+	}
+	if input.NewName != nil {
+		experiment.Name = input.NewName
+		if err := ts.Store.RenameExperiment(experiment); err != nil {
+			return nil, err
+		}
+	}
+
+	return &protos.UpdateExperiment_Response{}, nil
 }
 
 func (ts TrackingService) GetExperimentByName(
