@@ -1,15 +1,14 @@
 package service
 
 import (
+	"context"
 	"fmt"
-
-	"github.com/gofiber/fiber/v2"
 
 	"github.com/mlflow/mlflow-go/pkg/contract"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 )
 
-func (ts TrackingService) SearchRuns(ctx *fiber.Ctx, input *protos.SearchRuns) (*protos.SearchRuns_Response, *contract.Error) {
+func (ts TrackingService) SearchRuns(ctx context.Context, input *protos.SearchRuns) (*protos.SearchRuns_Response, *contract.Error) {
 	var runViewType protos.ViewType
 	if input.RunViewType == nil {
 		runViewType = protos.ViewType_ALL
@@ -39,7 +38,7 @@ func (ts TrackingService) SearchRuns(ctx *fiber.Ctx, input *protos.SearchRuns) (
 	return &response, nil
 }
 
-func (ts TrackingService) LogBatch(ctx *fiber.Ctx, input *protos.LogBatch) (*protos.LogBatch_Response, *contract.Error) {
+func (ts TrackingService) LogBatch(ctx context.Context, input *protos.LogBatch) (*protos.LogBatch_Response, *contract.Error) {
 	err := ts.Store.LogBatch(input.GetRunId(), input.GetMetrics(), input.GetParams(), input.GetTags())
 	if err != nil {
 		return nil, err
@@ -48,7 +47,7 @@ func (ts TrackingService) LogBatch(ctx *fiber.Ctx, input *protos.LogBatch) (*pro
 	return &protos.LogBatch_Response{}, nil
 }
 
-func (ts TrackingService) CreateRun(ctx *fiber.Ctx, input *protos.CreateRun) (*protos.CreateRun_Response, *contract.Error) {
+func (ts TrackingService) CreateRun(ctx context.Context, input *protos.CreateRun) (*protos.CreateRun_Response, *contract.Error) {
 	run, err := ts.Store.CreateRun(input)
 	if err != nil {
 		return nil, err

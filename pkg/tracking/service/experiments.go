@@ -1,13 +1,12 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"path/filepath"
 	"runtime"
 	"strings"
-
-	"github.com/gofiber/fiber/v2"
 
 	"github.com/mlflow/mlflow-go/pkg/contract"
 	"github.com/mlflow/mlflow-go/pkg/protos"
@@ -15,7 +14,7 @@ import (
 )
 
 // CreateExperiment implements TrackingService.
-func (ts TrackingService) CreateExperiment(ctx *fiber.Ctx, input *protos.CreateExperiment) (
+func (ts TrackingService) CreateExperiment(ctx context.Context, input *protos.CreateExperiment) (
 	*protos.CreateExperiment_Response, *contract.Error,
 ) {
 	if input.GetArtifactLocation() != "" {
@@ -58,7 +57,7 @@ func (ts TrackingService) CreateExperiment(ctx *fiber.Ctx, input *protos.CreateE
 }
 
 // GetExperiment implements TrackingService.
-func (ts TrackingService) GetExperiment(ctx *fiber.Ctx, input *protos.GetExperiment) (*protos.GetExperiment_Response, *contract.Error) {
+func (ts TrackingService) GetExperiment(ctx context.Context, input *protos.GetExperiment) (*protos.GetExperiment_Response, *contract.Error) {
 	experiment, err := ts.Store.GetExperiment(input.GetExperimentId())
 	if err != nil {
 		return nil, err
@@ -72,7 +71,7 @@ func (ts TrackingService) GetExperiment(ctx *fiber.Ctx, input *protos.GetExperim
 }
 
 func (ts TrackingService) DeleteExperiment(
-	ctx *fiber.Ctx, input *protos.DeleteExperiment,
+	ctx context.Context, input *protos.DeleteExperiment,
 ) (*protos.DeleteExperiment_Response, *contract.Error) {
 	err := ts.Store.DeleteExperiment(input.GetExperimentId())
 	if err != nil {
@@ -83,7 +82,7 @@ func (ts TrackingService) DeleteExperiment(
 }
 
 func (ts TrackingService) RestoreExperiment(
-	ctx *fiber.Ctx, input *protos.RestoreExperiment,
+	ctx context.Context, input *protos.RestoreExperiment,
 ) (*protos.RestoreExperiment_Response, *contract.Error) {
 	err := ts.Store.RestoreExperiment(input.GetExperimentId())
 	if err != nil {
@@ -93,7 +92,7 @@ func (ts TrackingService) RestoreExperiment(
 }
 
 func (ts TrackingService) UpdateExperiment(
-	ctx *fiber.Ctx, input *protos.UpdateExperiment,
+	ctx context.Context, input *protos.UpdateExperiment,
 ) (*protos.UpdateExperiment_Response, *contract.Error) {
 	experiment, err := ts.Store.GetExperiment(input.GetExperimentId())
 	if err != nil {
@@ -116,7 +115,7 @@ func (ts TrackingService) UpdateExperiment(
 }
 
 func (ts TrackingService) GetExperimentByName(
-	ctx *fiber.Ctx, input *protos.GetExperimentByName,
+	ctx context.Context, input *protos.GetExperimentByName,
 ) (*protos.GetExperimentByName_Response, *contract.Error) {
 	experiment, err := ts.Store.GetExperimentByName(input.GetExperimentName())
 	if err != nil {

@@ -26,7 +26,7 @@ func mkServiceInterfaceMethod(methodInfo discovery.MethodInfo) *ast.Field {
 		Type: &ast.FuncType{
 			Params: &ast.FieldList{
 				List: []*ast.Field{
-					mkNamedField("ctx", mkStarExpr(mkSelectorExpr("fiber", "Ctx"))),
+					mkNamedField("ctx", mkSelectorExpr("context", "Context")),
 					mkNamedField("input", mkMethodInfoInputPointerType(methodInfo)),
 				},
 			},
@@ -130,7 +130,9 @@ func mkAppRoute(method discovery.MethodInfo, endpoint discovery.Endpoint) ast.St
 		ast.NewIdent("output"),
 		ast.NewIdent("err"),
 	}, []ast.Expr{
-		mkCallExpr(mkSelectorExpr("service", strcase.ToCamel(method.Name)), ast.NewIdent("ctx"), ast.NewIdent("input")),
+		mkCallExpr(
+			mkSelectorExpr("service", strcase.ToCamel(method.Name)), mkSelectorExpr("ctx", "Context()"), ast.NewIdent("input"),
+		),
 	})
 
 	// if err != nil {
@@ -241,7 +243,7 @@ func generateServices(
 	if len(endpoints) > 0 {
 		decls = append(decls,
 			mkImportStatements(
-				`"github.com/gofiber/fiber/v2"`,
+				`"context"`,
 				`"github.com/mlflow/mlflow-go/pkg/protos"`,
 				`"github.com/mlflow/mlflow-go/pkg/contract"`,
 			))
