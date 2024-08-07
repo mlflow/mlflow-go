@@ -47,6 +47,14 @@ func TrackingServiceRestoreExperiment(serviceID int64, requestData unsafe.Pointe
 	}
 	return invokeServiceMethod(service.RestoreExperiment, new(protos.RestoreExperiment), requestData, requestSize, responseSize)
 }
+//export TrackingServiceUpdateExperiment
+func TrackingServiceUpdateExperiment(serviceID int64, requestData unsafe.Pointer, requestSize C.int, responseSize *C.int) unsafe.Pointer {
+	service, err := trackingServices.Get(serviceID)
+	if err != nil {
+		return makePointerFromError(err, responseSize)
+	}
+	return invokeServiceMethod(service.UpdateExperiment, new(protos.UpdateExperiment), requestData, requestSize, responseSize)
+}
 //export TrackingServiceCreateRun
 func TrackingServiceCreateRun(serviceID int64, requestData unsafe.Pointer, requestSize C.int, responseSize *C.int) unsafe.Pointer {
 	service, err := trackingServices.Get(serviceID)
