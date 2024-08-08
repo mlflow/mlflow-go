@@ -86,6 +86,7 @@ func (s TrackingSQLStore) RenameExperiment(experiment *protos.Experiment) *contr
 		}).Error; err != nil {
 		return contract.NewErrorWith(protos.ErrorCode_INTERNAL_ERROR, "failed to update experiment", err)
 	}
+
 	return nil
 }
 
