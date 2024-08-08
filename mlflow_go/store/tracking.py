@@ -15,6 +15,7 @@ from mlflow.protos.service_pb2 import (
     GetExperiment,
     GetExperimentByName,
     LogBatch,
+    LogMetric,
     RestoreExperiment,
     SearchRuns,
     UpdateExperiment,
@@ -124,6 +125,16 @@ class _TrackingStore:
             tags=[tag.to_proto() for tag in tags],
         )
         self.service.call_endpoint(get_lib().TrackingServiceLogBatch, request)
+
+    def log_metric(self, run_id, metric):
+        request = LogMetric(
+            run_id=run_id,
+            key=metric.key,
+            value=metric.value,
+            timestamp=metric.timestamp,
+            step=metric.step,
+        )
+        self.service.call_endpoint(get_lib().TrackingServiceLogMetric, request)
 
 
 def TrackingStore(cls):
