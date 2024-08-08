@@ -262,17 +262,9 @@ const (
 
 func orderByKeyAlias(input string) string {
 	switch input {
-	case "created":
+	case "created", "Created":
 		return startTime
-	case "Created":
-		return startTime
-	case "run_name":
-		return name
-	case "run name":
-		return name
-	case "Run name":
-		return name
-	case "Run Name":
+	case "run_name", "run name", "Run name", "Run Name":
 		return name
 	case "run_id":
 		return "run_uuid"
