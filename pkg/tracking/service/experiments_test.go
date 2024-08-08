@@ -1,6 +1,7 @@
 package service //nolint:testpackage
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/mock"
@@ -38,7 +39,7 @@ func TestRelativeArtifactLocation(t *testing.T) {
 				ArtifactLocation: utils.PtrTo(scenario.input),
 			}
 
-			response, err := service.CreateExperiment(&input)
+			response, err := service.CreateExperiment(context.Background(), &input)
 			if err != nil {
 				t.Error("expected create experiment to succeed")
 			}
