@@ -131,7 +131,12 @@ func mkAppRoute(method discovery.MethodInfo, endpoint discovery.Endpoint) ast.St
 		ast.NewIdent("err"),
 	}, []ast.Expr{
 		mkCallExpr(
-			mkSelectorExpr("service", strcase.ToCamel(method.Name)), mkSelectorExpr("ctx", "Context()"), ast.NewIdent("input"),
+			mkSelectorExpr(
+				"service",
+				strcase.ToCamel(method.Name),
+			),
+			mkCallExpr(mkSelectorExpr("ctx", "Context")),
+			ast.NewIdent("input"),
 		),
 	})
 
