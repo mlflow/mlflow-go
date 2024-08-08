@@ -15,7 +15,7 @@ func RegisterModelRegistryServiceRoutes(service service.ModelRegistryService, pa
 		if err := parser.ParseBody(ctx, input); err != nil {
 			return err
 		}
-		output, err := service.GetLatestVersions(input)
+		output, err := service.GetLatestVersions(ctx.Context(), input)
 		if err != nil {
 			return err
 		}
@@ -26,7 +26,7 @@ func RegisterModelRegistryServiceRoutes(service service.ModelRegistryService, pa
 		if err := parser.ParseQuery(ctx, input); err != nil {
 			return err
 		}
-		output, err := service.GetLatestVersions(input)
+		output, err := service.GetLatestVersions(ctx.Context(), input)
 		if err != nil {
 			return err
 		}

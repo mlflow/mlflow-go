@@ -3,18 +3,19 @@
 package service
 
 import (
+	"context"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 	"github.com/mlflow/mlflow-go/pkg/contract"
 )
 
 type TrackingService interface {
-	GetExperimentByName(input *protos.GetExperimentByName) (*protos.GetExperimentByName_Response, *contract.Error)
-	CreateExperiment(input *protos.CreateExperiment) (*protos.CreateExperiment_Response, *contract.Error)
-	GetExperiment(input *protos.GetExperiment) (*protos.GetExperiment_Response, *contract.Error)
-	DeleteExperiment(input *protos.DeleteExperiment) (*protos.DeleteExperiment_Response, *contract.Error)
-	RestoreExperiment(input *protos.RestoreExperiment) (*protos.RestoreExperiment_Response, *contract.Error)
-	UpdateExperiment(input *protos.UpdateExperiment) (*protos.UpdateExperiment_Response, *contract.Error)
-	CreateRun(input *protos.CreateRun) (*protos.CreateRun_Response, *contract.Error)
-	SearchRuns(input *protos.SearchRuns) (*protos.SearchRuns_Response, *contract.Error)
-	LogBatch(input *protos.LogBatch) (*protos.LogBatch_Response, *contract.Error)
+	GetExperimentByName(ctx context.Context, input *protos.GetExperimentByName) (*protos.GetExperimentByName_Response, *contract.Error)
+	CreateExperiment(ctx context.Context, input *protos.CreateExperiment) (*protos.CreateExperiment_Response, *contract.Error)
+	GetExperiment(ctx context.Context, input *protos.GetExperiment) (*protos.GetExperiment_Response, *contract.Error)
+	DeleteExperiment(ctx context.Context, input *protos.DeleteExperiment) (*protos.DeleteExperiment_Response, *contract.Error)
+	RestoreExperiment(ctx context.Context, input *protos.RestoreExperiment) (*protos.RestoreExperiment_Response, *contract.Error)
+	UpdateExperiment(ctx context.Context, input *protos.UpdateExperiment) (*protos.UpdateExperiment_Response, *contract.Error)
+	CreateRun(ctx context.Context, input *protos.CreateRun) (*protos.CreateRun_Response, *contract.Error)
+	SearchRuns(ctx context.Context, input *protos.SearchRuns) (*protos.SearchRuns_Response, *contract.Error)
+	LogBatch(ctx context.Context, input *protos.LogBatch) (*protos.LogBatch_Response, *contract.Error)
 }
