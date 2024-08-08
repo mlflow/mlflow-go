@@ -273,11 +273,62 @@ func orderByKeyAlias(input string) string {
 	}
 }
 
+func handleInsideQuote(
+	char, quoteChar rune, insideQuote *bool, current *strings.Builder, result *[]string,
+) {
+	if char == quoteChar {
+		*insideQuote = false
+
+		*result = append(*result, current.String())
+		current.Reset()
+	} else {
+		current.WriteRune(char)
+	}
+}
+
+func handleOutsideQuote(char rune, insideQuote *bool, quoteChar *rune, current *strings.Builder, result *[]string) {
+	switch char {
+	case ' ':
+		if current.Len() > 0 {
+			*result = append(*result, current.String())
+			current.Reset()
+		}
+	case '"', '\'', '`':
+		*insideQuote = true
+		*quoteChar = char
+	default:
+		current.WriteRune(char)
+	}
+}
+
+func splitWithQuotes(input string) []string {
+	input = strings.ToLower(strings.Trim(input, " "))
+
+	var result []string
+
+	var current strings.Builder
+
+	var insideQuote bool
+
+	var quoteChar rune
+
+	for _, char := range input {
+		if insideQuote {
+			handleInsideQuote(char, quoteChar, &insideQuote, &current, &result)
+		} else {
+			handleOutsideQuote(char, &insideQuote, &quoteChar, &current, &result)
+		}
+	}
+
+	if current.Len() > 0 {
+		result = append(result, current.String())
+	}
+
+	return result
+}
+
 func processOrderByClause(input string) (orderByExpr, error) {
-	lowerInput := strings.ToLower(input)
-	replacer := strings.NewReplacer("`", "", "'", "", "\"", "")
-	trimmed := strings.TrimSpace(replacer.Replace(lowerInput))
-	parts := strings.Fields(trimmed) // Fields splits the string by spaces and removes empty entries
+	parts := splitWithQuotes(input)
 
 	if len(parts) == 0 {
 		return orderByExpr{}, ErrInvalidOrderClauseInput
