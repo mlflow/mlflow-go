@@ -19,6 +19,7 @@ func (ts TrackingService) SearchRuns(ctx context.Context, input *protos.SearchRu
 	maxResults := int(input.GetMaxResults())
 
 	page, err := ts.Store.SearchRuns(
+		ctx,
 		input.GetExperimentIds(),
 		input.GetFilter(),
 		runViewType,
@@ -39,7 +40,7 @@ func (ts TrackingService) SearchRuns(ctx context.Context, input *protos.SearchRu
 }
 
 func (ts TrackingService) LogBatch(ctx context.Context, input *protos.LogBatch) (*protos.LogBatch_Response, *contract.Error) {
-	err := ts.Store.LogBatch(input.GetRunId(), input.GetMetrics(), input.GetParams(), input.GetTags())
+	err := ts.Store.LogBatch(ctx, input.GetRunId(), input.GetMetrics(), input.GetParams(), input.GetTags())
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +49,7 @@ func (ts TrackingService) LogBatch(ctx context.Context, input *protos.LogBatch) 
 }
 
 func (ts TrackingService) CreateRun(ctx context.Context, input *protos.CreateRun) (*protos.CreateRun_Response, *contract.Error) {
-	run, err := ts.Store.CreateRun(input)
+	run, err := ts.Store.CreateRun(ctx, input)
 	if err != nil {
 		return nil, err
 	}

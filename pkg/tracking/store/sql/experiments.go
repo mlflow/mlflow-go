@@ -1,6 +1,7 @@
 package sql
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/url"
@@ -15,7 +16,7 @@ import (
 	"github.com/mlflow/mlflow-go/pkg/utils"
 )
 
-func (s TrackingSQLStore) GetExperiment(id string) (*protos.Experiment, *contract.Error) {
+func (s TrackingSQLStore) GetExperiment(ctx context.Context, id string) (*protos.Experiment, *contract.Error) {
 	idInt, err := strconv.ParseInt(id, 10, 32)
 	if err != nil {
 		return nil, contract.NewErrorWith(
@@ -26,7 +27,7 @@ func (s TrackingSQLStore) GetExperiment(id string) (*protos.Experiment, *contrac
 	}
 
 	experiment := models.Experiment{ID: utils.PtrTo(int32(idInt))}
-	if err := s.db.Preload("Tags").First(&experiment).Error; err != nil {
+	if err := s.db.WithContext(ctx).Preload("Tags").First(&experiment).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, contract.NewError(
 				protos.ErrorCode_RESOURCE_DOES_NOT_EXIST,
@@ -44,10 +45,10 @@ func (s TrackingSQLStore) GetExperiment(id string) (*protos.Experiment, *contrac
 	return experiment.ToProto(), nil
 }
 
-func (s TrackingSQLStore) CreateExperiment(input *protos.CreateExperiment) (string, *contract.Error) {
+func (s TrackingSQLStore) CreateExperiment(ctx context.Context, input *protos.CreateExperiment) (string, *contract.Error) {
 	experiment := models.NewExperimentFromProto(input)
 
-	if err := s.db.Transaction(func(transaction *gorm.DB) error {
+	if err := s.db.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
 		if err := transaction.Create(&experiment).Error; err != nil {
 			return fmt.Errorf("failed to insert experiment: %w", err)
 		}
@@ -78,8 +79,9 @@ func (s TrackingSQLStore) CreateExperiment(input *protos.CreateExperiment) (stri
 	return strconv.Itoa(int(*experiment.ID)), nil
 }
 
-func (s TrackingSQLStore) RenameExperiment(experiment *protos.Experiment) *contract.Error {
+func (s TrackingSQLStore) RenameExperiment(ctx context.Context, experiment *protos.Experiment) *contract.Error {
 	if err := s.db.Model(&models.Experiment{}).
+		WithContext(ctx).
 		Where("experiment_id = ?", experiment.ExperimentId).
 		Updates(&models.Experiment{
 			Name: experiment.Name,
@@ -89,7 +91,7 @@ func (s TrackingSQLStore) RenameExperiment(experiment *protos.Experiment) *contr
 	return nil
 }
 
-func (s TrackingSQLStore) DeleteExperiment(id string) *contract.Error {
+func (s TrackingSQLStore) DeleteExperiment(ctx context.Context, id string) *contract.Error {
 	idInt, err := strconv.ParseInt(id, 10, 32)
 	if err != nil {
 		return contract.NewErrorWith(
@@ -99,7 +101,7 @@ func (s TrackingSQLStore) DeleteExperiment(id string) *contract.Error {
 		)
 	}
 
-	if err := s.db.Transaction(func(transaction *gorm.DB) error {
+	if err := s.db.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
 		// Update experiment
 		uex := transaction.Model(&models.Experiment{}).
 			Where("experiment_id = ?", idInt).
@@ -145,7 +147,7 @@ func (s TrackingSQLStore) DeleteExperiment(id string) *contract.Error {
 	return nil
 }
 
-func (s TrackingSQLStore) RestoreExperiment(id string) *contract.Error {
+func (s TrackingSQLStore) RestoreExperiment(ctx context.Context, id string) *contract.Error {
 	idInt, err := strconv.ParseInt(id, 10, 32)
 	if err != nil {
 		return contract.NewErrorWith(
@@ -155,7 +157,7 @@ func (s TrackingSQLStore) RestoreExperiment(id string) *contract.Error {
 		)
 	}
 
-	if err := s.db.Transaction(func(transaction *gorm.DB) error {
+	if err := s.db.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
 		// Update experiment
 		uex := transaction.Model(&models.Experiment{}).
 			Where("experiment_id = ?", idInt).
@@ -202,10 +204,10 @@ func (s TrackingSQLStore) RestoreExperiment(id string) *contract.Error {
 	return nil
 }
 
-func (s TrackingSQLStore) GetExperimentByName(name string) (*protos.Experiment, *contract.Error) {
+func (s TrackingSQLStore) GetExperimentByName(ctx context.Context, name string) (*protos.Experiment, *contract.Error) {
 	var experiment models.Experiment
 
-	err := s.db.Preload("Tags").Where("name = ?", name).First(&experiment).Error
+	err := s.db.WithContext(ctx).Preload("Tags").Where("name = ?", name).First(&experiment).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, contract.NewError(

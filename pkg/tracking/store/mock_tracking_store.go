@@ -3,6 +3,8 @@
 package store
 
 import (
+	context "context"
+
 	contract "github.com/mlflow/mlflow-go/pkg/contract"
 	mock "github.com/stretchr/testify/mock"
 
@@ -22,9 +24,9 @@ func (_m *MockTrackingStore) EXPECT() *MockTrackingStore_Expecter {
 	return &MockTrackingStore_Expecter{mock: &_m.Mock}
 }
 
-// CreateExperiment provides a mock function with given fields: input
-func (_m *MockTrackingStore) CreateExperiment(input *protos.CreateExperiment) (string, *contract.Error) {
-	ret := _m.Called(input)
+// CreateExperiment provides a mock function with given fields: ctx, input
+func (_m *MockTrackingStore) CreateExperiment(ctx context.Context, input *protos.CreateExperiment) (string, *contract.Error) {
+	ret := _m.Called(ctx, input)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateExperiment")
@@ -32,17 +34,17 @@ func (_m *MockTrackingStore) CreateExperiment(input *protos.CreateExperiment) (s
 
 	var r0 string
 	var r1 *contract.Error
-	if rf, ok := ret.Get(0).(func(*protos.CreateExperiment) (string, *contract.Error)); ok {
-		return rf(input)
+	if rf, ok := ret.Get(0).(func(context.Context, *protos.CreateExperiment) (string, *contract.Error)); ok {
+		return rf(ctx, input)
 	}
-	if rf, ok := ret.Get(0).(func(*protos.CreateExperiment) string); ok {
-		r0 = rf(input)
+	if rf, ok := ret.Get(0).(func(context.Context, *protos.CreateExperiment) string); ok {
+		r0 = rf(ctx, input)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
-	if rf, ok := ret.Get(1).(func(*protos.CreateExperiment) *contract.Error); ok {
-		r1 = rf(input)
+	if rf, ok := ret.Get(1).(func(context.Context, *protos.CreateExperiment) *contract.Error); ok {
+		r1 = rf(ctx, input)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(*contract.Error)
@@ -58,14 +60,15 @@ type MockTrackingStore_CreateExperiment_Call struct {
 }
 
 // CreateExperiment is a helper method to define mock.On call
+//   - ctx context.Context
 //   - input *protos.CreateExperiment
-func (_e *MockTrackingStore_Expecter) CreateExperiment(input interface{}) *MockTrackingStore_CreateExperiment_Call {
-	return &MockTrackingStore_CreateExperiment_Call{Call: _e.mock.On("CreateExperiment", input)}
+func (_e *MockTrackingStore_Expecter) CreateExperiment(ctx interface{}, input interface{}) *MockTrackingStore_CreateExperiment_Call {
+	return &MockTrackingStore_CreateExperiment_Call{Call: _e.mock.On("CreateExperiment", ctx, input)}
 }
 
-func (_c *MockTrackingStore_CreateExperiment_Call) Run(run func(input *protos.CreateExperiment)) *MockTrackingStore_CreateExperiment_Call {
+func (_c *MockTrackingStore_CreateExperiment_Call) Run(run func(ctx context.Context, input *protos.CreateExperiment)) *MockTrackingStore_CreateExperiment_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*protos.CreateExperiment))
+		run(args[0].(context.Context), args[1].(*protos.CreateExperiment))
 	})
 	return _c
 }
@@ -75,14 +78,14 @@ func (_c *MockTrackingStore_CreateExperiment_Call) Return(_a0 string, _a1 *contr
 	return _c
 }
 
-func (_c *MockTrackingStore_CreateExperiment_Call) RunAndReturn(run func(*protos.CreateExperiment) (string, *contract.Error)) *MockTrackingStore_CreateExperiment_Call {
+func (_c *MockTrackingStore_CreateExperiment_Call) RunAndReturn(run func(context.Context, *protos.CreateExperiment) (string, *contract.Error)) *MockTrackingStore_CreateExperiment_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// CreateRun provides a mock function with given fields: input
-func (_m *MockTrackingStore) CreateRun(input *protos.CreateRun) (*protos.Run, *contract.Error) {
-	ret := _m.Called(input)
+// CreateRun provides a mock function with given fields: ctx, input
+func (_m *MockTrackingStore) CreateRun(ctx context.Context, input *protos.CreateRun) (*protos.Run, *contract.Error) {
+	ret := _m.Called(ctx, input)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateRun")
@@ -90,19 +93,19 @@ func (_m *MockTrackingStore) CreateRun(input *protos.CreateRun) (*protos.Run, *c
 
 	var r0 *protos.Run
 	var r1 *contract.Error
-	if rf, ok := ret.Get(0).(func(*protos.CreateRun) (*protos.Run, *contract.Error)); ok {
-		return rf(input)
+	if rf, ok := ret.Get(0).(func(context.Context, *protos.CreateRun) (*protos.Run, *contract.Error)); ok {
+		return rf(ctx, input)
 	}
-	if rf, ok := ret.Get(0).(func(*protos.CreateRun) *protos.Run); ok {
-		r0 = rf(input)
+	if rf, ok := ret.Get(0).(func(context.Context, *protos.CreateRun) *protos.Run); ok {
+		r0 = rf(ctx, input)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*protos.Run)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*protos.CreateRun) *contract.Error); ok {
-		r1 = rf(input)
+	if rf, ok := ret.Get(1).(func(context.Context, *protos.CreateRun) *contract.Error); ok {
+		r1 = rf(ctx, input)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(*contract.Error)
@@ -118,14 +121,15 @@ type MockTrackingStore_CreateRun_Call struct {
 }
 
 // CreateRun is a helper method to define mock.On call
+//   - ctx context.Context
 //   - input *protos.CreateRun
-func (_e *MockTrackingStore_Expecter) CreateRun(input interface{}) *MockTrackingStore_CreateRun_Call {
-	return &MockTrackingStore_CreateRun_Call{Call: _e.mock.On("CreateRun", input)}
+func (_e *MockTrackingStore_Expecter) CreateRun(ctx interface{}, input interface{}) *MockTrackingStore_CreateRun_Call {
+	return &MockTrackingStore_CreateRun_Call{Call: _e.mock.On("CreateRun", ctx, input)}
 }
 
-func (_c *MockTrackingStore_CreateRun_Call) Run(run func(input *protos.CreateRun)) *MockTrackingStore_CreateRun_Call {
+func (_c *MockTrackingStore_CreateRun_Call) Run(run func(ctx context.Context, input *protos.CreateRun)) *MockTrackingStore_CreateRun_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*protos.CreateRun))
+		run(args[0].(context.Context), args[1].(*protos.CreateRun))
 	})
 	return _c
 }
@@ -135,22 +139,22 @@ func (_c *MockTrackingStore_CreateRun_Call) Return(_a0 *protos.Run, _a1 *contrac
 	return _c
 }
 
-func (_c *MockTrackingStore_CreateRun_Call) RunAndReturn(run func(*protos.CreateRun) (*protos.Run, *contract.Error)) *MockTrackingStore_CreateRun_Call {
+func (_c *MockTrackingStore_CreateRun_Call) RunAndReturn(run func(context.Context, *protos.CreateRun) (*protos.Run, *contract.Error)) *MockTrackingStore_CreateRun_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// DeleteExperiment provides a mock function with given fields: id
-func (_m *MockTrackingStore) DeleteExperiment(id string) *contract.Error {
-	ret := _m.Called(id)
+// DeleteExperiment provides a mock function with given fields: ctx, id
+func (_m *MockTrackingStore) DeleteExperiment(ctx context.Context, id string) *contract.Error {
+	ret := _m.Called(ctx, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for DeleteExperiment")
 	}
 
 	var r0 *contract.Error
-	if rf, ok := ret.Get(0).(func(string) *contract.Error); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(context.Context, string) *contract.Error); ok {
+		r0 = rf(ctx, id)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*contract.Error)
@@ -166,14 +170,15 @@ type MockTrackingStore_DeleteExperiment_Call struct {
 }
 
 // DeleteExperiment is a helper method to define mock.On call
+//   - ctx context.Context
 //   - id string
-func (_e *MockTrackingStore_Expecter) DeleteExperiment(id interface{}) *MockTrackingStore_DeleteExperiment_Call {
-	return &MockTrackingStore_DeleteExperiment_Call{Call: _e.mock.On("DeleteExperiment", id)}
+func (_e *MockTrackingStore_Expecter) DeleteExperiment(ctx interface{}, id interface{}) *MockTrackingStore_DeleteExperiment_Call {
+	return &MockTrackingStore_DeleteExperiment_Call{Call: _e.mock.On("DeleteExperiment", ctx, id)}
 }
 
-func (_c *MockTrackingStore_DeleteExperiment_Call) Run(run func(id string)) *MockTrackingStore_DeleteExperiment_Call {
+func (_c *MockTrackingStore_DeleteExperiment_Call) Run(run func(ctx context.Context, id string)) *MockTrackingStore_DeleteExperiment_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string))
+		run(args[0].(context.Context), args[1].(string))
 	})
 	return _c
 }
@@ -183,14 +188,14 @@ func (_c *MockTrackingStore_DeleteExperiment_Call) Return(_a0 *contract.Error) *
 	return _c
 }
 
-func (_c *MockTrackingStore_DeleteExperiment_Call) RunAndReturn(run func(string) *contract.Error) *MockTrackingStore_DeleteExperiment_Call {
+func (_c *MockTrackingStore_DeleteExperiment_Call) RunAndReturn(run func(context.Context, string) *contract.Error) *MockTrackingStore_DeleteExperiment_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetExperiment provides a mock function with given fields: id
-func (_m *MockTrackingStore) GetExperiment(id string) (*protos.Experiment, *contract.Error) {
-	ret := _m.Called(id)
+// GetExperiment provides a mock function with given fields: ctx, id
+func (_m *MockTrackingStore) GetExperiment(ctx context.Context, id string) (*protos.Experiment, *contract.Error) {
+	ret := _m.Called(ctx, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetExperiment")
@@ -198,19 +203,19 @@ func (_m *MockTrackingStore) GetExperiment(id string) (*protos.Experiment, *cont
 
 	var r0 *protos.Experiment
 	var r1 *contract.Error
-	if rf, ok := ret.Get(0).(func(string) (*protos.Experiment, *contract.Error)); ok {
-		return rf(id)
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*protos.Experiment, *contract.Error)); ok {
+		return rf(ctx, id)
 	}
-	if rf, ok := ret.Get(0).(func(string) *protos.Experiment); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(context.Context, string) *protos.Experiment); ok {
+		r0 = rf(ctx, id)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*protos.Experiment)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string) *contract.Error); ok {
-		r1 = rf(id)
+	if rf, ok := ret.Get(1).(func(context.Context, string) *contract.Error); ok {
+		r1 = rf(ctx, id)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(*contract.Error)
@@ -226,14 +231,15 @@ type MockTrackingStore_GetExperiment_Call struct {
 }
 
 // GetExperiment is a helper method to define mock.On call
+//   - ctx context.Context
 //   - id string
-func (_e *MockTrackingStore_Expecter) GetExperiment(id interface{}) *MockTrackingStore_GetExperiment_Call {
-	return &MockTrackingStore_GetExperiment_Call{Call: _e.mock.On("GetExperiment", id)}
+func (_e *MockTrackingStore_Expecter) GetExperiment(ctx interface{}, id interface{}) *MockTrackingStore_GetExperiment_Call {
+	return &MockTrackingStore_GetExperiment_Call{Call: _e.mock.On("GetExperiment", ctx, id)}
 }
 
-func (_c *MockTrackingStore_GetExperiment_Call) Run(run func(id string)) *MockTrackingStore_GetExperiment_Call {
+func (_c *MockTrackingStore_GetExperiment_Call) Run(run func(ctx context.Context, id string)) *MockTrackingStore_GetExperiment_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string))
+		run(args[0].(context.Context), args[1].(string))
 	})
 	return _c
 }
@@ -243,14 +249,14 @@ func (_c *MockTrackingStore_GetExperiment_Call) Return(_a0 *protos.Experiment, _
 	return _c
 }
 
-func (_c *MockTrackingStore_GetExperiment_Call) RunAndReturn(run func(string) (*protos.Experiment, *contract.Error)) *MockTrackingStore_GetExperiment_Call {
+func (_c *MockTrackingStore_GetExperiment_Call) RunAndReturn(run func(context.Context, string) (*protos.Experiment, *contract.Error)) *MockTrackingStore_GetExperiment_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetExperimentByName provides a mock function with given fields: name
-func (_m *MockTrackingStore) GetExperimentByName(name string) (*protos.Experiment, *contract.Error) {
-	ret := _m.Called(name)
+// GetExperimentByName provides a mock function with given fields: ctx, name
+func (_m *MockTrackingStore) GetExperimentByName(ctx context.Context, name string) (*protos.Experiment, *contract.Error) {
+	ret := _m.Called(ctx, name)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetExperimentByName")
@@ -258,19 +264,19 @@ func (_m *MockTrackingStore) GetExperimentByName(name string) (*protos.Experimen
 
 	var r0 *protos.Experiment
 	var r1 *contract.Error
-	if rf, ok := ret.Get(0).(func(string) (*protos.Experiment, *contract.Error)); ok {
-		return rf(name)
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*protos.Experiment, *contract.Error)); ok {
+		return rf(ctx, name)
 	}
-	if rf, ok := ret.Get(0).(func(string) *protos.Experiment); ok {
-		r0 = rf(name)
+	if rf, ok := ret.Get(0).(func(context.Context, string) *protos.Experiment); ok {
+		r0 = rf(ctx, name)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*protos.Experiment)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string) *contract.Error); ok {
-		r1 = rf(name)
+	if rf, ok := ret.Get(1).(func(context.Context, string) *contract.Error); ok {
+		r1 = rf(ctx, name)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(*contract.Error)
@@ -286,14 +292,15 @@ type MockTrackingStore_GetExperimentByName_Call struct {
 }
 
 // GetExperimentByName is a helper method to define mock.On call
+//   - ctx context.Context
 //   - name string
-func (_e *MockTrackingStore_Expecter) GetExperimentByName(name interface{}) *MockTrackingStore_GetExperimentByName_Call {
-	return &MockTrackingStore_GetExperimentByName_Call{Call: _e.mock.On("GetExperimentByName", name)}
+func (_e *MockTrackingStore_Expecter) GetExperimentByName(ctx interface{}, name interface{}) *MockTrackingStore_GetExperimentByName_Call {
+	return &MockTrackingStore_GetExperimentByName_Call{Call: _e.mock.On("GetExperimentByName", ctx, name)}
 }
 
-func (_c *MockTrackingStore_GetExperimentByName_Call) Run(run func(name string)) *MockTrackingStore_GetExperimentByName_Call {
+func (_c *MockTrackingStore_GetExperimentByName_Call) Run(run func(ctx context.Context, name string)) *MockTrackingStore_GetExperimentByName_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string))
+		run(args[0].(context.Context), args[1].(string))
 	})
 	return _c
 }
@@ -303,22 +310,22 @@ func (_c *MockTrackingStore_GetExperimentByName_Call) Return(_a0 *protos.Experim
 	return _c
 }
 
-func (_c *MockTrackingStore_GetExperimentByName_Call) RunAndReturn(run func(string) (*protos.Experiment, *contract.Error)) *MockTrackingStore_GetExperimentByName_Call {
+func (_c *MockTrackingStore_GetExperimentByName_Call) RunAndReturn(run func(context.Context, string) (*protos.Experiment, *contract.Error)) *MockTrackingStore_GetExperimentByName_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// LogBatch provides a mock function with given fields: runID, metrics, params, tags
-func (_m *MockTrackingStore) LogBatch(runID string, metrics []*protos.Metric, params []*protos.Param, tags []*protos.RunTag) *contract.Error {
-	ret := _m.Called(runID, metrics, params, tags)
+// LogBatch provides a mock function with given fields: ctx, runID, metrics, params, tags
+func (_m *MockTrackingStore) LogBatch(ctx context.Context, runID string, metrics []*protos.Metric, params []*protos.Param, tags []*protos.RunTag) *contract.Error {
+	ret := _m.Called(ctx, runID, metrics, params, tags)
 
 	if len(ret) == 0 {
 		panic("no return value specified for LogBatch")
 	}
 
 	var r0 *contract.Error
-	if rf, ok := ret.Get(0).(func(string, []*protos.Metric, []*protos.Param, []*protos.RunTag) *contract.Error); ok {
-		r0 = rf(runID, metrics, params, tags)
+	if rf, ok := ret.Get(0).(func(context.Context, string, []*protos.Metric, []*protos.Param, []*protos.RunTag) *contract.Error); ok {
+		r0 = rf(ctx, runID, metrics, params, tags)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*contract.Error)
@@ -334,17 +341,18 @@ type MockTrackingStore_LogBatch_Call struct {
 }
 
 // LogBatch is a helper method to define mock.On call
+//   - ctx context.Context
 //   - runID string
 //   - metrics []*protos.Metric
 //   - params []*protos.Param
 //   - tags []*protos.RunTag
-func (_e *MockTrackingStore_Expecter) LogBatch(runID interface{}, metrics interface{}, params interface{}, tags interface{}) *MockTrackingStore_LogBatch_Call {
-	return &MockTrackingStore_LogBatch_Call{Call: _e.mock.On("LogBatch", runID, metrics, params, tags)}
+func (_e *MockTrackingStore_Expecter) LogBatch(ctx interface{}, runID interface{}, metrics interface{}, params interface{}, tags interface{}) *MockTrackingStore_LogBatch_Call {
+	return &MockTrackingStore_LogBatch_Call{Call: _e.mock.On("LogBatch", ctx, runID, metrics, params, tags)}
 }
 
-func (_c *MockTrackingStore_LogBatch_Call) Run(run func(runID string, metrics []*protos.Metric, params []*protos.Param, tags []*protos.RunTag)) *MockTrackingStore_LogBatch_Call {
+func (_c *MockTrackingStore_LogBatch_Call) Run(run func(ctx context.Context, runID string, metrics []*protos.Metric, params []*protos.Param, tags []*protos.RunTag)) *MockTrackingStore_LogBatch_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].([]*protos.Metric), args[2].([]*protos.Param), args[3].([]*protos.RunTag))
+		run(args[0].(context.Context), args[1].(string), args[2].([]*protos.Metric), args[3].([]*protos.Param), args[4].([]*protos.RunTag))
 	})
 	return _c
 }
@@ -354,22 +362,22 @@ func (_c *MockTrackingStore_LogBatch_Call) Return(_a0 *contract.Error) *MockTrac
 	return _c
 }
 
-func (_c *MockTrackingStore_LogBatch_Call) RunAndReturn(run func(string, []*protos.Metric, []*protos.Param, []*protos.RunTag) *contract.Error) *MockTrackingStore_LogBatch_Call {
+func (_c *MockTrackingStore_LogBatch_Call) RunAndReturn(run func(context.Context, string, []*protos.Metric, []*protos.Param, []*protos.RunTag) *contract.Error) *MockTrackingStore_LogBatch_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// RenameExperiment provides a mock function with given fields: experiment
-func (_m *MockTrackingStore) RenameExperiment(experiment *protos.Experiment) *contract.Error {
-	ret := _m.Called(experiment)
+// RenameExperiment provides a mock function with given fields: ctx, experiment
+func (_m *MockTrackingStore) RenameExperiment(ctx context.Context, experiment *protos.Experiment) *contract.Error {
+	ret := _m.Called(ctx, experiment)
 
 	if len(ret) == 0 {
 		panic("no return value specified for RenameExperiment")
 	}
 
 	var r0 *contract.Error
-	if rf, ok := ret.Get(0).(func(*protos.Experiment) *contract.Error); ok {
-		r0 = rf(experiment)
+	if rf, ok := ret.Get(0).(func(context.Context, *protos.Experiment) *contract.Error); ok {
+		r0 = rf(ctx, experiment)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*contract.Error)
@@ -385,14 +393,15 @@ type MockTrackingStore_RenameExperiment_Call struct {
 }
 
 // RenameExperiment is a helper method to define mock.On call
+//   - ctx context.Context
 //   - experiment *protos.Experiment
-func (_e *MockTrackingStore_Expecter) RenameExperiment(experiment interface{}) *MockTrackingStore_RenameExperiment_Call {
-	return &MockTrackingStore_RenameExperiment_Call{Call: _e.mock.On("RenameExperiment", experiment)}
+func (_e *MockTrackingStore_Expecter) RenameExperiment(ctx interface{}, experiment interface{}) *MockTrackingStore_RenameExperiment_Call {
+	return &MockTrackingStore_RenameExperiment_Call{Call: _e.mock.On("RenameExperiment", ctx, experiment)}
 }
 
-func (_c *MockTrackingStore_RenameExperiment_Call) Run(run func(experiment *protos.Experiment)) *MockTrackingStore_RenameExperiment_Call {
+func (_c *MockTrackingStore_RenameExperiment_Call) Run(run func(ctx context.Context, experiment *protos.Experiment)) *MockTrackingStore_RenameExperiment_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*protos.Experiment))
+		run(args[0].(context.Context), args[1].(*protos.Experiment))
 	})
 	return _c
 }
@@ -402,22 +411,22 @@ func (_c *MockTrackingStore_RenameExperiment_Call) Return(_a0 *contract.Error) *
 	return _c
 }
 
-func (_c *MockTrackingStore_RenameExperiment_Call) RunAndReturn(run func(*protos.Experiment) *contract.Error) *MockTrackingStore_RenameExperiment_Call {
+func (_c *MockTrackingStore_RenameExperiment_Call) RunAndReturn(run func(context.Context, *protos.Experiment) *contract.Error) *MockTrackingStore_RenameExperiment_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// RestoreExperiment provides a mock function with given fields: id
-func (_m *MockTrackingStore) RestoreExperiment(id string) *contract.Error {
-	ret := _m.Called(id)
+// RestoreExperiment provides a mock function with given fields: ctx, id
+func (_m *MockTrackingStore) RestoreExperiment(ctx context.Context, id string) *contract.Error {
+	ret := _m.Called(ctx, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for RestoreExperiment")
 	}
 
 	var r0 *contract.Error
-	if rf, ok := ret.Get(0).(func(string) *contract.Error); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(context.Context, string) *contract.Error); ok {
+		r0 = rf(ctx, id)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*contract.Error)
@@ -433,14 +442,15 @@ type MockTrackingStore_RestoreExperiment_Call struct {
 }
 
 // RestoreExperiment is a helper method to define mock.On call
+//   - ctx context.Context
 //   - id string
-func (_e *MockTrackingStore_Expecter) RestoreExperiment(id interface{}) *MockTrackingStore_RestoreExperiment_Call {
-	return &MockTrackingStore_RestoreExperiment_Call{Call: _e.mock.On("RestoreExperiment", id)}
+func (_e *MockTrackingStore_Expecter) RestoreExperiment(ctx interface{}, id interface{}) *MockTrackingStore_RestoreExperiment_Call {
+	return &MockTrackingStore_RestoreExperiment_Call{Call: _e.mock.On("RestoreExperiment", ctx, id)}
 }
 
-func (_c *MockTrackingStore_RestoreExperiment_Call) Run(run func(id string)) *MockTrackingStore_RestoreExperiment_Call {
+func (_c *MockTrackingStore_RestoreExperiment_Call) Run(run func(ctx context.Context, id string)) *MockTrackingStore_RestoreExperiment_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string))
+		run(args[0].(context.Context), args[1].(string))
 	})
 	return _c
 }
@@ -450,14 +460,14 @@ func (_c *MockTrackingStore_RestoreExperiment_Call) Return(_a0 *contract.Error) 
 	return _c
 }
 
-func (_c *MockTrackingStore_RestoreExperiment_Call) RunAndReturn(run func(string) *contract.Error) *MockTrackingStore_RestoreExperiment_Call {
+func (_c *MockTrackingStore_RestoreExperiment_Call) RunAndReturn(run func(context.Context, string) *contract.Error) *MockTrackingStore_RestoreExperiment_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// SearchRuns provides a mock function with given fields: experimentIDs, filter, runViewType, maxResults, orderBy, pageToken
-func (_m *MockTrackingStore) SearchRuns(experimentIDs []string, filter string, runViewType protos.ViewType, maxResults int, orderBy []string, pageToken string) (*PagedList[*protos.Run], *contract.Error) {
-	ret := _m.Called(experimentIDs, filter, runViewType, maxResults, orderBy, pageToken)
+// SearchRuns provides a mock function with given fields: ctx, experimentIDs, filter, runViewType, maxResults, orderBy, pageToken
+func (_m *MockTrackingStore) SearchRuns(ctx context.Context, experimentIDs []string, filter string, runViewType protos.ViewType, maxResults int, orderBy []string, pageToken string) (*PagedList[*protos.Run], *contract.Error) {
+	ret := _m.Called(ctx, experimentIDs, filter, runViewType, maxResults, orderBy, pageToken)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SearchRuns")
@@ -465,19 +475,19 @@ func (_m *MockTrackingStore) SearchRuns(experimentIDs []string, filter string, r
 
 	var r0 *PagedList[*protos.Run]
 	var r1 *contract.Error
-	if rf, ok := ret.Get(0).(func([]string, string, protos.ViewType, int, []string, string) (*PagedList[*protos.Run], *contract.Error)); ok {
-		return rf(experimentIDs, filter, runViewType, maxResults, orderBy, pageToken)
+	if rf, ok := ret.Get(0).(func(context.Context, []string, string, protos.ViewType, int, []string, string) (*PagedList[*protos.Run], *contract.Error)); ok {
+		return rf(ctx, experimentIDs, filter, runViewType, maxResults, orderBy, pageToken)
 	}
-	if rf, ok := ret.Get(0).(func([]string, string, protos.ViewType, int, []string, string) *PagedList[*protos.Run]); ok {
-		r0 = rf(experimentIDs, filter, runViewType, maxResults, orderBy, pageToken)
+	if rf, ok := ret.Get(0).(func(context.Context, []string, string, protos.ViewType, int, []string, string) *PagedList[*protos.Run]); ok {
+		r0 = rf(ctx, experimentIDs, filter, runViewType, maxResults, orderBy, pageToken)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*PagedList[*protos.Run])
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func([]string, string, protos.ViewType, int, []string, string) *contract.Error); ok {
-		r1 = rf(experimentIDs, filter, runViewType, maxResults, orderBy, pageToken)
+	if rf, ok := ret.Get(1).(func(context.Context, []string, string, protos.ViewType, int, []string, string) *contract.Error); ok {
+		r1 = rf(ctx, experimentIDs, filter, runViewType, maxResults, orderBy, pageToken)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(*contract.Error)
@@ -493,19 +503,20 @@ type MockTrackingStore_SearchRuns_Call struct {
 }
 
 // SearchRuns is a helper method to define mock.On call
+//   - ctx context.Context
 //   - experimentIDs []string
 //   - filter string
 //   - runViewType protos.ViewType
 //   - maxResults int
 //   - orderBy []string
 //   - pageToken string
-func (_e *MockTrackingStore_Expecter) SearchRuns(experimentIDs interface{}, filter interface{}, runViewType interface{}, maxResults interface{}, orderBy interface{}, pageToken interface{}) *MockTrackingStore_SearchRuns_Call {
-	return &MockTrackingStore_SearchRuns_Call{Call: _e.mock.On("SearchRuns", experimentIDs, filter, runViewType, maxResults, orderBy, pageToken)}
+func (_e *MockTrackingStore_Expecter) SearchRuns(ctx interface{}, experimentIDs interface{}, filter interface{}, runViewType interface{}, maxResults interface{}, orderBy interface{}, pageToken interface{}) *MockTrackingStore_SearchRuns_Call {
+	return &MockTrackingStore_SearchRuns_Call{Call: _e.mock.On("SearchRuns", ctx, experimentIDs, filter, runViewType, maxResults, orderBy, pageToken)}
 }
 
-func (_c *MockTrackingStore_SearchRuns_Call) Run(run func(experimentIDs []string, filter string, runViewType protos.ViewType, maxResults int, orderBy []string, pageToken string)) *MockTrackingStore_SearchRuns_Call {
+func (_c *MockTrackingStore_SearchRuns_Call) Run(run func(ctx context.Context, experimentIDs []string, filter string, runViewType protos.ViewType, maxResults int, orderBy []string, pageToken string)) *MockTrackingStore_SearchRuns_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].([]string), args[1].(string), args[2].(protos.ViewType), args[3].(int), args[4].([]string), args[5].(string))
+		run(args[0].(context.Context), args[1].([]string), args[2].(string), args[3].(protos.ViewType), args[4].(int), args[5].([]string), args[6].(string))
 	})
 	return _c
 }
@@ -515,7 +526,7 @@ func (_c *MockTrackingStore_SearchRuns_Call) Return(pagedList *PagedList[*protos
 	return _c
 }
 
-func (_c *MockTrackingStore_SearchRuns_Call) RunAndReturn(run func([]string, string, protos.ViewType, int, []string, string) (*PagedList[*protos.Run], *contract.Error)) *MockTrackingStore_SearchRuns_Call {
+func (_c *MockTrackingStore_SearchRuns_Call) RunAndReturn(run func(context.Context, []string, string, protos.ViewType, int, []string, string) (*PagedList[*protos.Run], *contract.Error)) *MockTrackingStore_SearchRuns_Call {
 	_c.Call.Return(run)
 	return _c
 }

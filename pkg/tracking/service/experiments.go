@@ -44,7 +44,7 @@ func (ts TrackingService) CreateExperiment(ctx context.Context, input *protos.Cr
 		input.ArtifactLocation = &artifactLocation
 	}
 
-	experimentID, err := ts.Store.CreateExperiment(input)
+	experimentID, err := ts.Store.CreateExperiment(ctx, input)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ func (ts TrackingService) CreateExperiment(ctx context.Context, input *protos.Cr
 
 // GetExperiment implements TrackingService.
 func (ts TrackingService) GetExperiment(ctx context.Context, input *protos.GetExperiment) (*protos.GetExperiment_Response, *contract.Error) {
-	experiment, err := ts.Store.GetExperiment(input.GetExperimentId())
+	experiment, err := ts.Store.GetExperiment(ctx, input.GetExperimentId())
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +73,7 @@ func (ts TrackingService) GetExperiment(ctx context.Context, input *protos.GetEx
 func (ts TrackingService) DeleteExperiment(
 	ctx context.Context, input *protos.DeleteExperiment,
 ) (*protos.DeleteExperiment_Response, *contract.Error) {
-	err := ts.Store.DeleteExperiment(input.GetExperimentId())
+	err := ts.Store.DeleteExperiment(ctx, input.GetExperimentId())
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +84,7 @@ func (ts TrackingService) DeleteExperiment(
 func (ts TrackingService) RestoreExperiment(
 	ctx context.Context, input *protos.RestoreExperiment,
 ) (*protos.RestoreExperiment_Response, *contract.Error) {
-	err := ts.Store.RestoreExperiment(input.GetExperimentId())
+	err := ts.Store.RestoreExperiment(ctx, input.GetExperimentId())
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +94,7 @@ func (ts TrackingService) RestoreExperiment(
 func (ts TrackingService) UpdateExperiment(
 	ctx context.Context, input *protos.UpdateExperiment,
 ) (*protos.UpdateExperiment_Response, *contract.Error) {
-	experiment, err := ts.Store.GetExperiment(input.GetExperimentId())
+	experiment, err := ts.Store.GetExperiment(ctx, input.GetExperimentId())
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +106,7 @@ func (ts TrackingService) UpdateExperiment(
 	}
 	if input.NewName != nil {
 		experiment.Name = input.NewName
-		if err := ts.Store.RenameExperiment(experiment); err != nil {
+		if err := ts.Store.RenameExperiment(ctx, experiment); err != nil {
 			return nil, err
 		}
 	}
@@ -117,7 +117,7 @@ func (ts TrackingService) UpdateExperiment(
 func (ts TrackingService) GetExperimentByName(
 	ctx context.Context, input *protos.GetExperimentByName,
 ) (*protos.GetExperimentByName_Response, *contract.Error) {
-	experiment, err := ts.Store.GetExperimentByName(input.GetExperimentName())
+	experiment, err := ts.Store.GetExperimentByName(ctx, input.GetExperimentName())
 	if err != nil {
 		return nil, err
 	}

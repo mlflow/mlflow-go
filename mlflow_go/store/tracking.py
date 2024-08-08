@@ -88,7 +88,7 @@ class _TrackingStore:
 
     def rename_experiment(self, experiment_id, new_name):
         request = UpdateExperiment(experiment_id=str(experiment_id), new_name=new_name)
-        self.service.call_endpoint(get_lib().TrackingServiceRestoreExperiment, request)
+        self.service.call_endpoint(get_lib().TrackingServiceUpdateExperiment, request)
 
     def create_run(self, experiment_id, user_id, start_time, tags, run_name):
         request = CreateRun(

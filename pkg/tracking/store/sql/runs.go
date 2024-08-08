@@ -1,6 +1,7 @@
 package sql
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -342,12 +343,13 @@ func mkNextPageToken(runLength, maxResults, offset int) (*string, *contract.Erro
 }
 
 func (s TrackingSQLStore) SearchRuns(
+	ctx context.Context,
 	experimentIDs []string, filter string,
 	runViewType protos.ViewType, maxResults int, orderBy []string, pageToken string,
 ) (*store.PagedList[*protos.Run], *contract.Error) {
 	// ViewType
 	lifecyleStages := getLifecyleStages(runViewType)
-	transaction := s.db.Where("runs.experiment_id IN ?", experimentIDs).Where("runs.lifecycle_stage IN ?", lifecyleStages)
+	transaction := s.db.WithContext(ctx).Where("runs.experiment_id IN ?", experimentIDs).Where("runs.lifecycle_stage IN ?", lifecyleStages)
 
 	// MaxResults
 	transaction.Limit(maxResults)
@@ -463,8 +465,8 @@ func ensureRunName(runModel *models.Run) *contract.Error {
 	return nil
 }
 
-func (s TrackingSQLStore) CreateRun(input *protos.CreateRun) (*protos.Run, *contract.Error) {
-	experiment, err := s.GetExperiment(input.GetExperimentId())
+func (s TrackingSQLStore) CreateRun(ctx context.Context, input *protos.CreateRun) (*protos.Run, *contract.Error) {
+	experiment, err := s.GetExperiment(ctx, input.GetExperimentId())
 	if err != nil {
 		return nil, err
 	}
@@ -517,9 +519,9 @@ func (s TrackingSQLStore) CreateRun(input *protos.CreateRun) (*protos.Run, *cont
 }
 
 func (s TrackingSQLStore) LogBatch(
-	runID string, metrics []*protos.Metric, params []*protos.Param, tags []*protos.RunTag,
+	ctx context.Context, runID string, metrics []*protos.Metric, params []*protos.Param, tags []*protos.RunTag,
 ) *contract.Error {
-	err := s.db.Transaction(func(transaction *gorm.DB) error {
+	err := s.db.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
 		contractError := checkRunIsActive(transaction, runID)
 		if contractError != nil {
 			return contractError
