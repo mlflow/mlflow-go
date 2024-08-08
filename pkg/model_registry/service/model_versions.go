@@ -1,12 +1,14 @@
 package service
 
 import (
+	"context"
+
 	"github.com/mlflow/mlflow-go/pkg/contract"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 )
 
 func (m *ModelRegistryService) GetLatestVersions(
-	input *protos.GetLatestVersions,
+	ctx context.Context, input *protos.GetLatestVersions,
 ) (*protos.GetLatestVersions_Response, *contract.Error) {
 	latestVersions, err := m.store.GetLatestVersions(input.GetName(), input.GetStages())
 	if err != nil {
