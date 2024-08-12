@@ -255,9 +255,9 @@ type orderByExpr struct {
 var ErrInvalidOrderClauseInput = errors.New("input string is empty or only contains quote characters")
 
 const (
-	tableAndColumn = 2
-	startTime      = "start_time"
-	name           = "name"
+	identifierAndKeyLength = 2
+	startTime              = "start_time"
+	name                   = "name"
 )
 
 func orderByKeyAlias(input string) string {
@@ -347,7 +347,7 @@ func processOrderByClause(input string) (orderByExpr, error) {
 
 	identifierKey := strings.Split(parts[0], ".")
 
-	if len(identifierKey) == tableAndColumn {
+	if len(identifierKey) == identifierAndKeyLength {
 		expr.identifier = &identifierKey[0]
 		expr.key = orderByKeyAlias(identifierKey[1])
 	} else if len(identifierKey) == 1 {
