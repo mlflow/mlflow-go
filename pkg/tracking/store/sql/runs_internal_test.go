@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/iancoleman/strcase"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -36,7 +37,7 @@ func removeWhitespace(s string) string {
 
 var tests = []testData{
 	{
-		name:  "simple metric query",
+		name:  "SimpleMetricQuery",
 		query: "metrics.accuracy > 0.72",
 		expectedSQL: map[string]string{
 			"postgres": `
@@ -64,7 +65,7 @@ var tests = []testData{
 		expectedVars: []any{"accuracy", 0.72},
 	},
 	{
-		name:  "simple metric and param query",
+		name:  "SimpleMetricAndParamQuery",
 		query: "metrics.accuracy > 0.72 AND params.batch_size = '2'",
 		expectedSQL: map[string]string{
 			"postgres": `
@@ -85,7 +86,7 @@ var tests = []testData{
 		expectedVars: []any{"accuracy", 0.72, "batch_size", "2"},
 	},
 	{
-		name:  "tag query",
+		name:  "TagQuery",
 		query: "tags.environment = 'notebook' AND tags.task ILIKE 'classif%'",
 		expectedSQL: map[string]string{
 			"postgres": `
@@ -106,7 +107,7 @@ var tests = []testData{
 		expectedVars: []any{"environment", "notebook", "task", "classif%"},
 	},
 	{
-		name:  "datasests IN query",
+		name:  "DatasestsInQuery",
 		query: "datasets.digest IN ('s8ds293b', 'jks834s2')",
 		expectedSQL: map[string]string{
 			"postgres": `
@@ -123,7 +124,7 @@ var tests = []testData{
 		expectedVars: []any{"s8ds293b", "jks834s2"},
 	},
 	{
-		name:  "attributes query",
+		name:  "AttributesQuery",
 		query: "attributes.run_id = 'a1b2c3d4'",
 		expectedSQL: map[string]string{
 			"postgres": `
@@ -136,7 +137,7 @@ var tests = []testData{
 		expectedVars: []any{"a1b2c3d4"},
 	},
 	{
-		name:  "run_name query",
+		name:  "Run_nameQuery",
 		query: "attributes.run_name = 'my-run'",
 		expectedSQL: map[string]string{
 			"postgres": `
@@ -153,7 +154,7 @@ var tests = []testData{
 		expectedVars: []any{"mlflow.runName", "my-run"},
 	},
 	{
-		name:  "datasets.context query",
+		name:  "DatasetsContextQuery",
 		query: "datasets.context = 'train'",
 		expectedSQL: map[string]string{
 			"postgres": `
@@ -182,7 +183,7 @@ var tests = []testData{
 		expectedVars: []any{"train"},
 	},
 	{
-		name:  "run_name query",
+		name:  "Run_nameQuery",
 		query: "attributes.run_name ILIKE 'my-run%'",
 		expectedSQL: map[string]string{
 			"postgres": `
@@ -199,7 +200,7 @@ var tests = []testData{
 		expectedVars: []any{"mlflow.runName", "my-run%"},
 	},
 	{
-		name:  "datasets.context query",
+		name:  "DatasetsContextQuery",
 		query: "datasets.context ILIKE '%train'",
 		expectedSQL: map[string]string{
 			"postgres": `
@@ -225,7 +226,7 @@ var tests = []testData{
 		expectedVars: []any{"%train"},
 	},
 	{
-		name:  "datasests.digest",
+		name:  "DatasestsDigest",
 		query: "datasets.digest ILIKE '%s'",
 		expectedSQL: map[string]string{
 			"postgres": `
@@ -242,7 +243,7 @@ var tests = []testData{
 		expectedVars: []any{"%s"},
 	},
 	{
-		name:  "param query",
+		name:  "ParamQuery",
 		query: "metrics.accuracy > 0.72 AND params.batch_size ILIKE '%a'",
 		expectedSQL: map[string]string{
 			"postgres": `
@@ -264,7 +265,7 @@ var tests = []testData{
 		expectedVars: []any{"accuracy", 0.72, "batch_size", "%a"},
 	},
 	{
-		name:    "order by start_time ASC",
+		name:    "OrderByStartTimeASC",
 		query:   "",
 		orderBy: []string{"start_time ASC"},
 		expectedSQL: map[string]string{
@@ -273,7 +274,7 @@ var tests = []testData{
 		expectedVars: []any{},
 	},
 	{
-		name:  "order by status DESC",
+		name:  "OrderByStatusDesc",
 		query: "",
 		expectedSQL: map[string]string{
 			"postgres": `SELECT "run_uuid" FROM "runs" ORDER BY "status" DESC,runs.start_time DESC,runs.run_uuid`,
@@ -282,7 +283,7 @@ var tests = []testData{
 		expectedVars: []any{},
 	},
 	{
-		name:  "order by run_name",
+		name:  "OrderByRunNameSnakeCase",
 		query: "",
 		expectedSQL: map[string]string{
 			"postgres": `SELECT "run_uuid" FROM "runs" ORDER BY "name",runs.start_time DESC,runs.run_uuid`,
@@ -291,7 +292,7 @@ var tests = []testData{
 		expectedVars: []any{},
 	},
 	{
-		name:  "order by Run name",
+		name:  "OrderByRunNameLowerName",
 		query: "",
 		expectedSQL: map[string]string{
 			"postgres": `SELECT "run_uuid" FROM "runs" ORDER BY "name",runs.start_time DESC,runs.run_uuid`,
@@ -300,7 +301,7 @@ var tests = []testData{
 		expectedVars: []any{},
 	},
 	{
-		name:  "order by Run Name",
+		name:  "OrderByRunNamePascal",
 		query: "",
 		expectedSQL: map[string]string{
 			"postgres": `SELECT "run_uuid" FROM "runs" ORDER BY "name",runs.start_time DESC,runs.run_uuid`,
@@ -475,7 +476,7 @@ func TestOrderByClauseParsing(t *testing.T) {
 	}
 
 	for _, testData := range testData {
-		t.Run(testData.input, func(t *testing.T) {
+		t.Run(strcase.ToKebab(testData.input), func(t *testing.T) {
 			t.Parallel()
 
 			result, err := processOrderByClause(testData.input)
