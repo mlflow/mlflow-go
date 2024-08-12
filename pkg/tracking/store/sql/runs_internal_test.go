@@ -2,6 +2,7 @@
 package sql
 
 import (
+	"reflect"
 	"regexp"
 	"testing"
 
@@ -16,6 +17,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/mlflow/mlflow-go/pkg/tracking/store/sql/models"
+	"github.com/mlflow/mlflow-go/pkg/utils"
 )
 
 type testData struct {
@@ -416,5 +418,81 @@ func TestInvalidSearchRunsQuery(t *testing.T) {
 	contractErr := applyFilter(logrus.StandardLogger(), database, transaction, "⚡✱*@❖$#&")
 	if contractErr == nil {
 		t.Fatal("expected contract error")
+	}
+}
+
+//nolint:funlen
+func TestOrderByClauseParsing(t *testing.T) {
+	t.Parallel()
+
+	testData := []struct {
+		input    string
+		expected orderByExpr
+	}{
+		{
+			input: "status DESC",
+			expected: orderByExpr{
+				key:   "status",
+				order: utils.PtrTo("DESC"),
+			},
+		},
+		{
+			input: "run_name",
+			expected: orderByExpr{
+				key: "name",
+			},
+		},
+		{
+			input: "params.input DESC",
+			expected: orderByExpr{
+				identifier: utils.PtrTo("params"),
+				key:        "input",
+				order:      utils.PtrTo("DESC"),
+			},
+		},
+		{
+			input: "metrics.alpha ASC",
+			expected: orderByExpr{
+				identifier: utils.PtrTo("metrics"),
+				key:        "alpha",
+				order:      utils.PtrTo("ASC"),
+			},
+		},
+		{
+			input: "`Run name`",
+			expected: orderByExpr{
+				key: "name",
+			},
+		},
+		{
+			input: "tags.`foo bar` ASC",
+			expected: orderByExpr{
+				identifier: utils.PtrTo("tags"),
+				key:        "foo bar",
+				order:      utils.PtrTo("ASC"),
+			},
+		},
+	}
+
+	for _, testData := range testData {
+		t.Run(testData.input, func(t *testing.T) {
+			t.Parallel()
+
+			result, err := processOrderByClause(testData.input)
+			if err != nil {
+				t.Fatalf("unexpected error: %A", err)
+			}
+
+			if !reflect.DeepEqual(testData.expected, result) {
+				t.Fatalf("expected (%s, %s, %s), got (%s, %s, %s)",
+					*testData.expected.identifier,
+					testData.expected.key,
+					*testData.expected.order,
+					*result.identifier,
+					result.key,
+					*result.order,
+				)
+			}
+		})
 	}
 }

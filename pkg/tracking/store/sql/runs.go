@@ -274,34 +274,42 @@ func orderByKeyAlias(input string) string {
 }
 
 func handleInsideQuote(
-	char, quoteChar rune, insideQuote *bool, current *strings.Builder, result *[]string,
-) {
+	char, quoteChar rune, insideQuote bool, current strings.Builder, result []string,
+) (bool, strings.Builder, []string) {
 	if char == quoteChar {
-		*insideQuote = false
+		insideQuote = false
 
-		*result = append(*result, current.String())
+		result = append(result, current.String())
 		current.Reset()
 	} else {
 		current.WriteRune(char)
 	}
+
+	return insideQuote, current, result
 }
 
-func handleOutsideQuote(char rune, insideQuote *bool, quoteChar *rune, current *strings.Builder, result *[]string) {
+func handleOutsideQuote(
+	char rune, insideQuote bool, quoteChar rune, current strings.Builder, result []string,
+) (bool, rune, strings.Builder, []string) {
 	switch char {
 	case ' ':
 		if current.Len() > 0 {
-			*result = append(*result, current.String())
+			result = append(result, current.String())
 			current.Reset()
 		}
 	case '"', '\'', '`':
-		*insideQuote = true
-		*quoteChar = char
+		insideQuote = true
+		quoteChar = char
 	default:
 		current.WriteRune(char)
 	}
+
+	return insideQuote, quoteChar, current, result
 }
 
-func splitWithQuotes(input string) []string {
+// Process an order by input string to split the string into the separate parts.
+// We can't simply split by space, because the column name could be wrapped in quotes, e.g. "Run name" ASC.
+func splitOrderByClauseWithQuotes(input string) []string {
 	input = strings.ToLower(strings.Trim(input, " "))
 
 	var result []string
@@ -312,11 +320,12 @@ func splitWithQuotes(input string) []string {
 
 	var quoteChar rune
 
+	// Process char per char, split items on spaces unless inside a quoted entry.
 	for _, char := range input {
 		if insideQuote {
-			handleInsideQuote(char, quoteChar, &insideQuote, &current, &result)
+			insideQuote, current, result = handleInsideQuote(char, quoteChar, insideQuote, current, result)
 		} else {
-			handleOutsideQuote(char, &insideQuote, &quoteChar, &current, &result)
+			insideQuote, quoteChar, current, result = handleOutsideQuote(char, insideQuote, quoteChar, current, result)
 		}
 	}
 
@@ -328,7 +337,7 @@ func splitWithQuotes(input string) []string {
 }
 
 func processOrderByClause(input string) (orderByExpr, error) {
-	parts := splitWithQuotes(input)
+	parts := splitOrderByClauseWithQuotes(input)
 
 	if len(parts) == 0 {
 		return orderByExpr{}, ErrInvalidOrderClauseInput
