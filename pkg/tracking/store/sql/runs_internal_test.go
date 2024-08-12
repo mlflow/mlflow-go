@@ -2,10 +2,12 @@
 package sql
 
 import (
+	"reflect"
 	"regexp"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/iancoleman/strcase"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -16,11 +18,13 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/mlflow/mlflow-go/pkg/tracking/store/sql/models"
+	"github.com/mlflow/mlflow-go/pkg/utils"
 )
 
 type testData struct {
 	name         string
 	query        string
+	orderBy      []string
 	expectedSQL  map[string]string
 	expectedVars []any
 }
@@ -33,209 +37,277 @@ func removeWhitespace(s string) string {
 
 var tests = []testData{
 	{
-		name:  "simple metric query",
+		name:  "SimpleMetricQuery",
 		query: "metrics.accuracy > 0.72",
 		expectedSQL: map[string]string{
 			"postgres": `
-SELECT "run_uuid" FROM "runs"
-JOIN (SELECT "run_uuid","value" FROM "latest_metrics" WHERE key = $1 AND value > $2)
-AS filter_0
-ON runs.run_uuid = filter_0.run_uuid`,
+	SELECT "run_uuid" FROM "runs"
+	JOIN (SELECT "run_uuid","value" FROM "latest_metrics" WHERE key = $1 AND value > $2)
+	AS filter_0
+	ON runs.run_uuid = filter_0.run_uuid
+	ORDER BY runs.start_time DESC,runs.run_uuid`,
 			"sqlite": `
-SELECT run_uuid FROM runs
-JOIN (SELECT run_uuid,value FROM latest_metrics WHERE key = ? AND value > ?)
-AS filter_0 ON runs.run_uuid = filter_0.run_uuid`,
+	SELECT run_uuid FROM runs
+	JOIN (SELECT run_uuid,value FROM latest_metrics WHERE key = ? AND value > ?)
+	AS filter_0 ON runs.run_uuid = filter_0.run_uuid
+	ORDER BY runs.start_time DESC,runs.run_uuid`,
 			"sqlserver": `
-SELECT "run_uuid" FROM "runs"
-JOIN (SELECT "run_uuid","value" FROM "latest_metrics" WHERE key = @p1 AND value > @p2)
-AS filter_0 ON runs.run_uuid = filter_0.run_uuid`,
+	SELECT "run_uuid" FROM "runs"
+	JOIN (SELECT "run_uuid","value" FROM "latest_metrics" WHERE key = @p1 AND value > @p2)
+	AS filter_0 ON runs.run_uuid = filter_0.run_uuid
+	ORDER BY runs.start_time DESC,runs.run_uuid`,
 			"mysql": `
-SELECT run_uuid FROM runs
-JOIN (SELECT run_uuid,value FROM latest_metrics WHERE key = ? AND value > ?)
-AS filter_0 ON runs.run_uuid = filter_0.run_uuid`,
+	SELECT run_uuid FROM runs
+	JOIN (SELECT run_uuid,value FROM latest_metrics WHERE key = ? AND value > ?)
+	AS filter_0 ON runs.run_uuid = filter_0.run_uuid
+	ORDER BY runs.start_time DESC,runs.run_uuid`,
 		},
 		expectedVars: []any{"accuracy", 0.72},
 	},
 	{
-		name:  "simple metric and param query",
+		name:  "SimpleMetricAndParamQuery",
 		query: "metrics.accuracy > 0.72 AND params.batch_size = '2'",
 		expectedSQL: map[string]string{
 			"postgres": `
-SELECT "run_uuid" FROM "runs"
-JOIN (SELECT "run_uuid","value" FROM "latest_metrics" WHERE key = $1 AND value > $2)
-AS filter_0 ON runs.run_uuid = filter_0.run_uuid
-JOIN (SELECT "run_uuid","value" FROM "params" WHERE key = $3 AND value = $4)
-AS filter_1 ON runs.run_uuid = filter_1.run_uuid`,
+	SELECT "run_uuid" FROM "runs"
+	JOIN (SELECT "run_uuid","value" FROM "latest_metrics" WHERE key = $1 AND value > $2)
+	AS filter_0 ON runs.run_uuid = filter_0.run_uuid
+	JOIN (SELECT "run_uuid","value" FROM "params" WHERE key = $3 AND value = $4)
+	AS filter_1 ON runs.run_uuid = filter_1.run_uuid
+	ORDER BY runs.start_time DESC,runs.run_uuid`,
 			"sqlite": `
-SELECT run_uuid FROM runs
-JOIN (SELECT run_uuid,value FROM latest_metrics WHERE key = ? AND value > ?)
-AS filter_0 ON runs.run_uuid = filter_0.run_uuid
-JOIN (SELECT run_uuid,value FROM params WHERE key = ? AND value = ?)
-AS filter_1 ON runs.run_uuid = filter_1.run_uuid`,
+	SELECT run_uuid FROM runs
+	JOIN (SELECT run_uuid,value FROM latest_metrics WHERE key = ? AND value > ?)
+	AS filter_0 ON runs.run_uuid = filter_0.run_uuid
+	JOIN (SELECT run_uuid,value FROM params WHERE key = ? AND value = ?)
+	AS filter_1 ON runs.run_uuid = filter_1.run_uuid
+	ORDER BY runs.start_time DESC,runs.run_uuid`,
 		},
 		expectedVars: []any{"accuracy", 0.72, "batch_size", "2"},
 	},
 	{
-		name:  "tag query",
+		name:  "TagQuery",
 		query: "tags.environment = 'notebook' AND tags.task ILIKE 'classif%'",
 		expectedSQL: map[string]string{
 			"postgres": `
-SELECT "run_uuid" FROM "runs"
-JOIN (SELECT "run_uuid","value" FROM "tags" WHERE key = $1 AND value = $2)
-AS filter_0 ON runs.run_uuid = filter_0.run_uuid
-JOIN (SELECT "run_uuid","value" FROM "tags" WHERE key = $3 AND value ILIKE $4)
-AS filter_1 ON runs.run_uuid = filter_1.run_uuid`,
+	SELECT "run_uuid" FROM "runs"
+	JOIN (SELECT "run_uuid","value" FROM "tags" WHERE key = $1 AND value = $2)
+	AS filter_0 ON runs.run_uuid = filter_0.run_uuid
+	JOIN (SELECT "run_uuid","value" FROM "tags" WHERE key = $3 AND value ILIKE $4)
+	AS filter_1 ON runs.run_uuid = filter_1.run_uuid
+	ORDER BY runs.start_time DESC,runs.run_uuid`,
 			"sqlite": `
-SELECT run_uuid FROM runs
-JOIN (SELECT run_uuid,value FROM tags WHERE key = ? AND value = ?)
-AS filter_0 ON runs.run_uuid = filter_0.run_uuid
-JOIN (SELECT run_uuid,value FROM tags WHERE key = ? AND LOWER(value) LIKE ?)
-AS filter_1 ON runs.run_uuid = filter_1.run_uuid`,
+	SELECT run_uuid FROM runs
+	JOIN (SELECT run_uuid,value FROM tags WHERE key = ? AND value = ?)
+	AS filter_0 ON runs.run_uuid = filter_0.run_uuid
+	JOIN (SELECT run_uuid,value FROM tags WHERE key = ? AND LOWER(value) LIKE ?)
+	AS filter_1 ON runs.run_uuid = filter_1.run_uuid
+	ORDER BY runs.start_time DESC,runs.run_uuid`,
 		},
 		expectedVars: []any{"environment", "notebook", "task", "classif%"},
 	},
 	{
-		name:  "datasests IN query",
+		name:  "DatasestsInQuery",
 		query: "datasets.digest IN ('s8ds293b', 'jks834s2')",
 		expectedSQL: map[string]string{
 			"postgres": `
-SELECT "run_uuid" FROM "runs"
-JOIN (SELECT "experiment_id","digest" FROM "datasets" WHERE digest IN ($1,$2))
-AS filter_0 ON runs.experiment_id = filter_0.experiment_id`,
+	SELECT "run_uuid" FROM "runs"
+	JOIN (SELECT "experiment_id","digest" FROM "datasets" WHERE digest IN ($1,$2))
+	AS filter_0 ON runs.experiment_id = filter_0.experiment_id
+	ORDER BY runs.start_time DESC,runs.run_uuid`,
 			"sqlite": `
-SELECT run_uuid FROM runs
-JOIN (SELECT experiment_id,digest FROM datasets WHERE digest IN (?,?))
-AS filter_0 ON runs.experiment_id = filter_0.experiment_id`,
+	SELECT run_uuid FROM runs
+	JOIN (SELECT experiment_id,digest FROM datasets WHERE digest IN (?,?))
+	AS filter_0 ON runs.experiment_id = filter_0.experiment_id
+	ORDER BY runs.start_time DESC,runs.run_uuid`,
 		},
 		expectedVars: []any{"s8ds293b", "jks834s2"},
 	},
 	{
-		name:  "attributes query",
+		name:  "AttributesQuery",
 		query: "attributes.run_id = 'a1b2c3d4'",
 		expectedSQL: map[string]string{
 			"postgres": `
-SELECT "run_uuid" FROM "runs"
-WHERE runs.run_uuid = $1
-	`,
-			"sqlite": `SELECT run_uuid FROM runs WHERE runs.run_uuid = ?`,
+	SELECT "run_uuid" FROM "runs"
+	WHERE runs.run_uuid = $1
+	ORDER BY runs.start_time DESC,runs.run_uuid
+		`,
+			"sqlite": `SELECT run_uuid FROM runs WHERE runs.run_uuid = ? ORDER BY runs.start_time DESC,runs.run_uuid`,
 		},
 		expectedVars: []any{"a1b2c3d4"},
 	},
 	{
-		name:  "run_name query",
+		name:  "Run_nameQuery",
 		query: "attributes.run_name = 'my-run'",
 		expectedSQL: map[string]string{
 			"postgres": `
-SELECT "run_uuid" FROM "runs"
-JOIN (SELECT "run_uuid","value" FROM "tags" WHERE key = $1 AND value = $2)
-AS filter_0 ON runs.run_uuid = filter_0.run_uuid`,
+	SELECT "run_uuid" FROM "runs"
+	JOIN (SELECT "run_uuid","value" FROM "tags" WHERE key = $1 AND value = $2)
+	AS filter_0 ON runs.run_uuid = filter_0.run_uuid
+	ORDER BY runs.start_time DESC,runs.run_uuid`,
 			"sqlite": `
-SELECT run_uuid FROM runs
-JOIN (SELECT run_uuid,value FROM tags WHERE key = ? AND value = ?)
-AS filter_0 ON runs.run_uuid = filter_0.run_uuid`,
+	SELECT run_uuid FROM runs
+	JOIN (SELECT run_uuid,value FROM tags WHERE key = ? AND value = ?)
+	AS filter_0 ON runs.run_uuid = filter_0.run_uuid
+	ORDER BY runs.start_time DESC,runs.run_uuid`,
 		},
 		expectedVars: []any{"mlflow.runName", "my-run"},
 	},
 	{
-		name:  "datasets.context query",
+		name:  "DatasetsContextQuery",
 		query: "datasets.context = 'train'",
 		expectedSQL: map[string]string{
 			"postgres": `
-SELECT "run_uuid" FROM "runs"
-JOIN (
-	SELECT inputs.destination_id AS run_uuid
-	FROM "inputs"
-	JOIN input_tags
-	ON inputs.input_uuid = input_tags.input_uuid
-	AND input_tags.name = 'mlflow.data.context'
-	AND input_tags.value = $1
-	WHERE inputs.destination_type = 'RUN'
-) AS filter_0 ON runs.run_uuid = filter_0.run_uuid`,
+	SELECT "run_uuid" FROM "runs"
+	JOIN (
+		SELECT inputs.destination_id AS run_uuid
+		FROM "inputs"
+		JOIN input_tags
+		ON inputs.input_uuid = input_tags.input_uuid
+		AND input_tags.name = 'mlflow.data.context'
+		AND input_tags.value = $1
+		WHERE inputs.destination_type = 'RUN'
+	) AS filter_0 ON runs.run_uuid = filter_0.run_uuid
+	ORDER BY runs.start_time DESC,runs.run_uuid`,
 			"sqlite": `
-SELECT run_uuid FROM runs
-JOIN (
-	SELECT inputs.destination_id AS run_uuid
-	FROM inputs
-	JOIN input_tags ON inputs.input_uuid = input_tags.input_uuid
-	AND input_tags.name = 'mlflow.data.context'
-	AND input_tags.value = ? WHERE inputs.destination_type = 'RUN'
-) AS filter_0 ON runs.run_uuid = filter_0.run_uuid`,
+	SELECT run_uuid FROM runs
+	JOIN (
+		SELECT inputs.destination_id AS run_uuid
+		FROM inputs
+		JOIN input_tags ON inputs.input_uuid = input_tags.input_uuid
+		AND input_tags.name = 'mlflow.data.context'
+		AND input_tags.value = ? WHERE inputs.destination_type = 'RUN'
+	) AS filter_0 ON runs.run_uuid = filter_0.run_uuid
+	ORDER BY runs.start_time DESC,runs.run_uuid`,
 		},
 		expectedVars: []any{"train"},
 	},
 	{
-		name:  "run_name query",
+		name:  "Run_nameQuery",
 		query: "attributes.run_name ILIKE 'my-run%'",
 		expectedSQL: map[string]string{
 			"postgres": `
-SELECT "run_uuid" FROM "runs"
-JOIN (SELECT "run_uuid","value" FROM "tags" WHERE key = $1 AND value ILIKE $2)
-AS filter_0 ON runs.run_uuid = filter_0.run_uuid`,
+	SELECT "run_uuid" FROM "runs"
+	JOIN (SELECT "run_uuid","value" FROM "tags" WHERE key = $1 AND value ILIKE $2)
+	AS filter_0 ON runs.run_uuid = filter_0.run_uuid
+	ORDER BY runs.start_time DESC,runs.run_uuid`,
 			"sqlite": `
-SELECT run_uuid FROM runs
-JOIN (SELECT run_uuid, value FROM tags WHERE key = ? AND LOWER(value) LIKE ?)
-AS filter_0 ON runs.run_uuid = filter_0.run_uuid`,
+	SELECT run_uuid FROM runs
+	JOIN (SELECT run_uuid, value FROM tags WHERE key = ? AND LOWER(value) LIKE ?)
+	AS filter_0 ON runs.run_uuid = filter_0.run_uuid
+	ORDER BY runs.start_time DESC,runs.run_uuid`,
 		},
 		expectedVars: []any{"mlflow.runName", "my-run%"},
 	},
 	{
-		name:  "datasets.context query",
+		name:  "DatasetsContextQuery",
 		query: "datasets.context ILIKE '%train'",
 		expectedSQL: map[string]string{
 			"postgres": `
-SELECT "run_uuid" FROM "runs"
-JOIN (
-	SELECT inputs.destination_id AS run_uuid FROM "inputs"
-	JOIN input_tags ON inputs.input_uuid = input_tags.input_uuid
-	AND input_tags.name = 'mlflow.data.context'
-	AND input_tags.value ILIKE $1 WHERE inputs.destination_type = 'RUN'
-) AS filter_0 ON runs.run_uuid = filter_0.run_uuid`,
+	SELECT "run_uuid" FROM "runs"
+	JOIN (
+		SELECT inputs.destination_id AS run_uuid FROM "inputs"
+		JOIN input_tags ON inputs.input_uuid = input_tags.input_uuid
+		AND input_tags.name = 'mlflow.data.context'
+		AND input_tags.value ILIKE $1 WHERE inputs.destination_type = 'RUN'
+	) AS filter_0 ON runs.run_uuid = filter_0.run_uuid
+	ORDER BY runs.start_time DESC,runs.run_uuid`,
 			"sqlite": `
-SELECT run_uuid FROM runs
-JOIN (
-	SELECT inputs.destination_id AS run_uuid FROM inputs
-	JOIN input_tags ON inputs.input_uuid = input_tags.input_uuid
-	AND input_tags.name = 'mlflow.data.context'
-	AND LOWER(input_tags.value) LIKE ? WHERE inputs.destination_type = 'RUN')
-AS filter_0 ON runs.run_uuid = filter_0.run_uuid
-	`,
+	SELECT run_uuid FROM runs
+	JOIN (
+		SELECT inputs.destination_id AS run_uuid FROM inputs
+		JOIN input_tags ON inputs.input_uuid = input_tags.input_uuid
+		AND input_tags.name = 'mlflow.data.context'
+		AND LOWER(input_tags.value) LIKE ? WHERE inputs.destination_type = 'RUN')
+	AS filter_0 ON runs.run_uuid = filter_0.run_uuid
+	ORDER BY runs.start_time DESC,runs.run_uuid
+		`,
 		},
 		expectedVars: []any{"%train"},
 	},
 	{
-		name:  "datasests.digest",
+		name:  "DatasestsDigest",
 		query: "datasets.digest ILIKE '%s'",
 		expectedSQL: map[string]string{
 			"postgres": `
-SELECT "run_uuid" FROM "runs"
-JOIN (SELECT "experiment_id","digest" FROM "datasets" WHERE digest ILIKE $1)
-AS filter_0 ON runs.experiment_id = filter_0.experiment_id`,
+	SELECT "run_uuid" FROM "runs"
+	JOIN (SELECT "experiment_id","digest" FROM "datasets" WHERE digest ILIKE $1)
+	AS filter_0 ON runs.experiment_id = filter_0.experiment_id
+	ORDER BY runs.start_time DESC,runs.run_uuid`,
 			"sqlite": `
-SELECT run_uuid FROM runs
-JOIN (SELECT experiment_id,digest FROM datasets WHERE LOWER(digest) LIKE ?)
-AS filter_0 ON runs.experiment_id = filter_0.experiment_id`,
+	SELECT run_uuid FROM runs
+	JOIN (SELECT experiment_id,digest FROM datasets WHERE LOWER(digest) LIKE ?)
+	AS filter_0 ON runs.experiment_id = filter_0.experiment_id
+	ORDER BY runs.start_time DESC,runs.run_uuid`,
 		},
 		expectedVars: []any{"%s"},
 	},
 	{
-		name:  "param query",
+		name:  "ParamQuery",
 		query: "metrics.accuracy > 0.72 AND params.batch_size ILIKE '%a'",
 		expectedSQL: map[string]string{
 			"postgres": `
-SELECT "run_uuid" FROM "runs"
-JOIN (SELECT "run_uuid","value" FROM "latest_metrics" WHERE key = $1 AND value > $2)
-AS filter_0 ON runs.run_uuid = filter_0.run_uuid
-JOIN (SELECT "run_uuid","value" FROM "params" WHERE key = $3 AND value ILIKE $4)
-AS filter_1 ON runs.run_uuid = filter_1.run_uuid`,
+	SELECT "run_uuid" FROM "runs"
+	JOIN (SELECT "run_uuid","value" FROM "latest_metrics" WHERE key = $1 AND value > $2)
+	AS filter_0 ON runs.run_uuid = filter_0.run_uuid
+	JOIN (SELECT "run_uuid","value" FROM "params" WHERE key = $3 AND value ILIKE $4)
+	AS filter_1 ON runs.run_uuid = filter_1.run_uuid
+	ORDER BY runs.start_time DESC,runs.run_uuid`,
 			"sqlite": `
-SELECT run_uuid FROM runs
-JOIN (SELECT run_uuid, value FROM latest_metrics WHERE key = ? AND value > ?)
-AS filter_0 ON runs.run_uuid = filter_0.run_uuid
-JOIN (SELECT run_uuid,value FROM params WHERE key = ? AND LOWER(value) LIKE ?)
-AS filter_1 ON runs.run_uuid = filter_1.run_uuid
-	`,
+	SELECT run_uuid FROM runs
+	JOIN (SELECT run_uuid, value FROM latest_metrics WHERE key = ? AND value > ?)
+	AS filter_0 ON runs.run_uuid = filter_0.run_uuid
+	JOIN (SELECT run_uuid,value FROM params WHERE key = ? AND LOWER(value) LIKE ?)
+	AS filter_1 ON runs.run_uuid = filter_1.run_uuid
+	ORDER BY runs.start_time DESC,runs.run_uuid
+		`,
 		},
 		expectedVars: []any{"accuracy", 0.72, "batch_size", "%a"},
+	},
+	{
+		name:    "OrderByStartTimeASC",
+		query:   "",
+		orderBy: []string{"start_time ASC"},
+		expectedSQL: map[string]string{
+			"postgres": `SELECT "run_uuid" FROM "runs" ORDER BY "start_time",runs.run_uuid`,
+		},
+		expectedVars: []any{},
+	},
+	{
+		name:  "OrderByStatusDesc",
+		query: "",
+		expectedSQL: map[string]string{
+			"postgres": `SELECT "run_uuid" FROM "runs" ORDER BY "status" DESC,runs.start_time DESC,runs.run_uuid`,
+		},
+		orderBy:      []string{"status DESC"},
+		expectedVars: []any{},
+	},
+	{
+		name:  "OrderByRunNameSnakeCase",
+		query: "",
+		expectedSQL: map[string]string{
+			"postgres": `SELECT "run_uuid" FROM "runs" ORDER BY "name",runs.start_time DESC,runs.run_uuid`,
+		},
+		orderBy:      []string{"run_name"},
+		expectedVars: []any{},
+	},
+	{
+		name:  "OrderByRunNameLowerName",
+		query: "",
+		expectedSQL: map[string]string{
+			"postgres": `SELECT "run_uuid" FROM "runs" ORDER BY "name",runs.start_time DESC,runs.run_uuid`,
+		},
+		orderBy:      []string{"`Run name`"},
+		expectedVars: []any{},
+	},
+	{
+		name:  "OrderByRunNamePascal",
+		query: "",
+		expectedSQL: map[string]string{
+			"postgres": `SELECT "run_uuid" FROM "runs" ORDER BY "name",runs.start_time DESC,runs.run_uuid`,
+		},
+		orderBy:      []string{"`Run Name`"},
+		expectedVars: []any{},
 	},
 }
 
@@ -286,13 +358,18 @@ var dialectors = []gorm.Dialector{
 }
 
 func assertTestData(
-	t *testing.T, database *gorm.DB, query, expectedSQL string, expectedVars []any,
+	t *testing.T, database *gorm.DB, expectedSQL string, testData testData,
 ) {
 	t.Helper()
 
 	transaction := database.Model(&models.Run{})
 
-	contractErr := applyFilter(logrus.StandardLogger(), database, transaction, query)
+	contractErr := applyFilter(logrus.StandardLogger(), database, transaction, testData.query)
+	if contractErr != nil {
+		t.Fatal("contractErr: ", contractErr)
+	}
+
+	contractErr = applyOrderBy(logrus.StandardLogger(), database, transaction, testData.orderBy)
 	if contractErr != nil {
 		t.Fatal("contractErr: ", contractErr)
 	}
@@ -307,7 +384,7 @@ func assertTestData(
 	// }
 
 	assert.Equal(t, removeWhitespace(expectedSQL), removeWhitespace(actualSQL))
-	assert.Equal(t, expectedVars, transaction.Statement.Vars)
+	assert.Equal(t, testData.expectedVars, transaction.Statement.Vars)
 }
 
 func TestSearchRuns(t *testing.T) {
@@ -324,7 +401,7 @@ func TestSearchRuns(t *testing.T) {
 			if expectedSQL, ok := currentTestData.expectedSQL[dialectorName]; ok {
 				t.Run(currentTestData.name+"_"+dialectorName, func(t *testing.T) {
 					t.Parallel()
-					assertTestData(t, database, currentTestData.query, expectedSQL, currentTestData.expectedVars)
+					assertTestData(t, database, expectedSQL, currentTestData)
 				})
 			}
 		}
@@ -342,5 +419,81 @@ func TestInvalidSearchRunsQuery(t *testing.T) {
 	contractErr := applyFilter(logrus.StandardLogger(), database, transaction, "⚡✱*@❖$#&")
 	if contractErr == nil {
 		t.Fatal("expected contract error")
+	}
+}
+
+//nolint:funlen
+func TestOrderByClauseParsing(t *testing.T) {
+	t.Parallel()
+
+	testData := []struct {
+		input    string
+		expected orderByExpr
+	}{
+		{
+			input: "status DESC",
+			expected: orderByExpr{
+				key:   "status",
+				order: utils.PtrTo("DESC"),
+			},
+		},
+		{
+			input: "run_name",
+			expected: orderByExpr{
+				key: "name",
+			},
+		},
+		{
+			input: "params.input DESC",
+			expected: orderByExpr{
+				identifier: utils.PtrTo("params"),
+				key:        "input",
+				order:      utils.PtrTo("DESC"),
+			},
+		},
+		{
+			input: "metrics.alpha ASC",
+			expected: orderByExpr{
+				identifier: utils.PtrTo("metrics"),
+				key:        "alpha",
+				order:      utils.PtrTo("ASC"),
+			},
+		},
+		{
+			input: "`Run name`",
+			expected: orderByExpr{
+				key: "name",
+			},
+		},
+		{
+			input: "tags.`foo bar` ASC",
+			expected: orderByExpr{
+				identifier: utils.PtrTo("tags"),
+				key:        "foo bar",
+				order:      utils.PtrTo("ASC"),
+			},
+		},
+	}
+
+	for _, testData := range testData {
+		t.Run(strcase.ToKebab(testData.input), func(t *testing.T) {
+			t.Parallel()
+
+			result, err := processOrderByClause(testData.input)
+			if err != nil {
+				t.Fatalf("unexpected error: %A", err)
+			}
+
+			if !reflect.DeepEqual(testData.expected, result) {
+				t.Fatalf("expected (%s, %s, %s), got (%s, %s, %s)",
+					*testData.expected.identifier,
+					testData.expected.key,
+					*testData.expected.order,
+					*result.identifier,
+					result.key,
+					*result.order,
+				)
+			}
+		})
 	}
 }

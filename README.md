@@ -211,6 +211,12 @@ To ensure everything still compiles:
 go build -o /dev/null ./pkg/cmd/server
 ```
 
+or 
+
+```bash
+python -m mlflow_go.lib . /tmp
+```
+
 ## Request validation
 
 We use [Go validator](https://github.com/go-playground/validator) to validate all incoming request structs.
