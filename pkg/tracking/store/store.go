@@ -34,6 +34,8 @@ type TrackingStore interface {
 		tags []*protos.RunTag) *contract.Error
 
 	CreateRun(input *protos.CreateRun) (*protos.Run, *contract.Error)
+
+	LogMetric(runID string, metric *protos.Metric) *contract.Error
 }
 
 type PagedList[T any] struct {

@@ -1831,16 +1831,16 @@ type LogMetric struct {
 	unknownFields protoimpl.UnknownFields
 
 	// ID of the run under which to log the metric. Must be provided.
-	RunId *string `protobuf:"bytes,6,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id"`
+	RunId *string `protobuf:"bytes,6,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id" validate:"required"`
 	// [Deprecated, use run_id instead] ID of the run under which to log the metric. This field will
 	// be removed in a future MLflow version.
 	RunUuid *string `protobuf:"bytes,1,opt,name=run_uuid,json=runUuid" json:"run_uuid,omitempty" query:"run_uuid"`
 	// Name of the metric.
-	Key *string `protobuf:"bytes,2,opt,name=key" json:"key,omitempty" query:"key"`
+	Key *string `protobuf:"bytes,2,opt,name=key" json:"key,omitempty" query:"key" validate:"required"`
 	// Double value of the metric being logged.
-	Value *float64 `protobuf:"fixed64,3,opt,name=value" json:"value,omitempty" query:"value"`
+	Value *float64 `protobuf:"fixed64,3,opt,name=value" json:"value,omitempty" query:"value" validate:"required"`
 	// Unix timestamp in milliseconds at the time metric was logged.
-	Timestamp *int64 `protobuf:"varint,4,opt,name=timestamp" json:"timestamp,omitempty" query:"timestamp"`
+	Timestamp *int64 `protobuf:"varint,4,opt,name=timestamp" json:"timestamp,omitempty" query:"timestamp" validate:"required"`
 	// Step at which to log the metric
 	Step *int64 `protobuf:"varint,5,opt,name=step,def=0" json:"step,omitempty" query:"step"`
 }

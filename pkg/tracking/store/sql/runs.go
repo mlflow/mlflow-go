@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
-	"regexp"
 	"strings"
 
 	"github.com/sirupsen/logrus"
@@ -20,10 +19,6 @@ import (
 	"github.com/mlflow/mlflow-go/pkg/tracking/store"
 	"github.com/mlflow/mlflow-go/pkg/tracking/store/sql/models"
 	"github.com/mlflow/mlflow-go/pkg/utils"
-)
-
-var runOrder = regexp.MustCompile(
-	`^(attribute|metric|param|tag)s?\.("[^"]+"|` + "`[^`]+`" + `|[\w\.]+)(?i:\s+(ASC|DESC))?$`,
 )
 
 type PageToken struct {
@@ -251,61 +246,176 @@ func applyFilter(logger *logrus.Logger, database, transaction *gorm.DB, filter s
 	return nil
 }
 
+type orderByExpr struct {
+	identifier *string
+	key        string
+	order      *string
+}
+
+var ErrInvalidOrderClauseInput = errors.New("input string is empty or only contains quote characters")
+
+const (
+	identifierAndKeyLength = 2
+	startTime              = "start_time"
+	name                   = "name"
+)
+
+func orderByKeyAlias(input string) string {
+	switch input {
+	case "created", "Created":
+		return startTime
+	case "run_name", "run name", "Run name", "Run Name":
+		return name
+	case "run_id":
+		return "run_uuid"
+	default:
+		return input
+	}
+}
+
+func handleInsideQuote(
+	char, quoteChar rune, insideQuote bool, current strings.Builder, result []string,
+) (bool, strings.Builder, []string) {
+	if char == quoteChar {
+		insideQuote = false
+
+		result = append(result, current.String())
+		current.Reset()
+	} else {
+		current.WriteRune(char)
+	}
+
+	return insideQuote, current, result
+}
+
+func handleOutsideQuote(
+	char rune, insideQuote bool, quoteChar rune, current strings.Builder, result []string,
+) (bool, rune, strings.Builder, []string) {
+	switch char {
+	case ' ':
+		if current.Len() > 0 {
+			result = append(result, current.String())
+			current.Reset()
+		}
+	case '"', '\'', '`':
+		insideQuote = true
+		quoteChar = char
+	default:
+		current.WriteRune(char)
+	}
+
+	return insideQuote, quoteChar, current, result
+}
+
+// Process an order by input string to split the string into the separate parts.
+// We can't simply split by space, because the column name could be wrapped in quotes, e.g. "Run name" ASC.
+func splitOrderByClauseWithQuotes(input string) []string {
+	input = strings.ToLower(strings.Trim(input, " "))
+
+	var result []string
+
+	var current strings.Builder
+
+	var insideQuote bool
+
+	var quoteChar rune
+
+	// Process char per char, split items on spaces unless inside a quoted entry.
+	for _, char := range input {
+		if insideQuote {
+			insideQuote, current, result = handleInsideQuote(char, quoteChar, insideQuote, current, result)
+		} else {
+			insideQuote, quoteChar, current, result = handleOutsideQuote(char, insideQuote, quoteChar, current, result)
+		}
+	}
+
+	if current.Len() > 0 {
+		result = append(result, current.String())
+	}
+
+	return result
+}
+
+func processOrderByClause(input string) (orderByExpr, error) {
+	parts := splitOrderByClauseWithQuotes(input)
+
+	if len(parts) == 0 {
+		return orderByExpr{}, ErrInvalidOrderClauseInput
+	}
+
+	var expr orderByExpr
+
+	identifierKey := strings.Split(parts[0], ".")
+
+	if len(identifierKey) == identifierAndKeyLength {
+		expr.identifier = &identifierKey[0]
+		expr.key = orderByKeyAlias(identifierKey[1])
+	} else if len(identifierKey) == 1 {
+		expr.key = orderByKeyAlias(identifierKey[0])
+	}
+
+	if len(parts) > 1 {
+		expr.order = utils.PtrTo(strings.ToUpper(parts[1]))
+	}
+
+	return expr, nil
+}
+
 //nolint:funlen, cyclop
 func applyOrderBy(logger *logrus.Logger, database, transaction *gorm.DB, orderBy []string) *contract.Error {
 	startTimeOrder := false
 
 	for index, orderByClause := range orderBy {
-		components := runOrder.FindStringSubmatch(orderByClause)
-		logger.Debugf("Components: %#v", components)
-		//nolint:mnd
-		if len(components) < 3 {
-			return contract.NewError(
-				protos.ErrorCode_INVALID_PARAMETER_VALUE,
-				"invalid order by clause: "+orderByClause,
-			)
-		}
-
-		column := strings.Trim(components[2], "`\"")
-
-		var kind any
-
-		switch components[1] {
-		case "attribute":
-			if column == "start_time" {
-				startTimeOrder = true
-			}
-		case "metric":
-			kind = &models.LatestMetric{}
-		case "param":
-			kind = &models.Param{}
-		case "tag":
-			kind = &models.Tag{}
-		default:
+		orderByExpr, err := processOrderByClause(orderByClause)
+		if err != nil {
 			return contract.NewError(
 				protos.ErrorCode_INVALID_PARAMETER_VALUE,
 				fmt.Sprintf(
-					"invalid entity type '%s'. Valid values are ['metric', 'parameter', 'tag', 'attribute']",
-					components[1],
+					"invalid order_by clause %q.",
+					orderByClause,
 				),
 			)
+		}
+
+		logger.Debugf("OrderByExpr: %#v", orderByExpr)
+
+		var kind any
+
+		if orderByExpr.identifier == nil && orderByExpr.key == "start_time" {
+			startTimeOrder = true
+		} else if orderByExpr.identifier != nil {
+			switch {
+			case *orderByExpr.identifier == "attribute" && orderByExpr.key == "start_time":
+				startTimeOrder = true
+			case *orderByExpr.identifier == "metric":
+				kind = &models.LatestMetric{}
+			case *orderByExpr.identifier == "param":
+				kind = &models.Param{}
+			case *orderByExpr.identifier == "tag":
+				kind = &models.Tag{}
+			}
 		}
 
 		if kind != nil {
 			table := fmt.Sprintf("order_%d", index)
 			transaction.Joins(
 				fmt.Sprintf("LEFT OUTER JOIN (?) AS %s ON runs.run_uuid = %s.run_uuid", table, table),
-				database.Select("run_uuid", "value").Where("key = ?", column).Model(kind),
+				database.Select("run_uuid", "value").Where("key = ?", orderByExpr.key).Model(kind),
 			)
 
-			column = table + ".value"
+			orderByExpr.key = table + ".value"
+		}
+
+		desc := false
+		if orderByExpr.order != nil {
+			desc = *orderByExpr.order == "DESC"
 		}
 
 		transaction.Order(clause.OrderByColumn{
 			Column: clause.Column{
-				Name: column,
+				Name: orderByExpr.key,
 			},
-			Desc: len(components) == 4 && strings.ToUpper(components[3]) == "DESC",
+			Desc: desc,
 		})
 	}
 

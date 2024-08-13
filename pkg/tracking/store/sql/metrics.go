@@ -1,6 +1,7 @@
 package sql
 
 import (
+	"errors"
 	"fmt"
 	"math"
 
@@ -151,6 +152,32 @@ func (s TrackingSQLStore) logMetricsWithTransaction(
 		return contract.NewErrorWith(
 			protos.ErrorCode_INTERNAL_ERROR,
 			fmt.Sprintf("error updating latest metrics for run_uuid %q", runID),
+			err,
+		)
+	}
+
+	return nil
+}
+
+func (s TrackingSQLStore) LogMetric(runID string, metric *protos.Metric) *contract.Error {
+	err := s.db.Transaction(func(transaction *gorm.DB) error {
+		if err := s.logMetricsWithTransaction(transaction, runID, []*protos.Metric{
+			metric,
+		}); err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		var contractError *contract.Error
+		if errors.As(err, &contractError) {
+			return contractError
+		}
+
+		return contract.NewErrorWith(
+			protos.ErrorCode_INTERNAL_ERROR,
+			fmt.Sprintf("log metric transaction failed for %q", runID),
 			err,
 		)
 	}

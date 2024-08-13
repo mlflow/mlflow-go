@@ -359,6 +359,55 @@ func (_c *MockTrackingStore_LogBatch_Call) RunAndReturn(run func(string, []*prot
 	return _c
 }
 
+// LogMetric provides a mock function with given fields: runID, metric
+func (_m *MockTrackingStore) LogMetric(runID string, metric *protos.Metric) *contract.Error {
+	ret := _m.Called(runID, metric)
+
+	if len(ret) == 0 {
+		panic("no return value specified for LogMetric")
+	}
+
+	var r0 *contract.Error
+	if rf, ok := ret.Get(0).(func(string, *protos.Metric) *contract.Error); ok {
+		r0 = rf(runID, metric)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*contract.Error)
+		}
+	}
+
+	return r0
+}
+
+// MockTrackingStore_LogMetric_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LogMetric'
+type MockTrackingStore_LogMetric_Call struct {
+	*mock.Call
+}
+
+// LogMetric is a helper method to define mock.On call
+//   - runID string
+//   - metric *protos.Metric
+func (_e *MockTrackingStore_Expecter) LogMetric(runID interface{}, metric interface{}) *MockTrackingStore_LogMetric_Call {
+	return &MockTrackingStore_LogMetric_Call{Call: _e.mock.On("LogMetric", runID, metric)}
+}
+
+func (_c *MockTrackingStore_LogMetric_Call) Run(run func(runID string, metric *protos.Metric)) *MockTrackingStore_LogMetric_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(*protos.Metric))
+	})
+	return _c
+}
+
+func (_c *MockTrackingStore_LogMetric_Call) Return(_a0 *contract.Error) *MockTrackingStore_LogMetric_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockTrackingStore_LogMetric_Call) RunAndReturn(run func(string, *protos.Metric) *contract.Error) *MockTrackingStore_LogMetric_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // RenameExperiment provides a mock function with given fields: experiment
 func (_m *MockTrackingStore) RenameExperiment(experiment *protos.Experiment) *contract.Error {
 	ret := _m.Called(experiment)
