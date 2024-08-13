@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/mlflow/mlflow-go/pkg/server/parser"
 	"github.com/mlflow/mlflow-go/pkg/contract/service"
+	"github.com/mlflow/mlflow-go/pkg/utils"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 )
 
@@ -15,7 +16,8 @@ func RegisterTrackingServiceRoutes(service service.TrackingService, parser *pars
 		if err := parser.ParseQuery(ctx, input); err != nil {
 			return err
 		}
-		output, err := service.GetExperimentByName(ctx, input)
+		logger := utils.GetLoggerFromContext(ctx.UserContext())
+		output, err := service.GetExperimentByName(utils.NewContextWithLogger(ctx.Context(), logger), input)
 		if err != nil {
 			return err
 		}
@@ -26,7 +28,8 @@ func RegisterTrackingServiceRoutes(service service.TrackingService, parser *pars
 		if err := parser.ParseBody(ctx, input); err != nil {
 			return err
 		}
-		output, err := service.CreateExperiment(ctx, input)
+		logger := utils.GetLoggerFromContext(ctx.UserContext())
+		output, err := service.CreateExperiment(utils.NewContextWithLogger(ctx.Context(), logger), input)
 		if err != nil {
 			return err
 		}
@@ -37,7 +40,8 @@ func RegisterTrackingServiceRoutes(service service.TrackingService, parser *pars
 		if err := parser.ParseQuery(ctx, input); err != nil {
 			return err
 		}
-		output, err := service.GetExperiment(ctx, input)
+		logger := utils.GetLoggerFromContext(ctx.UserContext())
+		output, err := service.GetExperiment(utils.NewContextWithLogger(ctx.Context(), logger), input)
 		if err != nil {
 			return err
 		}
@@ -48,7 +52,8 @@ func RegisterTrackingServiceRoutes(service service.TrackingService, parser *pars
 		if err := parser.ParseBody(ctx, input); err != nil {
 			return err
 		}
-		output, err := service.DeleteExperiment(ctx, input)
+		logger := utils.GetLoggerFromContext(ctx.UserContext())
+		output, err := service.DeleteExperiment(utils.NewContextWithLogger(ctx.Context(), logger), input)
 		if err != nil {
 			return err
 		}
@@ -59,7 +64,8 @@ func RegisterTrackingServiceRoutes(service service.TrackingService, parser *pars
 		if err := parser.ParseBody(ctx, input); err != nil {
 			return err
 		}
-		output, err := service.RestoreExperiment(ctx, input)
+		logger := utils.GetLoggerFromContext(ctx.UserContext())
+		output, err := service.RestoreExperiment(utils.NewContextWithLogger(ctx.Context(), logger), input)
 		if err != nil {
 			return err
 		}
@@ -70,7 +76,8 @@ func RegisterTrackingServiceRoutes(service service.TrackingService, parser *pars
 		if err := parser.ParseBody(ctx, input); err != nil {
 			return err
 		}
-		output, err := service.UpdateExperiment(ctx, input)
+		logger := utils.GetLoggerFromContext(ctx.UserContext())
+		output, err := service.UpdateExperiment(utils.NewContextWithLogger(ctx.Context(), logger), input)
 		if err != nil {
 			return err
 		}
@@ -81,7 +88,8 @@ func RegisterTrackingServiceRoutes(service service.TrackingService, parser *pars
 		if err := parser.ParseBody(ctx, input); err != nil {
 			return err
 		}
-		output, err := service.CreateRun(ctx, input)
+		logger := utils.GetLoggerFromContext(ctx.UserContext())
+		output, err := service.CreateRun(utils.NewContextWithLogger(ctx.Context(), logger), input)
 		if err != nil {
 			return err
 		}
@@ -92,7 +100,8 @@ func RegisterTrackingServiceRoutes(service service.TrackingService, parser *pars
 		if err := parser.ParseBody(ctx, input); err != nil {
 			return err
 		}
-		output, err := service.LogMetric(ctx, input)
+		logger := utils.GetLoggerFromContext(ctx.UserContext())
+		output, err := service.LogMetric(utils.NewContextWithLogger(ctx.Context(), logger), input)
 		if err != nil {
 			return err
 		}
@@ -103,7 +112,8 @@ func RegisterTrackingServiceRoutes(service service.TrackingService, parser *pars
 		if err := parser.ParseBody(ctx, input); err != nil {
 			return err
 		}
-		output, err := service.SearchRuns(ctx, input)
+		logger := utils.GetLoggerFromContext(ctx.UserContext())
+		output, err := service.SearchRuns(utils.NewContextWithLogger(ctx.Context(), logger), input)
 		if err != nil {
 			return err
 		}
@@ -114,7 +124,8 @@ func RegisterTrackingServiceRoutes(service service.TrackingService, parser *pars
 		if err := parser.ParseBody(ctx, input); err != nil {
 			return err
 		}
-		output, err := service.LogBatch(ctx, input)
+		logger := utils.GetLoggerFromContext(ctx.UserContext())
+		output, err := service.LogBatch(utils.NewContextWithLogger(ctx.Context(), logger), input)
 		if err != nil {
 			return err
 		}

@@ -44,6 +44,10 @@ func configureApp(ctx context.Context, cfg *config.Config) (*fiber.App, error) {
 		Format: "${status} - ${latency} ${method} ${path}\n",
 		Output: utils.GetLoggerFromContext(ctx).Writer(),
 	}))
+	app.Use(func(c *fiber.Ctx) error {
+		c.SetUserContext(ctx)
+		return c.Next()
+	})
 
 	apiApp, err := newAPIApp(ctx, cfg)
 	if err != nil {

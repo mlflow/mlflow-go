@@ -3,11 +3,10 @@ package main
 import "C"
 
 import (
+	"context"
 	"encoding/json"
 	"unsafe"
 
-	"github.com/gofiber/fiber/v2"
-	"github.com/valyala/fasthttp"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/mlflow/mlflow-go/pkg/contract"
@@ -65,7 +64,7 @@ func makePointerFromError(err *contract.Error, size *C.int) unsafe.Pointer {
 // invokeServiceMethod is a helper function that invokes a service method and handles
 // marshalling/unmarshalling of request/response data through the FFI boundary.
 func invokeServiceMethod[I, O proto.Message](
-	serviceMethod func(*fiber.Ctx, I) (O, *contract.Error),
+	serviceMethod func(context.Context, I) (O, *contract.Error),
 	request I,
 	requestData unsafe.Pointer,
 	requestSize C.int,
@@ -78,8 +77,7 @@ func invokeServiceMethod[I, O proto.Message](
 		return makePointerFromError(err, responseSize)
 	}
 
-	ctx := fiber.New().AcquireCtx(&fasthttp.RequestCtx{})
-	response, err := serviceMethod(ctx, request)
+	response, err := serviceMethod(context.Background(), request)
 	if err != nil {
 		return makePointerFromError(err, responseSize)
 	}

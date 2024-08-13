@@ -1,14 +1,14 @@
 package service
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"context"
 
 	"github.com/mlflow/mlflow-go/pkg/contract"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 )
 
 func (ts TrackingService) LogMetric(
-	_ *fiber.Ctx,
+	_ context.Context,
 	input *protos.LogMetric,
 ) (*protos.LogMetric_Response, *contract.Error) {
 	metric := &protos.Metric{

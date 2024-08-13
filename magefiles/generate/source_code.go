@@ -26,7 +26,7 @@ func mkServiceInterfaceMethod(methodInfo discovery.MethodInfo) *ast.Field {
 		Type: &ast.FuncType{
 			Params: &ast.FieldList{
 				List: []*ast.Field{
-					mkNamedField("ctx", mkStarExpr(mkSelectorExpr("fiber", "Ctx"))),
+					mkNamedField("ctx", mkSelectorExpr("context", "Context")),
 					mkNamedField("input", mkMethodInfoInputPointerType(methodInfo)),
 				},
 			},
@@ -125,6 +125,15 @@ func mkAppRoute(method discovery.MethodInfo, endpoint discovery.Endpoint) ast.St
 		mkBlockStmt(returnErr),
 	)
 
+	loggerFromFiberToContext := mkAssignStmt([]ast.Expr{
+		ast.NewIdent("logger"),
+	}, []ast.Expr{
+		mkCallExpr(
+			mkSelectorExpr("utils", "GetLoggerFromContext"),
+			mkCallExpr(mkSelectorExpr("ctx", "UserContext")),
+		),
+	})
+
 	// output, err := service.Method(input)
 	outputExpr := mkAssignStmt([]ast.Expr{
 		ast.NewIdent("output"),
@@ -135,7 +144,13 @@ func mkAppRoute(method discovery.MethodInfo, endpoint discovery.Endpoint) ast.St
 				"service",
 				strcase.ToCamel(method.Name),
 			),
-			ast.NewIdent("ctx"),
+			mkCallExpr(
+				mkSelectorExpr("utils", "NewContextWithLogger"),
+				mkCallExpr(
+					mkSelectorExpr("ctx", "Context"),
+				),
+				ast.NewIdent("logger"),
+			),
 			ast.NewIdent("input"),
 		),
 	})
@@ -172,6 +187,7 @@ func mkAppRoute(method discovery.MethodInfo, endpoint discovery.Endpoint) ast.St
 			List: []ast.Stmt{
 				inputExpr,
 				inputErrorCheck,
+				loggerFromFiberToContext,
 				outputExpr,
 				errorCheck,
 				returnExpr,
@@ -248,7 +264,7 @@ func generateServices(
 	if len(endpoints) > 0 {
 		decls = append(decls,
 			mkImportStatements(
-				`"github.com/gofiber/fiber/v2"`,
+				`"context"`,
 				`"github.com/mlflow/mlflow-go/pkg/protos"`,
 				`"github.com/mlflow/mlflow-go/pkg/contract"`,
 			))
@@ -282,6 +298,7 @@ func generateRouteRegistrations(
 	if len(endpoints) > 0 {
 		importStatements = append(
 			importStatements,
+			`"github.com/mlflow/mlflow-go/pkg/utils"`,
 			`"github.com/mlflow/mlflow-go/pkg/protos"`,
 		)
 	}
