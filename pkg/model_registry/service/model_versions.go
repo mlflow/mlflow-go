@@ -1,14 +1,14 @@
 package service
 
 import (
-	"context"
+	"github.com/gofiber/fiber/v2"
 
 	"github.com/mlflow/mlflow-go/pkg/contract"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 )
 
 func (m *ModelRegistryService) GetLatestVersions(
-	_ context.Context, input *protos.GetLatestVersions,
+	_ *fiber.Ctx, input *protos.GetLatestVersions,
 ) (*protos.GetLatestVersions_Response, *contract.Error) {
 	latestVersions, err := m.store.GetLatestVersions(input.GetName(), input.GetStages())
 	if err != nil {

@@ -1,7 +1,8 @@
 package service //nolint:testpackage
 
 import (
-	"context"
+	"github.com/gofiber/fiber/v2"
+	"github.com/valyala/fasthttp"
 	"testing"
 
 	"github.com/stretchr/testify/mock"
@@ -39,7 +40,9 @@ func TestRelativeArtifactLocation(t *testing.T) {
 				ArtifactLocation: utils.PtrTo(scenario.input),
 			}
 
-			response, err := service.CreateExperiment(context.Background(), &input)
+			ctx := fiber.New().AcquireCtx(&fasthttp.RequestCtx{})
+
+			response, err := service.CreateExperiment(ctx, &input)
 			if err != nil {
 				t.Error("expected create experiment to succeed")
 			}

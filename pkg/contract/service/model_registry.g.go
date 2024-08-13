@@ -3,11 +3,11 @@
 package service
 
 import (
-	"context"
+	"github.com/gofiber/fiber/v2"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 	"github.com/mlflow/mlflow-go/pkg/contract"
 )
 
 type ModelRegistryService interface {
-	GetLatestVersions(ctx context.Context, input *protos.GetLatestVersions) (*protos.GetLatestVersions_Response, *contract.Error)
+	GetLatestVersions(ctx *fiber.Ctx, input *protos.GetLatestVersions) (*protos.GetLatestVersions_Response, *contract.Error)
 }

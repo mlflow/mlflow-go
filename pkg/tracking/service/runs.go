@@ -1,15 +1,16 @@
 package service
 
 import (
-	"context"
 	"fmt"
+
+	"github.com/gofiber/fiber/v2"
 
 	"github.com/mlflow/mlflow-go/pkg/contract"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 )
 
 func (ts TrackingService) SearchRuns(
-	_ context.Context, input *protos.SearchRuns,
+	_ *fiber.Ctx, input *protos.SearchRuns,
 ) (*protos.SearchRuns_Response, *contract.Error) {
 	var runViewType protos.ViewType
 	if input.RunViewType == nil {
@@ -41,7 +42,7 @@ func (ts TrackingService) SearchRuns(
 }
 
 func (ts TrackingService) LogBatch(
-	_ context.Context, input *protos.LogBatch,
+	_ *fiber.Ctx, input *protos.LogBatch,
 ) (*protos.LogBatch_Response, *contract.Error) {
 	err := ts.Store.LogBatch(input.GetRunId(), input.GetMetrics(), input.GetParams(), input.GetTags())
 	if err != nil {
@@ -52,7 +53,7 @@ func (ts TrackingService) LogBatch(
 }
 
 func (ts TrackingService) CreateRun(
-	_ context.Context, input *protos.CreateRun,
+	_ *fiber.Ctx, input *protos.CreateRun,
 ) (*protos.CreateRun_Response, *contract.Error) {
 	run, err := ts.Store.CreateRun(input)
 	if err != nil {
