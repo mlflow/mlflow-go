@@ -11,7 +11,6 @@ import (
 	"github.com/mlflow/mlflow-go/pkg/contract"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 	"github.com/mlflow/mlflow-go/pkg/tracking/store/sql/models"
-	"github.com/mlflow/mlflow-go/pkg/utils"
 )
 
 // CreateExperiment implements TrackingService.
@@ -85,10 +84,8 @@ func (ts TrackingService) DeleteExperiment(
 }
 
 func (ts TrackingService) RestoreExperiment(
-	ctx context.Context, input *protos.RestoreExperiment,
+	_ context.Context, input *protos.RestoreExperiment,
 ) (*protos.RestoreExperiment_Response, *contract.Error) {
-	logger := utils.GetLoggerFromContext(ctx)
-	logger.Error("debug info")
 	err := ts.Store.RestoreExperiment(input.GetExperimentId())
 	if err != nil {
 		return nil, err
