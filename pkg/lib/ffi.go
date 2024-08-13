@@ -4,10 +4,10 @@ import "C"
 
 import (
 	"encoding/json"
-	"github.com/gofiber/fiber/v2"
-	"github.com/valyala/fasthttp"
 	"unsafe"
 
+	"github.com/gofiber/fiber/v2"
+	"github.com/valyala/fasthttp"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/mlflow/mlflow-go/pkg/contract"

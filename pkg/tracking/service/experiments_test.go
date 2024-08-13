@@ -1,11 +1,11 @@
 package service //nolint:testpackage
 
 import (
-	"github.com/gofiber/fiber/v2"
-	"github.com/valyala/fasthttp"
 	"testing"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/mock"
+	"github.com/valyala/fasthttp"
 
 	"github.com/mlflow/mlflow-go/pkg/protos"
 	"github.com/mlflow/mlflow-go/pkg/tracking/store"
