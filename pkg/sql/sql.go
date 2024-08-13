@@ -51,5 +51,9 @@ func NewDatabase(ctx context.Context, storeURL string) (*gorm.DB, error) {
 		return nil, fmt.Errorf("failed to connect to database %q: %w", uri.String(), err)
 	}
 
+	if dialector.Name() == "sqlite" {
+		database.Exec("PRAGMA case_sensitive_like = true;")
+	}
+
 	return database, nil
 }
