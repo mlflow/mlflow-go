@@ -4,10 +4,11 @@ import (
 	"context"
 	"testing"
 
+	"github.com/stretchr/testify/mock"
+
 	"github.com/mlflow/mlflow-go/pkg/protos"
 	"github.com/mlflow/mlflow-go/pkg/tracking/store"
 	"github.com/mlflow/mlflow-go/pkg/utils"
-	"github.com/stretchr/testify/mock"
 )
 
 type testRelativeArtifactLocationScenario struct {
