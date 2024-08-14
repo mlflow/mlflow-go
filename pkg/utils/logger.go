@@ -3,6 +3,7 @@ package utils
 import (
 	"context"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/sirupsen/logrus"
 
 	"github.com/mlflow/mlflow-go/pkg/config"
@@ -12,6 +13,12 @@ type loggerKey struct{}
 
 func NewContextWithLogger(ctx context.Context, logger *logrus.Logger) context.Context {
 	return context.WithValue(ctx, loggerKey{}, logger)
+}
+
+// NewContextWithLoggerFromFiberContext transfer logger from Fiber context to a normal context.Context object.
+func NewContextWithLoggerFromFiberContext(c *fiber.Ctx) context.Context {
+	logger := GetLoggerFromContext(c.UserContext())
+	return NewContextWithLogger(c.Context(), logger)
 }
 
 func GetLoggerFromContext(ctx context.Context) *logrus.Logger {

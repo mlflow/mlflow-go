@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/mlflow/mlflow-go/pkg/server/parser"
 	"github.com/mlflow/mlflow-go/pkg/contract/service"
+	"github.com/mlflow/mlflow-go/pkg/utils"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 )
 
@@ -15,7 +16,7 @@ func RegisterModelRegistryServiceRoutes(service service.ModelRegistryService, pa
 		if err := parser.ParseBody(ctx, input); err != nil {
 			return err
 		}
-		output, err := service.GetLatestVersions(ctx.Context(), input)
+		output, err := service.GetLatestVersions(utils.NewContextWithLoggerFromFiberContext(ctx), input)
 		if err != nil {
 			return err
 		}
@@ -26,7 +27,7 @@ func RegisterModelRegistryServiceRoutes(service service.ModelRegistryService, pa
 		if err := parser.ParseQuery(ctx, input); err != nil {
 			return err
 		}
-		output, err := service.GetLatestVersions(ctx.Context(), input)
+		output, err := service.GetLatestVersions(utils.NewContextWithLoggerFromFiberContext(ctx), input)
 		if err != nil {
 			return err
 		}
