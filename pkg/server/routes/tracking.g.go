@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/mlflow/mlflow-go/pkg/server/parser"
 	"github.com/mlflow/mlflow-go/pkg/contract/service"
+	"github.com/mlflow/mlflow-go/pkg/utils"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 )
 
@@ -15,7 +16,7 @@ func RegisterTrackingServiceRoutes(service service.TrackingService, parser *pars
 		if err := parser.ParseQuery(ctx, input); err != nil {
 			return err
 		}
-		output, err := service.GetExperimentByName(ctx.Context(), input)
+		output, err := service.GetExperimentByName(utils.NewContextWithLoggerFromFiberContext(ctx), input)
 		if err != nil {
 			return err
 		}
@@ -26,7 +27,7 @@ func RegisterTrackingServiceRoutes(service service.TrackingService, parser *pars
 		if err := parser.ParseBody(ctx, input); err != nil {
 			return err
 		}
-		output, err := service.CreateExperiment(ctx.Context(), input)
+		output, err := service.CreateExperiment(utils.NewContextWithLoggerFromFiberContext(ctx), input)
 		if err != nil {
 			return err
 		}
@@ -37,7 +38,7 @@ func RegisterTrackingServiceRoutes(service service.TrackingService, parser *pars
 		if err := parser.ParseQuery(ctx, input); err != nil {
 			return err
 		}
-		output, err := service.GetExperiment(ctx.Context(), input)
+		output, err := service.GetExperiment(utils.NewContextWithLoggerFromFiberContext(ctx), input)
 		if err != nil {
 			return err
 		}
@@ -48,7 +49,7 @@ func RegisterTrackingServiceRoutes(service service.TrackingService, parser *pars
 		if err := parser.ParseBody(ctx, input); err != nil {
 			return err
 		}
-		output, err := service.DeleteExperiment(ctx.Context(), input)
+		output, err := service.DeleteExperiment(utils.NewContextWithLoggerFromFiberContext(ctx), input)
 		if err != nil {
 			return err
 		}
@@ -59,7 +60,7 @@ func RegisterTrackingServiceRoutes(service service.TrackingService, parser *pars
 		if err := parser.ParseBody(ctx, input); err != nil {
 			return err
 		}
-		output, err := service.RestoreExperiment(ctx.Context(), input)
+		output, err := service.RestoreExperiment(utils.NewContextWithLoggerFromFiberContext(ctx), input)
 		if err != nil {
 			return err
 		}
@@ -70,7 +71,7 @@ func RegisterTrackingServiceRoutes(service service.TrackingService, parser *pars
 		if err := parser.ParseBody(ctx, input); err != nil {
 			return err
 		}
-		output, err := service.UpdateExperiment(ctx.Context(), input)
+		output, err := service.UpdateExperiment(utils.NewContextWithLoggerFromFiberContext(ctx), input)
 		if err != nil {
 			return err
 		}
@@ -81,7 +82,7 @@ func RegisterTrackingServiceRoutes(service service.TrackingService, parser *pars
 		if err := parser.ParseBody(ctx, input); err != nil {
 			return err
 		}
-		output, err := service.CreateRun(ctx.Context(), input)
+		output, err := service.CreateRun(utils.NewContextWithLoggerFromFiberContext(ctx), input)
 		if err != nil {
 			return err
 		}
@@ -92,7 +93,7 @@ func RegisterTrackingServiceRoutes(service service.TrackingService, parser *pars
 		if err := parser.ParseBody(ctx, input); err != nil {
 			return err
 		}
-		output, err := service.LogMetric(ctx.Context(), input)
+		output, err := service.LogMetric(utils.NewContextWithLoggerFromFiberContext(ctx), input)
 		if err != nil {
 			return err
 		}
@@ -103,7 +104,7 @@ func RegisterTrackingServiceRoutes(service service.TrackingService, parser *pars
 		if err := parser.ParseBody(ctx, input); err != nil {
 			return err
 		}
-		output, err := service.SearchRuns(ctx.Context(), input)
+		output, err := service.SearchRuns(utils.NewContextWithLoggerFromFiberContext(ctx), input)
 		if err != nil {
 			return err
 		}
@@ -114,7 +115,7 @@ func RegisterTrackingServiceRoutes(service service.TrackingService, parser *pars
 		if err := parser.ParseBody(ctx, input); err != nil {
 			return err
 		}
-		output, err := service.LogBatch(ctx.Context(), input)
+		output, err := service.LogBatch(utils.NewContextWithLoggerFromFiberContext(ctx), input)
 		if err != nil {
 			return err
 		}
