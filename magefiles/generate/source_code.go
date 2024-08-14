@@ -125,15 +125,6 @@ func mkAppRoute(method discovery.MethodInfo, endpoint discovery.Endpoint) ast.St
 		mkBlockStmt(returnErr),
 	)
 
-	loggerFromFiberToContext := mkAssignStmt([]ast.Expr{
-		ast.NewIdent("logger"),
-	}, []ast.Expr{
-		mkCallExpr(
-			mkSelectorExpr("utils", "GetLoggerFromContext"),
-			mkCallExpr(mkSelectorExpr("ctx", "UserContext")),
-		),
-	})
-
 	// output, err := service.Method(input)
 	outputExpr := mkAssignStmt([]ast.Expr{
 		ast.NewIdent("output"),
@@ -145,11 +136,8 @@ func mkAppRoute(method discovery.MethodInfo, endpoint discovery.Endpoint) ast.St
 				strcase.ToCamel(method.Name),
 			),
 			mkCallExpr(
-				mkSelectorExpr("utils", "NewContextWithLogger"),
-				mkCallExpr(
-					mkSelectorExpr("ctx", "Context"),
-				),
-				ast.NewIdent("logger"),
+				mkSelectorExpr("utils", "NewContextWithLoggerFromFiberContext"),
+				ast.NewIdent("ctx"),
 			),
 			ast.NewIdent("input"),
 		),
@@ -187,7 +175,6 @@ func mkAppRoute(method discovery.MethodInfo, endpoint discovery.Endpoint) ast.St
 			List: []ast.Stmt{
 				inputExpr,
 				inputErrorCheck,
-				loggerFromFiberToContext,
 				outputExpr,
 				errorCheck,
 				returnExpr,

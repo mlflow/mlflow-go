@@ -16,8 +16,7 @@ func RegisterModelRegistryServiceRoutes(service service.ModelRegistryService, pa
 		if err := parser.ParseBody(ctx, input); err != nil {
 			return err
 		}
-		logger := utils.GetLoggerFromContext(ctx.UserContext())
-		output, err := service.GetLatestVersions(utils.NewContextWithLogger(ctx.Context(), logger), input)
+		output, err := service.GetLatestVersions(utils.NewContextWithLoggerFromFiberContext(ctx), input)
 		if err != nil {
 			return err
 		}
@@ -28,8 +27,7 @@ func RegisterModelRegistryServiceRoutes(service service.ModelRegistryService, pa
 		if err := parser.ParseQuery(ctx, input); err != nil {
 			return err
 		}
-		logger := utils.GetLoggerFromContext(ctx.UserContext())
-		output, err := service.GetLatestVersions(utils.NewContextWithLogger(ctx.Context(), logger), input)
+		output, err := service.GetLatestVersions(utils.NewContextWithLoggerFromFiberContext(ctx), input)
 		if err != nil {
 			return err
 		}
