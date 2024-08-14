@@ -135,7 +135,10 @@ func mkAppRoute(method discovery.MethodInfo, endpoint discovery.Endpoint) ast.St
 				"service",
 				strcase.ToCamel(method.Name),
 			),
-			mkCallExpr(mkSelectorExpr("ctx", "Context")),
+			mkCallExpr(
+				mkSelectorExpr("utils", "NewContextWithLoggerFromFiberContext"),
+				ast.NewIdent("ctx"),
+			),
 			ast.NewIdent("input"),
 		),
 	})
@@ -282,6 +285,7 @@ func generateRouteRegistrations(
 	if len(endpoints) > 0 {
 		importStatements = append(
 			importStatements,
+			`"github.com/mlflow/mlflow-go/pkg/utils"`,
 			`"github.com/mlflow/mlflow-go/pkg/protos"`,
 		)
 	}
