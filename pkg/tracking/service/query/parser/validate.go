@@ -110,9 +110,10 @@ func parseValidIdentifier(identifier string) (ValidIdentifier, error) {
 }
 
 const (
-	RunID   = "run_id"
-	RunName = "run_name"
-	Created = "created"
+	RunID     = "run_id"
+	RunName   = "run_name"
+	Created   = "created"
+	StartTime = "start_time"
 )
 
 // This should be configurable and only applies to the runs table.
@@ -122,7 +123,7 @@ var searchableRunAttributes = []string{
 	RunName,
 	"user_id",
 	"status",
-	"start_time",
+	StartTime,
 	"end_time",
 	"artifact_uri",
 	"lifecycle_stage",
@@ -137,13 +138,13 @@ func parseAttributeKey(key string) (string, error) {
 	case "experiment_id",
 		"user_id",
 		"status",
-		"start_time",
+		StartTime,
 		"end_time",
 		"artifact_uri",
 		"lifecycle_stage":
 		return key, nil
 	case Created, "Created":
-		return Created, nil
+		return StartTime, nil
 	case RunName, "run name", "Run name", "Run Name":
 		return RunName, nil
 	default:
@@ -205,7 +206,7 @@ The value part is determined by the identifier
 "parameter" and "tag" takes strings
 
 "attribute" could be either string or number,
-number when "start_time", "end_time" or "created", "Created"
+number when StartTime, "end_time" or "created", "Created"
 otherwise string
 
 "dataset" takes strings for "name", "digest" and "context"
@@ -271,7 +272,7 @@ func validateValue(identifier ValidIdentifier, key string, value Value) (interfa
 
 func validateAttributeValue(key string, value Value) (interface{}, error) {
 	switch key {
-	case "start_time", "end_time", Created:
+	case StartTime, "end_time", Created:
 		if _, ok := value.(NumberExpr); !ok {
 			return nil, NewValidationError(
 				"expected numeric value type for numeric attribute: %s. Found %s",
