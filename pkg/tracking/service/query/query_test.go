@@ -20,6 +20,7 @@ func TestValidQueries(t *testing.T) {
 		"params.solver ILIKE \"L%\"",
 		"params.solver LIKE \"l%\"",
 		"datasets.digest IN ('77a19fc0')",
+		"attributes.run_id IN ('meh')",
 	}
 
 	for _, sample := range samples {
