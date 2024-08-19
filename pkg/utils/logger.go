@@ -18,6 +18,7 @@ func NewContextWithLogger(ctx context.Context, logger *logrus.Logger) context.Co
 // NewContextWithLoggerFromFiberContext transfer logger from Fiber context to a normal context.Context object.
 func NewContextWithLoggerFromFiberContext(c *fiber.Ctx) context.Context {
 	logger := GetLoggerFromContext(c.UserContext())
+
 	return NewContextWithLogger(c.Context(), logger)
 }
 
