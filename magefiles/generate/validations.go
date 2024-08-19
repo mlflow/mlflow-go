@@ -1,17 +1,11 @@
 package generate
 
-import (
-	"fmt"
-
-	"github.com/mlflow/mlflow-go/pkg/protos"
-)
-
 var validations = map[string]string{
 	"GetExperiment_ExperimentId":         "required,stringAsPositiveInteger",
 	"CreateExperiment_Name":              "required",
 	"CreateExperiment_ArtifactLocation":  "omitempty,uriWithoutFragmentsOrParamsOrDotDotInQuery",
 	"SearchRuns_RunViewType":             "omitempty",
-	"SearchRuns_MaxResults":              fmt.Sprintf("lte=%d", protos.Default_SearchRuns_MaxResults),
+	"SearchRuns_MaxResults":              "gt=0,max=50000",
 	"DeleteExperiment_ExperimentId":      "required,stringAsPositiveInteger",
 	"LogBatch_RunId":                     "required,runId",
 	"LogBatch_Params":                    "omitempty,uniqueParams,max=100",

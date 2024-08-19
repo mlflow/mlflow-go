@@ -46,6 +46,7 @@ func configureApp(ctx context.Context, cfg *config.Config) (*fiber.App, error) {
 	}))
 	app.Use(func(c *fiber.Ctx) error {
 		c.SetUserContext(ctx)
+
 		return c.Next()
 	})
 
