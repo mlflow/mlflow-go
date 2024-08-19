@@ -133,6 +133,7 @@ var datasetAttributes = []string{"name", "digest", "context"}
 func parseAttributeKey(key string) (string, error) {
 	switch key {
 	case "run_id":
+		// We return run_uuid before that is the SQL column name.
 		return "run_uuid", nil
 	case "experiment_id",
 		"user_id",
@@ -282,7 +283,8 @@ func validateAttributeValue(key string, value Value) (interface{}, error) {
 
 		return value.value(), nil
 	default:
-		if _, ok := value.(StringListExpr); key != RunID && ok {
+		// run_id was earlier converted to run_uuid
+		if _, ok := value.(StringListExpr); key != "run_uuid" && ok {
 			return nil, NewValidationError(
 				"only the 'run_id' attribute supports comparison with a list of quoted string values",
 			)
