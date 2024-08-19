@@ -57,6 +57,10 @@ func TestQueries(t *testing.T) {
 			input:    "params.`random_state` = \"8888\"",
 			expected: "identifier(params) dot string(`random_state`) equals string(\"8888\") eof",
 		},
+		{
+			input:    "metrics.measure_a != -12.0",
+			expected: "identifier(metrics) dot identifier(measure_a) not_equals number(-12.0) eof",
+		},
 	}
 
 	for _, sample := range samples {
