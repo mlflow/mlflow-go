@@ -14,8 +14,6 @@ type Test mg.Namespace
 
 // Run mlflow Python tests against the Go backend.
 func (Test) Python() error {
-	mg.Deps(Generate)
-
 	libpath, err := os.MkdirTemp("", "")
 	if err != nil {
 		return err
