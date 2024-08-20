@@ -381,7 +381,7 @@ type Param struct {
 	// Key identifying this param.
 	Key *string `protobuf:"bytes,1,opt,name=key" json:"key,omitempty" query:"key" validate:"required,max=250,validMetricParamOrTagName,pathIsUnique"`
 	// Value associated with this param.
-	Value *string `protobuf:"bytes,2,opt,name=value" json:"value,omitempty" query:"value" validate:"omitempty,max=6000"`
+	Value *string `protobuf:"bytes,2,opt,name=value" json:"value,omitempty" query:"value" validate:"omitempty,max=6000,truncate"`
 }
 
 func (x *Param) Reset() {
@@ -2796,7 +2796,7 @@ type LogBatch struct {
 	Metrics []*Metric `protobuf:"bytes,2,rep,name=metrics" json:"metrics,omitempty" query:"metrics" validate:"max=1000,dip"`
 	// Params to log. A single request can contain up to 100 params, and up to 1000
 	// metrics, params, and tags in total.
-	Params []*Param `protobuf:"bytes,3,rep,name=params" json:"params,omitempty" query:"params" validate:"omitempty,uniqueParams,max=100"`
+	Params []*Param `protobuf:"bytes,3,rep,name=params" json:"params,omitempty" query:"params" validate:"omitempty,uniqueParams,max=100,dip"`
 	// Tags to log. A single request can contain up to 100 tags, and up to 1000
 	// metrics, params, and tags in total.
 	Tags []*RunTag `protobuf:"bytes,4,rep,name=tags" json:"tags,omitempty" query:"tags" validate:"max=100"`

@@ -138,6 +138,21 @@ func validateLogBatchLimits(structLevel validator.StructLevel) {
 	}
 }
 
+func truncateFn(fl validator.FieldLevel) bool {
+	field := fl.Field()
+
+	if field.Kind() == reflect.String {
+		valueStr := field.String()
+		if len(valueStr) > 10 {
+			truncatedStr := valueStr[:10]
+			field.SetString(truncatedStr)
+		}
+	}
+
+	// Return true if the truncation was successful or unnecessary
+	return true
+}
+
 func NewValidator() (*validator.Validate, error) {
 	validate := validator.New()
 
@@ -193,6 +208,10 @@ func NewValidator() (*validator.Validate, error) {
 
 	if err := validate.RegisterValidation("runId", regexValidation(runIDRegex)); err != nil {
 		return nil, fmt.Errorf("validation registration for 'runId' failed: %w", err)
+	}
+
+	if err := validate.RegisterValidation("truncate", truncateFn); err != nil {
+		return nil, fmt.Errorf("validation registration for 'truncateFn' failed: %w", err)
 	}
 
 	validate.RegisterStructValidation(validateLogBatchLimits, &protos.LogBatch{})

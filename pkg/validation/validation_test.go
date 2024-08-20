@@ -2,6 +2,7 @@ package validation_test
 
 import (
 	"errors"
+	"strings"
 	"testing"
 
 	"github.com/go-playground/validator/v10"
@@ -187,5 +188,26 @@ func TestMissingTimestampInNestedMetric(t *testing.T) {
 		}
 	} else {
 		t.Error("Expected validation error, got none")
+	}
+}
+
+func TestYow(t *testing.T) {
+	t.Parallel()
+
+	value := strings.Repeat("X", 5001) + "Y"
+
+	logBatchRequest := &protos.LogBatch{
+		RunId: utils.PtrTo("odcppTsGTMkHeDcqfZOYDMZSf"),
+		Params: []*protos.Param{
+			{Key: utils.PtrTo("key1"), Value: utils.PtrTo(value)},
+		},
+	}
+
+	validator, err := validation.NewValidator()
+	require.NoError(t, err)
+
+	err = validator.Struct(logBatchRequest)
+	if err != nil {
+		t.Errorf("Unexpected params validation error, got %v", err)
 	}
 }
