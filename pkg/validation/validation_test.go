@@ -2,6 +2,7 @@ package validation_test
 
 import (
 	"errors"
+	"os"
 	"strings"
 	"testing"
 
@@ -191,15 +192,47 @@ func TestMissingTimestampInNestedMetric(t *testing.T) {
 	}
 }
 
-func TestYow(t *testing.T) {
+type avecTruncate struct {
+	X *string `validate:"truncate=3"`
+	Y string  `validate:"truncate=3"`
+}
+
+func TestTruncate(t *testing.T) {
 	t.Parallel()
 
-	value := strings.Repeat("X", 5001) + "Y"
+	input := &avecTruncate{
+		X: utils.PtrTo("123456"),
+		Y: "654321",
+	}
+	os.Setenv("MLFLOW_TRUNCATE_LONG_VALUES", "true")
+
+	validator, err := validation.NewValidator()
+	require.NoError(t, err)
+
+	err = validator.Struct(input)
+	require.NoError(t, err)
+
+	if len(*input.X) != 3 {
+		t.Errorf("Expected the length of x to be 3, was %d", len(*input.X))
+	}
+
+	if len(input.Y) != 3 {
+		t.Errorf("Expected the length of y to be 3, was %d", len(input.Y))
+	}
+}
+
+// This unit test is a sanity test that confirms the `dive` validation
+// enters a nested slice of pointer structs.
+func TestNestedErrorsInSubCollection(t *testing.T) {
+	t.Parallel()
+
+	value := strings.Repeat("X", 6001) + "Y"
 
 	logBatchRequest := &protos.LogBatch{
 		RunId: utils.PtrTo("odcppTsGTMkHeDcqfZOYDMZSf"),
 		Params: []*protos.Param{
 			{Key: utils.PtrTo("key1"), Value: utils.PtrTo(value)},
+			{Key: utils.PtrTo("key2"), Value: utils.PtrTo(value)},
 		},
 	}
 
@@ -208,6 +241,11 @@ func TestYow(t *testing.T) {
 
 	err = validator.Struct(logBatchRequest)
 	if err != nil {
-		t.Errorf("Unexpected params validation error, got %v", err)
+		msg := validation.NewErrorFromValidationError(err).Message
+		// Assert the index is listed in the parameter path
+		if !strings.Contains(msg, "logBatch.params[0].value") ||
+			!strings.Contains(msg, "logBatch.params[1].value") {
+			t.Errorf("Unexpected validation error message, got %s", msg)
+		}
 	}
 }

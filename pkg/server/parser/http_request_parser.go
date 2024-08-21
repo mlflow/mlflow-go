@@ -45,7 +45,7 @@ func (p *HTTPRequestParser) ParseBody(ctx *fiber.Ctx, input interface{}) *contra
 	}
 
 	if err := p.validator.Struct(input); err != nil {
-		return validation.NewErrorFromValidationError(err)
+		return validation.NewErrorFromValidationError(p.validator, err)
 	}
 
 	return nil
@@ -57,7 +57,7 @@ func (p *HTTPRequestParser) ParseQuery(ctx *fiber.Ctx, input interface{}) *contr
 	}
 
 	if err := p.validator.Struct(input); err != nil {
-		return validation.NewErrorFromValidationError(err)
+		return validation.NewErrorFromValidationError(p.validator, err)
 	}
 
 	return nil
