@@ -186,8 +186,6 @@ type avecTruncate struct {
 }
 
 func TestTruncate(t *testing.T) {
-	t.Parallel()
-
 	input := &avecTruncate{
 		X: utils.PtrTo("123456"),
 		Y: "654321",
