@@ -1,12 +1,9 @@
 package validation_test
 
 import (
-	"errors"
-	"os"
 	"strings"
 	"testing"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/stretchr/testify/require"
 
 	"github.com/mlflow/mlflow-go/pkg/protos"
@@ -174,21 +171,12 @@ func TestMissingTimestampInNestedMetric(t *testing.T) {
 
 	err = serverValidator.Struct(&logBatch)
 	if err == nil {
-		t.Error("Expected dip validation error, got none")
+		t.Error("Expected dive validation error, got none")
 	}
 
-	var validationErrors validator.ValidationErrors
-	if errors.As(err, &validationErrors) {
-		if len(validationErrors) != 1 {
-			t.Errorf("Expected 1 validation error, got %v", len(validationErrors))
-		}
-
-		validationError := validationErrors[0]
-		if validationError.Tag() != "dip" {
-			t.Errorf("Expected dip validation error, got %v", validationError.Tag())
-		}
-	} else {
-		t.Error("Expected validation error, got none")
+	msg := validation.NewErrorFromValidationError(err).Message
+	if !strings.Contains(msg, "logBatch.metrics[0].timestamp") {
+		t.Errorf("Expected required validation error for nested property, got %v", msg)
 	}
 }
 
@@ -204,7 +192,8 @@ func TestTruncate(t *testing.T) {
 		X: utils.PtrTo("123456"),
 		Y: "654321",
 	}
-	os.Setenv("MLFLOW_TRUNCATE_LONG_VALUES", "true")
+
+	t.Setenv("MLFLOW_TRUNCATE_LONG_VALUES", "true")
 
 	validator, err := validation.NewValidator()
 	require.NoError(t, err)

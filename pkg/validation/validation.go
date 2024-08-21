@@ -108,19 +108,18 @@ func validateLogBatchLimits(structLevel validator.StructLevel) {
 	}
 }
 
-func truncateFn(fl validator.FieldLevel) bool {
-	param := fl.Param() // Get the parameter from the tag
+func truncateFn(fieldLevel validator.FieldLevel) bool {
+	param := fieldLevel.Param() // Get the parameter from the tag
 
 	maxLength, err := strconv.Atoi(param)
 	if err != nil {
 		return false // If the parameter isn't a valid integer, fail the validation.
 	}
 
-	// TODO: extract maybe?
 	truncateLongValues, shouldTruncate := os.LookupEnv("MLFLOW_TRUNCATE_LONG_VALUES")
 	shouldTruncate = shouldTruncate && truncateLongValues == "true"
 
-	field := fl.Field()
+	field := fieldLevel.Field()
 
 	if field.Kind() == reflect.String {
 		strValue := field.String()
