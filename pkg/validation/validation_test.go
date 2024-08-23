@@ -236,7 +236,8 @@ func TestNestedErrorsInSubCollection(t *testing.T) {
 
 		// Assert the index is listed in the parameter path
 		if !strings.Contains(msg, "params[0].value") ||
-			!strings.Contains(msg, "params[1].value") {
+			!strings.Contains(msg, "params[1].value") ||
+			!strings.Contains(msg, "length 6002 exceeded length limit of 6000") {
 			t.Errorf("Unexpected validation error message, got %s", msg)
 		}
 	}

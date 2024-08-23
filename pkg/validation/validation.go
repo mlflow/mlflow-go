@@ -13,7 +13,6 @@ import (
 	"strings"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/iancoleman/strcase"
 
 	"github.com/mlflow/mlflow-go/pkg/contract"
 	"github.com/mlflow/mlflow-go/pkg/protos"
@@ -206,33 +205,27 @@ func dereference(value interface{}) interface{} {
 	return value
 }
 
-func camelizeNamespace(structNamespace string) string {
-	parts := strings.Split(structNamespace, ".")
-
-	for i, part := range parts {
-		idx := strings.Index(part, "[")
-		if idx == -1 {
-			parts[i] = strcase.ToLowerCamel(part)
-		} else {
-			parts[i] = strcase.ToLowerCamel(part[:idx]) + part[idx:]
-		}
-	}
-
-	return strings.Join(parts, ".")
-}
-
 func getErrorPath(err validator.FieldError) string {
 	path := err.Field()
 
-	if err.StructNamespace() != "" {
+	if err.Namespace() != "" {
 		// Strip first item in struct namespace
-		idx := strings.Index(err.StructNamespace(), ".")
+		idx := strings.Index(err.Namespace(), ".")
 		if idx != -1 {
-			path = camelizeNamespace(err.StructNamespace()[(idx + 1):])
+			path = err.Namespace()[(idx + 1):]
 		}
 	}
 
 	return path
+}
+
+func constructValidationError(field string, value any, suffix string) string {
+	formattedValue, err := json.Marshal(value)
+	if err != nil {
+		formattedValue = []byte(fmt.Sprintf("%v", value))
+	}
+
+	return fmt.Sprintf("Invalid value %s for parameter '%s' supplied%s", formattedValue, field, suffix)
 }
 
 func NewErrorFromValidationError(err error) *contract.Error {
@@ -251,19 +244,33 @@ func NewErrorFromValidationError(err error) *contract.Error {
 					validationErrors,
 					fmt.Sprintf("Missing value for required parameter '%s'", field),
 				)
+			case "truncate":
+				strValue, ok := value.(string)
+				if ok {
+					expected := len(strValue)
+
+					if expected > MaxValidationInputLength {
+						strValue = strValue[:MaxValidationInputLength] + "..."
+					}
+
+					validationErrors = append(
+						validationErrors,
+						constructValidationError(
+							field,
+							strValue,
+							fmt.Sprintf(": length %d exceeded length limit of %s", expected, err.Param())),
+					)
+				} else {
+					validationErrors = append(
+						validationErrors,
+						constructValidationError(field, value, ""),
+					)
+				}
+
 			default:
-				formattedValue, err := json.Marshal(value)
-				if err != nil {
-					formattedValue = []byte(fmt.Sprintf("%v", value))
-				}
-
-				if len(formattedValue) > MaxValidationInputLength {
-					formattedValue = formattedValue[:MaxValidationInputLength]
-				}
-
 				validationErrors = append(
 					validationErrors,
-					fmt.Sprintf("Invalid value %s for parameter '%s' supplied", formattedValue, field),
+					constructValidationError(field, err, ""),
 				)
 			}
 		}
