@@ -14,7 +14,7 @@ var validations = map[string]string{
 	"RunTag_Key":                         "required,max=250,validMetricParamOrTagName,pathIsUnique",
 	"RunTag_Value":                       "omitempty,max=5000",
 	"Param_Key":                          "required,max=250,validMetricParamOrTagName,pathIsUnique",
-	"Param_Value":                        "omitempty,max=6000",
+	"Param_Value":                        "omitempty,truncate=6000",
 	"Metric_Key":                         "required,max=250,validMetricParamOrTagName,pathIsUnique",
 	"Metric_Timestamp":                   "required",
 	"Metric_Value":                       "required",

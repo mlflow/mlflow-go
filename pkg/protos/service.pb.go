@@ -381,7 +381,7 @@ type Param struct {
 	// Key identifying this param.
 	Key *string `protobuf:"bytes,1,opt,name=key" json:"key,omitempty" query:"key" validate:"required,max=250,validMetricParamOrTagName,pathIsUnique"`
 	// Value associated with this param.
-	Value *string `protobuf:"bytes,2,opt,name=value" json:"value,omitempty" query:"value" validate:"omitempty,truncate=6"`
+	Value *string `protobuf:"bytes,2,opt,name=value" json:"value,omitempty" query:"value" validate:"omitempty,truncate=6000"`
 }
 
 func (x *Param) Reset() {

@@ -221,19 +221,29 @@ func camelizeNamespace(structNamespace string) string {
 	return strings.Join(parts, ".")
 }
 
+func getErrorPath(err validator.FieldError) string {
+	path := err.Field()
+
+	if err.StructNamespace() != "" {
+		// Strip first item in struct namespace
+		idx := strings.Index(err.StructNamespace(), ".")
+		if idx != -1 {
+			path = camelizeNamespace(err.StructNamespace()[(idx + 1):])
+		}
+	}
+
+	return path
+}
+
 func NewErrorFromValidationError(err error) *contract.Error {
 	var ve validator.ValidationErrors
 	if errors.As(err, &ve) {
 		validationErrors := make([]string, 0)
 
 		for _, err := range ve {
-			field := err.Field()
+			field := getErrorPath(err)
 			tag := err.Tag()
 			value := dereference(err.Value())
-
-			if err.StructNamespace() != "" {
-				field = camelizeNamespace(err.StructNamespace())
-			}
 
 			switch tag {
 			case "required":

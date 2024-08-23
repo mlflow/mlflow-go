@@ -175,7 +175,7 @@ func TestMissingTimestampInNestedMetric(t *testing.T) {
 	}
 
 	msg := validation.NewErrorFromValidationError(err).Message
-	if !strings.Contains(msg, "logBatch.metrics[0].timestamp") {
+	if !strings.Contains(msg, "metrics[0].timestamp") {
 		t.Errorf("Expected required validation error for nested property, got %v", msg)
 	}
 }
@@ -229,9 +229,14 @@ func TestNestedErrorsInSubCollection(t *testing.T) {
 	err = validator.Struct(logBatchRequest)
 	if err != nil {
 		msg := validation.NewErrorFromValidationError(err).Message
+		// Assert the root struct name is not present in the error message
+		if strings.Contains(msg, "logBatch") {
+			t.Errorf("Validation message contained root struct name, got %s", msg)
+		}
+
 		// Assert the index is listed in the parameter path
-		if !strings.Contains(msg, "logBatch.params[0].value") ||
-			!strings.Contains(msg, "logBatch.params[1].value") {
+		if !strings.Contains(msg, "params[0].value") ||
+			!strings.Contains(msg, "params[1].value") {
 			t.Errorf("Unexpected validation error message, got %s", msg)
 		}
 	}
