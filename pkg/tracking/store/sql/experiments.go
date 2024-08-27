@@ -26,7 +26,7 @@ func (s TrackingSQLStore) GetExperiment(ctx context.Context, id string) (*protos
 		)
 	}
 
-	experiment := models.Experiment{ID: utils.PtrTo(int32(idInt))}
+	experiment := models.Experiment{ID: int32(idInt)}
 	if err := s.db.WithContext(ctx).Preload("Tags").First(&experiment).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, contract.NewError(
@@ -55,12 +55,12 @@ func (s TrackingSQLStore) CreateExperiment(
 			return fmt.Errorf("failed to insert experiment: %w", err)
 		}
 
-		if utils.IsNilOrEmptyString(experiment.ArtifactLocation) {
-			artifactLocation, err := url.JoinPath(s.config.DefaultArtifactRoot, strconv.Itoa(int(*experiment.ID)))
+		if experiment.ArtifactLocation == "" {
+			artifactLocation, err := url.JoinPath(s.config.DefaultArtifactRoot, strconv.Itoa(int(experiment.ID)))
 			if err != nil {
 				return fmt.Errorf("failed to join artifact location: %w", err)
 			}
-			experiment.ArtifactLocation = &artifactLocation
+			experiment.ArtifactLocation = artifactLocation
 			if err := transaction.Model(&experiment).UpdateColumn("artifact_location", artifactLocation).Error; err != nil {
 				return fmt.Errorf("failed to update experiment artifact location: %w", err)
 			}
@@ -71,21 +71,21 @@ func (s TrackingSQLStore) CreateExperiment(
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
 			return "", contract.NewError(
 				protos.ErrorCode_RESOURCE_ALREADY_EXISTS,
-				fmt.Sprintf("Experiment(name=%s) already exists.", *experiment.Name),
+				fmt.Sprintf("Experiment(name=%s) already exists.", experiment.Name),
 			)
 		}
 
 		return "", contract.NewErrorWith(protos.ErrorCode_INTERNAL_ERROR, "failed to create experiment", err)
 	}
 
-	return strconv.Itoa(int(*experiment.ID)), nil
+	return strconv.Itoa(int(experiment.ID)), nil
 }
 
 func (s TrackingSQLStore) RenameExperiment(ctx context.Context, experiment *protos.Experiment) *contract.Error {
 	if err := s.db.WithContext(ctx).Model(&models.Experiment{}).
-		Where("experiment_id = ?", experiment.ExperimentId).
+		Where("experiment_id = ?", experiment.GetExperimentId()).
 		Updates(&models.Experiment{
-			Name: experiment.Name,
+			Name: experiment.GetName(),
 		}).Error; err != nil {
 		return contract.NewErrorWith(protos.ErrorCode_INTERNAL_ERROR, "failed to update experiment", err)
 	}
@@ -108,8 +108,8 @@ func (s TrackingSQLStore) DeleteExperiment(ctx context.Context, id string) *cont
 		uex := transaction.Model(&models.Experiment{}).
 			Where("experiment_id = ?", idInt).
 			Updates(&models.Experiment{
-				LifecycleStage: utils.PtrTo(string(models.LifecycleStageDeleted)),
-				LastUpdateTime: utils.PtrTo(time.Now().UnixMilli()),
+				LifecycleStage: models.LifecycleStageDeleted,
+				LastUpdateTime: time.Now().UnixMilli(),
 			})
 
 		if uex.Error != nil {
@@ -165,8 +165,8 @@ func (s TrackingSQLStore) RestoreExperiment(ctx context.Context, id string) *con
 			Where("experiment_id = ?", idInt).
 			Where("lifecycle_stage = ?", models.LifecycleStageDeleted).
 			Updates(&models.Experiment{
-				LifecycleStage: utils.PtrTo(string(models.LifecycleStageActive)),
-				LastUpdateTime: utils.PtrTo(time.Now().UnixMilli()),
+				LifecycleStage: models.LifecycleStageActive,
+				LastUpdateTime: time.Now().UnixMilli(),
 			})
 
 		if uex.Error != nil {
