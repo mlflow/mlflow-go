@@ -1,6 +1,7 @@
 package sql
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -8,7 +9,6 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
@@ -113,7 +113,7 @@ func getOffset(pageToken string) (int, *contract.Error) {
 }
 
 //nolint:funlen,cyclop,gocognit
-func applyFilter(logger *logrus.Logger, database, transaction *gorm.DB, filter string) *contract.Error {
+func applyFilter(ctx context.Context, database, transaction *gorm.DB, filter string) *contract.Error {
 	filterConditions, err := query.ParseFilter(filter)
 	if err != nil {
 		return contract.NewErrorWith(
@@ -123,7 +123,7 @@ func applyFilter(logger *logrus.Logger, database, transaction *gorm.DB, filter s
 		)
 	}
 
-	logger.Debugf("Filter conditions: %v", filterConditions)
+	utils.GetLoggerFromContext(ctx).Debugf("Filter conditions: %v", filterConditions)
 
 	for index, clause := range filterConditions {
 		var kind any
@@ -362,7 +362,7 @@ func processOrderByClause(input string) (orderByExpr, error) {
 }
 
 //nolint:funlen, cyclop
-func applyOrderBy(logger *logrus.Logger, database, transaction *gorm.DB, orderBy []string) *contract.Error {
+func applyOrderBy(ctx context.Context, database, transaction *gorm.DB, orderBy []string) *contract.Error {
 	startTimeOrder := false
 
 	for index, orderByClause := range orderBy {
@@ -377,7 +377,7 @@ func applyOrderBy(logger *logrus.Logger, database, transaction *gorm.DB, orderBy
 			)
 		}
 
-		logger.Debugf("OrderByExpr: %#v", orderByExpr)
+		utils.GetLoggerFromContext(ctx).Debugf("OrderByExpr: %#v", orderByExpr)
 
 		var kind any
 
@@ -451,13 +451,19 @@ func mkNextPageToken(runLength, maxResults, offset int) (*string, *contract.Erro
 	return nextPageToken, nil
 }
 
+//nolint:funlen
 func (s TrackingSQLStore) SearchRuns(
+	ctx context.Context,
 	experimentIDs []string, filter string,
 	runViewType protos.ViewType, maxResults int, orderBy []string, pageToken string,
 ) (*store.PagedList[*protos.Run], *contract.Error) {
 	// ViewType
 	lifecyleStages := getLifecyleStages(runViewType)
-	transaction := s.db.Where("runs.experiment_id IN ?", experimentIDs).Where("runs.lifecycle_stage IN ?", lifecyleStages)
+	transaction := s.db.WithContext(ctx).Where(
+		"runs.experiment_id IN ?", experimentIDs,
+	).Where(
+		"runs.lifecycle_stage IN ?", lifecyleStages,
+	)
 
 	// MaxResults
 	transaction.Limit(maxResults)
@@ -471,13 +477,13 @@ func (s TrackingSQLStore) SearchRuns(
 	transaction.Offset(offset)
 
 	// Filter
-	contractError = applyFilter(s.logger, s.db, transaction, filter)
+	contractError = applyFilter(ctx, s.db, transaction, filter)
 	if contractError != nil {
 		return nil, contractError
 	}
 
 	// OrderBy
-	contractError = applyOrderBy(s.logger, s.db, transaction, orderBy)
+	contractError = applyOrderBy(ctx, s.db, transaction, orderBy)
 	if contractError != nil {
 		return nil, contractError
 	}
@@ -573,8 +579,8 @@ func ensureRunName(runModel *models.Run) *contract.Error {
 	return nil
 }
 
-func (s TrackingSQLStore) CreateRun(input *protos.CreateRun) (*protos.Run, *contract.Error) {
-	experiment, err := s.GetExperiment(input.GetExperimentId())
+func (s TrackingSQLStore) CreateRun(ctx context.Context, input *protos.CreateRun) (*protos.Run, *contract.Error) {
+	experiment, err := s.GetExperiment(ctx, input.GetExperimentId())
 	if err != nil {
 		return nil, err
 	}
@@ -627,9 +633,9 @@ func (s TrackingSQLStore) CreateRun(input *protos.CreateRun) (*protos.Run, *cont
 }
 
 func (s TrackingSQLStore) LogBatch(
-	runID string, metrics []*protos.Metric, params []*protos.Param, tags []*protos.RunTag,
+	ctx context.Context, runID string, metrics []*protos.Metric, params []*protos.Param, tags []*protos.RunTag,
 ) *contract.Error {
-	err := s.db.Transaction(func(transaction *gorm.DB) error {
+	err := s.db.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
 		contractError := checkRunIsActive(transaction, runID)
 		if contractError != nil {
 			return contractError
