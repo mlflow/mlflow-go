@@ -1,6 +1,7 @@
 package sql
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"math"
@@ -159,8 +160,8 @@ func (s TrackingSQLStore) logMetricsWithTransaction(
 	return nil
 }
 
-func (s TrackingSQLStore) LogMetric(runID string, metric *protos.Metric) *contract.Error {
-	err := s.db.Transaction(func(transaction *gorm.DB) error {
+func (s TrackingSQLStore) LogMetric(ctx context.Context, runID string, metric *protos.Metric) *contract.Error {
+	err := s.db.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
 		if err := s.logMetricsWithTransaction(transaction, runID, []*protos.Metric{
 			metric,
 		}); err != nil {
