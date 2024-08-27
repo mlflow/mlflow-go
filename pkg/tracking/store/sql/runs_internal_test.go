@@ -2,13 +2,13 @@
 package sql
 
 import (
+	"context"
 	"reflect"
 	"regexp"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/iancoleman/strcase"
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gorm.io/driver/mysql"
@@ -364,12 +364,12 @@ func assertTestData(
 
 	transaction := database.Model(&models.Run{})
 
-	contractErr := applyFilter(logrus.StandardLogger(), database, transaction, testData.query)
+	contractErr := applyFilter(context.Background(), database, transaction, testData.query)
 	if contractErr != nil {
 		t.Fatal("contractErr: ", contractErr)
 	}
 
-	contractErr = applyOrderBy(logrus.StandardLogger(), database, transaction, testData.orderBy)
+	contractErr = applyOrderBy(context.Background(), database, transaction, testData.orderBy)
 	if contractErr != nil {
 		t.Fatal("contractErr: ", contractErr)
 	}
@@ -416,7 +416,7 @@ func TestInvalidSearchRunsQuery(t *testing.T) {
 
 	transaction := database.Model(&models.Run{})
 
-	contractErr := applyFilter(logrus.StandardLogger(), database, transaction, "⚡✱*@❖$#&")
+	contractErr := applyFilter(context.Background(), database, transaction, "⚡✱*@❖$#&")
 	if contractErr == nil {
 		t.Fatal("expected contract error")
 	}

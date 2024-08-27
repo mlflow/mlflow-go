@@ -8,7 +8,7 @@ import (
 )
 
 func (ts TrackingService) LogMetric(
-	_ context.Context,
+	ctx context.Context,
 	input *protos.LogMetric,
 ) (*protos.LogMetric_Response, *contract.Error) {
 	metric := &protos.Metric{
@@ -18,7 +18,7 @@ func (ts TrackingService) LogMetric(
 		Step:      input.Step,
 	}
 
-	if err := ts.Store.LogMetric(input.GetRunId(), metric); err != nil {
+	if err := ts.Store.LogMetric(ctx, input.GetRunId(), metric); err != nil {
 		return nil, err
 	}
 
