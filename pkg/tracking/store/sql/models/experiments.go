@@ -47,8 +47,8 @@ func NewExperimentFromProto(proto *protos.CreateExperiment) Experiment {
 	tags := make([]ExperimentTag, len(proto.GetTags()))
 	for i, tag := range proto.GetTags() {
 		tags[i] = ExperimentTag{
-			Key:   *tag.Key,
-			Value: *tag.Value,
+			Key:   tag.GetKey(),
+			Value: tag.GetValue(),
 		}
 	}
 
