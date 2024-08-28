@@ -8,9 +8,9 @@ import (
 )
 
 func (m *ModelRegistryService) GetLatestVersions(
-	_ context.Context, input *protos.GetLatestVersions,
+	ctx context.Context, input *protos.GetLatestVersions,
 ) (*protos.GetLatestVersions_Response, *contract.Error) {
-	latestVersions, err := m.store.GetLatestVersions(input.GetName(), input.GetStages())
+	latestVersions, err := m.store.GetLatestVersions(ctx, input.GetName(), input.GetStages())
 	if err != nil {
 		return nil, err
 	}
