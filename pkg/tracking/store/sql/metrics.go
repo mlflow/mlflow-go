@@ -19,7 +19,7 @@ const metricsBatchSize = 500
 func getDistinctMetricKeys(metrics []models.Metric) []string {
 	metricKeysMap := make(map[string]any)
 	for _, m := range metrics {
-		metricKeysMap[*m.Key] = nil
+		metricKeysMap[m.Key] = nil
 	}
 
 	metricKeys := make([]string, 0, len(metricKeysMap))
@@ -66,8 +66,8 @@ func getLatestMetrics(transaction *gorm.DB, runID string, metricKeys []string) (
 
 func isNewerMetric(a models.Metric, b models.LatestMetric) bool {
 	return a.Step > b.Step ||
-		(a.Step == b.Step && *a.Timestamp > *b.Timestamp) ||
-		(a.Step == b.Step && *a.Timestamp == *b.Timestamp && *a.Value > *b.Value)
+		(a.Step == b.Step && a.Timestamp > b.Timestamp) ||
+		(a.Step == b.Step && a.Timestamp == b.Timestamp && a.Value > b.Value)
 }
 
 //nolint:cyclop
@@ -85,26 +85,26 @@ func updateLatestMetricsIfNecessary(transaction *gorm.DB, runID string, metrics 
 
 	latestMetricsMap := make(map[string]models.LatestMetric, len(latestMetrics))
 	for _, m := range latestMetrics {
-		latestMetricsMap[*m.Key] = m
+		latestMetricsMap[m.Key] = m
 	}
 
 	nextLatestMetricsMap := make(map[string]models.LatestMetric, len(metrics))
 
 	for _, metric := range metrics {
-		latestMetric, found := latestMetricsMap[*metric.Key]
-		nextLatestMetric, alreadyPresent := nextLatestMetricsMap[*metric.Key]
+		latestMetric, found := latestMetricsMap[metric.Key]
+		nextLatestMetric, alreadyPresent := nextLatestMetricsMap[metric.Key]
 
 		switch {
 		case !found && !alreadyPresent:
 			// brand new latest metric
-			nextLatestMetricsMap[*metric.Key] = metric.NewLatestMetricFromProto()
+			nextLatestMetricsMap[metric.Key] = metric.NewLatestMetricFromProto()
 		case !found && alreadyPresent && isNewerMetric(metric, nextLatestMetric):
 			// there is no row in the database but the metric is present twice
 			// and we need to take the latest one from the batch.
-			nextLatestMetricsMap[*metric.Key] = metric.NewLatestMetricFromProto()
+			nextLatestMetricsMap[metric.Key] = metric.NewLatestMetricFromProto()
 		case found && isNewerMetric(metric, latestMetric):
 			// compare with the row in the database
-			nextLatestMetricsMap[*metric.Key] = metric.NewLatestMetricFromProto()
+			nextLatestMetricsMap[metric.Key] = metric.NewLatestMetricFromProto()
 		}
 	}
 
