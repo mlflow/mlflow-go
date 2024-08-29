@@ -40,7 +40,7 @@ func verifyBatchParamsInserts(
 	}
 
 	for _, existingParam := range existingParams {
-		if currentValue, ok := deduplicatedParamsMap[*existingParam.Key]; ok && currentValue != *existingParam.Value {
+		if currentValue, ok := deduplicatedParamsMap[existingParam.Key]; ok && currentValue != existingParam.Value {
 			return contract.NewError(
 				protos.ErrorCode_INVALID_PARAMETER_VALUE,
 				fmt.Sprintf(
@@ -48,8 +48,8 @@ func verifyBatchParamsInserts(
 						"Params with key=%q was already logged "+
 						"with value=%q for run ID=%q. "+
 						"Attempted logging new value %q",
-					*existingParam.Key,
-					*existingParam.Value,
+					existingParam.Key,
+					existingParam.Value,
 					runID,
 					currentValue,
 				),

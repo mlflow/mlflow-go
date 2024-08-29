@@ -33,7 +33,7 @@ type Run struct {
 type RunStatus string
 
 const (
-	RunStatusRunnig    RunStatus = "RUNNING"
+	RunStatusRunning   RunStatus = "RUNNING"
 	RunStatusScheduled RunStatus = "SCHEDULED"
 	RunStatusFinished  RunStatus = "FINISHED"
 	RunStatusFailed    RunStatus = "FAILED"
@@ -128,7 +128,7 @@ func NewRunFromCreateRunProto(run *protos.CreateRun) *Run {
 		UserID:         run.UserId,
 		Tags:           tags,
 		LifecycleStage: utils.PtrTo(string(LifecycleStageActive)),
-		Status:         utils.PtrTo(string(RunStatusRunnig)),
+		Status:         utils.PtrTo(string(RunStatusRunning)),
 		SourceType:     utils.PtrTo(string(SourceTypeUnknown)),
 	}
 }

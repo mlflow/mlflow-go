@@ -1,6 +1,7 @@
 package sql
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -32,15 +33,16 @@ func assertModelExists(db *gorm.DB, name string) *contract.Error {
 }
 
 func (m *ModelRegistrySQLStore) GetLatestVersions(
-	name string, stages []string,
+	ctx context.Context, name string, stages []string,
 ) ([]*protos.ModelVersion, *contract.Error) {
-	if err := assertModelExists(m.db, name); err != nil {
+	if err := assertModelExists(m.db.WithContext(ctx), name); err != nil {
 		return nil, err
 	}
 
 	var modelVersions []*models.ModelVersion
 
 	subQuery := m.db.
+		WithContext(ctx).
 		Model(&models.ModelVersion{}).
 		Select("name, MAX(version) AS max_version").
 		Where("name = ?", name).
@@ -52,6 +54,7 @@ func (m *ModelRegistrySQLStore) GetLatestVersions(
 	}
 
 	err := m.db.
+		WithContext(ctx).
 		Model(&models.ModelVersion{}).
 		Joins("JOIN (?) AS sub ON model_versions.name = sub.name AND model_versions.version = sub.max_version", subQuery).
 		Find(&modelVersions).Error

@@ -4,25 +4,24 @@ import (
 	"math"
 
 	"github.com/mlflow/mlflow-go/pkg/protos"
-	"github.com/mlflow/mlflow-go/pkg/utils"
 )
 
 // Metric mapped from table <metrics>.
 type Metric struct {
-	Key       *string  `db:"key"       gorm:"column:key;primaryKey"`
-	Value     *float64 `db:"value"     gorm:"column:value;primaryKey"`
-	Timestamp *int64   `db:"timestamp" gorm:"column:timestamp;primaryKey"`
-	RunID     *string  `db:"run_uuid"  gorm:"column:run_uuid;primaryKey"`
-	Step      int64    `db:"step"      gorm:"column:step;primaryKey"`
-	IsNan     *bool    `db:"is_nan"    gorm:"column:is_nan;primaryKey"`
+	Key       string  `db:"key"       gorm:"column:key;primaryKey"`
+	Value     float64 `db:"value"     gorm:"column:value;primaryKey"`
+	Timestamp int64   `db:"timestamp" gorm:"column:timestamp;primaryKey"`
+	RunID     string  `db:"run_uuid"  gorm:"column:run_uuid;primaryKey"`
+	Step      int64   `db:"step"      gorm:"column:step;primaryKey"`
+	IsNan     bool    `db:"is_nan"    gorm:"column:is_nan;primaryKey"`
 }
 
 func (m Metric) ToProto() *protos.Metric {
 	return &protos.Metric{
-		Key:       m.Key,
-		Value:     m.Value,
-		Timestamp: m.Timestamp,
-		Step:      utils.PtrTo(m.Step),
+		Key:       &m.Key,
+		Value:     &m.Value,
+		Timestamp: &m.Timestamp,
+		Step:      &m.Step,
 	}
 }
 
@@ -51,12 +50,12 @@ func NewMetricFromProto(runID string, metric *protos.Metric) *Metric {
 	}
 
 	return &Metric{
-		RunID:     utils.PtrTo(runID),
-		Key:       metric.Key,
-		Value:     utils.PtrTo(value),
-		Timestamp: metric.Timestamp,
+		RunID:     runID,
+		Key:       *metric.Key,
+		Value:     value,
+		Timestamp: *metric.Timestamp,
 		Step:      step,
-		IsNan:     &isNaN,
+		IsNan:     isNaN,
 	}
 }
 
