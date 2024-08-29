@@ -49,11 +49,9 @@ func (ts TrackingService) CreateExperiment(ctx context.Context, input *protos.Cr
 		return nil, err
 	}
 
-	response := protos.CreateExperiment_Response{
+	return &protos.CreateExperiment_Response{
 		ExperimentId: &experimentID,
-	}
-
-	return &response, nil
+	}, nil
 }
 
 // GetExperiment implements TrackingService.
@@ -65,11 +63,9 @@ func (ts TrackingService) GetExperiment(
 		return nil, err
 	}
 
-	response := protos.GetExperiment_Response{
+	return &protos.GetExperiment_Response{
 		Experiment: experiment,
-	}
-
-	return &response, nil
+	}, nil
 }
 
 func (ts TrackingService) DeleteExperiment(
@@ -109,8 +105,8 @@ func (ts TrackingService) UpdateExperiment(
 		)
 	}
 
-	if input.NewName != nil {
-		experiment.Name = input.NewName
+	if name := input.GetNewName(); name != "" {
+		experiment.Name = &name
 		if err := ts.Store.RenameExperiment(ctx, experiment); err != nil {
 			return nil, err
 		}
@@ -127,9 +123,7 @@ func (ts TrackingService) GetExperimentByName(
 		return nil, err
 	}
 
-	response := protos.GetExperimentByName_Response{
+	return &protos.GetExperimentByName_Response{
 		Experiment: experiment,
-	}
-
-	return &response, nil
+	}, nil
 }
