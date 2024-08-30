@@ -126,10 +126,10 @@ func NewRunFromCreateRunProto(run *protos.CreateRun) *Run {
 
 	return &Run{
 		ID:             utils.NewUUID(),
-		Name:           *run.RunName,
+		Name:           run.GetRunName(),
 		ExperimentID:   utils.ConvertStringPointerToInt32Pointer(run.ExperimentId),
-		StartTime:      *run.StartTime,
-		UserID:         *run.UserId,
+		StartTime:      run.GetStartTime(),
+		UserID:         run.GetUserId(),
 		Tags:           tags,
 		LifecycleStage: LifecycleStageActive,
 		Status:         RunStatusRunning,
