@@ -13,7 +13,6 @@ import (
 	"github.com/mlflow/mlflow-go/pkg/contract"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 	"github.com/mlflow/mlflow-go/pkg/tracking/store/sql/models"
-	"github.com/mlflow/mlflow-go/pkg/utils"
 )
 
 func (s TrackingSQLStore) GetExperiment(ctx context.Context, id string) (*protos.Experiment, *contract.Error) {
@@ -124,8 +123,8 @@ func (s TrackingSQLStore) DeleteExperiment(ctx context.Context, id string) *cont
 		if err := transaction.Model(&models.Run{}).
 			Where("experiment_id = ?", idInt).
 			Updates(&models.Run{
-				LifecycleStage: utils.PtrTo(string(models.LifecycleStageDeleted)),
-				DeletedTime:    utils.PtrTo(time.Now().UnixMilli()),
+				LifecycleStage: models.LifecycleStageDeleted,
+				DeletedTime:    time.Now().UnixMilli(),
 			}).Error; err != nil {
 			return fmt.Errorf("failed to update runs during delete: %w", err)
 		}
@@ -181,8 +180,8 @@ func (s TrackingSQLStore) RestoreExperiment(ctx context.Context, id string) *con
 		if err := transaction.Model(&models.Run{}).
 			Where("experiment_id = ?", idInt).
 			Updates(&models.Run{
-				LifecycleStage: utils.PtrTo(string(models.LifecycleStageActive)),
-				DeletedTime:    utils.PtrTo(time.Now().UnixMilli()),
+				LifecycleStage: models.LifecycleStageActive,
+				DeletedTime:    time.Now().UnixMilli(),
 			}).Error; err != nil {
 			return fmt.Errorf("failed to update runs during delete: %w", err)
 		}

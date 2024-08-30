@@ -4,8 +4,8 @@ package service
 
 import (
 	"context"
-	"github.com/mlflow/mlflow-go/pkg/protos"
 	"github.com/mlflow/mlflow-go/pkg/contract"
+	"github.com/mlflow/mlflow-go/pkg/protos"
 )
 
 type TrackingService interface {
@@ -16,6 +16,7 @@ type TrackingService interface {
 	RestoreExperiment(ctx context.Context, input *protos.RestoreExperiment) (*protos.RestoreExperiment_Response, *contract.Error)
 	UpdateExperiment(ctx context.Context, input *protos.UpdateExperiment) (*protos.UpdateExperiment_Response, *contract.Error)
 	CreateRun(ctx context.Context, input *protos.CreateRun) (*protos.CreateRun_Response, *contract.Error)
+	UpdateRun(ctx context.Context, input *protos.UpdateRun) (*protos.UpdateRun_Response, *contract.Error)
 	LogMetric(ctx context.Context, input *protos.LogMetric) (*protos.LogMetric_Response, *contract.Error)
 	SearchRuns(ctx context.Context, input *protos.SearchRuns) (*protos.SearchRuns_Response, *contract.Error)
 	LogBatch(ctx context.Context, input *protos.LogBatch) (*protos.LogBatch_Response, *contract.Error)

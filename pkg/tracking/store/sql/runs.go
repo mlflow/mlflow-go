@@ -542,18 +542,18 @@ func ensureRunName(runModel *models.Run) *contract.Error {
 
 	switch {
 	// run_name and name in tags differ
-	case utils.IsNotNilOrEmptyString(runModel.Name) && runNameFromTags != "" && *runModel.Name != runNameFromTags:
+	case utils.IsNotNilOrEmptyString(&runModel.Name) && runNameFromTags != "" && runModel.Name != runNameFromTags:
 		return contract.NewError(
 			protos.ErrorCode_INVALID_PARAMETER_VALUE,
 			fmt.Sprintf(
 				"Both 'run_name' argument and 'mlflow.runName' tag are specified, but with "+
 					"different values (run_name='%s', mlflow.runName='%s').",
-				*runModel.Name,
+				runModel.Name,
 				runNameFromTags,
 			),
 		)
 	// no name was provided, generate a random name
-	case utils.IsNilOrEmptyString(runModel.Name) && runNameFromTags == "":
+	case utils.IsNilOrEmptyString(&runModel.Name) && runNameFromTags == "":
 		randomName, err := utils.GenerateRandomName()
 		if err != nil {
 			return contract.NewErrorWith(
@@ -563,20 +563,36 @@ func ensureRunName(runModel *models.Run) *contract.Error {
 			)
 		}
 
-		runModel.Name = utils.PtrTo(randomName)
+		runModel.Name = randomName
 	// use name from tags
-	case utils.IsNilOrEmptyString(runModel.Name) && runNameFromTags != "":
-		runModel.Name = utils.PtrTo(runNameFromTags)
+	case utils.IsNilOrEmptyString(&runModel.Name) && runNameFromTags != "":
+		runModel.Name = runNameFromTags
 	}
 
 	if runNameFromTags == "" {
 		runModel.Tags = append(runModel.Tags, models.Tag{
 			Key:   utils.PtrTo(utils.TagRunName),
-			Value: runModel.Name,
+			Value: &runModel.Name,
 		})
 	}
 
 	return nil
+}
+
+func (s TrackingSQLStore) GetRun(ctx context.Context, runID string) (*protos.Run, *contract.Error) {
+	run := models.Run{ID: runID}
+	if err := s.db.WithContext(ctx).Preload("Tags").First(&run).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, contract.NewError(
+				protos.ErrorCode_RESOURCE_DOES_NOT_EXIST,
+				fmt.Sprintf("Run with id=%s not found", runID),
+			)
+		}
+
+		return nil, contract.NewErrorWith(protos.ErrorCode_INTERNAL_ERROR, "failed to get run", err)
+	}
+
+	return run.ToProto(), nil
 }
 
 func (s TrackingSQLStore) CreateRun(ctx context.Context, input *protos.CreateRun) (*protos.Run, *contract.Error) {
@@ -601,7 +617,7 @@ func (s TrackingSQLStore) CreateRun(ctx context.Context, input *protos.CreateRun
 
 	artifactLocation, appendErr := url.JoinPath(
 		experiment.GetArtifactLocation(),
-		*runModel.ID,
+		runModel.ID,
 		ArtifactFolderName,
 	)
 	if appendErr != nil {
@@ -611,7 +627,7 @@ func (s TrackingSQLStore) CreateRun(ctx context.Context, input *protos.CreateRun
 		)
 	}
 
-	runModel.ArtifactURI = &artifactLocation
+	runModel.ArtifactURI = artifactLocation
 
 	errRunName := ensureRunName(runModel)
 	if errRunName != nil {
@@ -630,6 +646,26 @@ func (s TrackingSQLStore) CreateRun(ctx context.Context, input *protos.CreateRun
 	}
 
 	return runModel.ToProto(), nil
+}
+
+func (s TrackingSQLStore) UpdateRun(ctx context.Context, run *protos.Run) *contract.Error {
+	if err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(&models.Run{}).
+			Where("run_uuid = ?", run.Info.GetRunId()).
+			Updates(&models.Run{
+				Name:    run.Info.GetRunName(),
+				Status:  models.RunStatus(protos.RunStatus_name[int32(run.Info.GetStatus())]),
+				EndTime: run.Info.GetEndTime(),
+			}).Error; err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
+		return contract.NewErrorWith(protos.ErrorCode_INTERNAL_ERROR, "failed to update run", err)
+	}
+
+	return nil
 }
 
 func (s TrackingSQLStore) LogBatch(

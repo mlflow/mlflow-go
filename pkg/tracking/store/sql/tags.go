@@ -1,17 +1,45 @@
 package sql
 
 import (
+	"context"
+	"errors"
 	"fmt"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
+	"github.com/mlflow/mlflow-go/pkg/contract"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 	"github.com/mlflow/mlflow-go/pkg/tracking/store/sql/models"
 	"github.com/mlflow/mlflow-go/pkg/utils"
 )
 
 const tagsBatchSize = 100
+
+func (s TrackingSQLStore) GetRunTag(
+	ctx context.Context, runID, tagKey string,
+) (*protos.RunTag, *contract.Error) {
+	var runTag models.Tag
+	if err := s.db.WithContext(
+		ctx,
+	).Where(
+		"run_uuid = ?", runID,
+	).Where(
+		"key = ?", tagKey,
+	).First(&runTag).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+
+		return nil, contract.NewErrorWith(
+			protos.ErrorCode_INTERNAL_ERROR,
+			fmt.Sprintf("failed to get run tag for run id %q", runID),
+			err,
+		)
+	}
+
+	return runTag.ToProto(), nil
+}
 
 func (s TrackingSQLStore) setTagsWithTransaction(
 	transaction *gorm.DB, runID string, tags []*protos.RunTag,
