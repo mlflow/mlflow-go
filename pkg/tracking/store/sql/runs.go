@@ -580,8 +580,8 @@ func ensureRunName(runModel *models.Run) *contract.Error {
 }
 
 func (s TrackingSQLStore) GetRun(ctx context.Context, runID string) (*protos.Run, *contract.Error) {
-	run := models.Run{ID: runID}
-	if err := s.db.WithContext(ctx).Preload("Tags").First(&run).Error; err != nil {
+	var run models.Run
+	if err := s.db.WithContext(ctx).Where("run_uuid = ?", runID).Preload("Tags").First(&run).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, contract.NewError(
 				protos.ErrorCode_RESOURCE_DOES_NOT_EXIST,
@@ -649,8 +649,8 @@ func (s TrackingSQLStore) CreateRun(ctx context.Context, input *protos.CreateRun
 }
 
 func (s TrackingSQLStore) UpdateRun(ctx context.Context, run *protos.Run) *contract.Error {
-	if err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Model(&models.Run{}).
+	if err := s.db.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
+		if err := transaction.Model(&models.Run{}).
 			Where("run_uuid = ?", run.Info.GetRunId()).
 			Updates(&models.Run{
 				Name:    run.Info.GetRunName(),
@@ -658,6 +658,19 @@ func (s TrackingSQLStore) UpdateRun(ctx context.Context, run *protos.Run) *contr
 				EndTime: run.Info.GetEndTime(),
 			}).Error; err != nil {
 			return err
+		}
+
+		if run.Data != nil && len(run.Data.Tags) > 0 {
+			runTags := make([]models.Tag, 0, len(run.Data.Tags))
+			for _, tag := range run.Data.Tags {
+				runTags = append(runTags, models.NewTagFromProto(utils.PtrTo(run.Info.GetRunId()), tag))
+			}
+
+			if err := transaction.Clauses(clause.OnConflict{
+				UpdateAll: true,
+			}).CreateInBatches(runTags, tagsBatchSize).Error; err != nil {
+				return fmt.Errorf("failed to create tags for run %q: %w", run.Info.GetRunId(), err)
+			}
 		}
 
 		return nil
