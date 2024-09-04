@@ -270,7 +270,7 @@ func NewErrorFromValidationError(err error) *contract.Error {
 			default:
 				validationErrors = append(
 					validationErrors,
-					constructValidationError(field, err, ""),
+					constructValidationError(field, value, ""),
 				)
 			}
 		}
