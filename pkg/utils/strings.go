@@ -14,11 +14,11 @@ func IsNilOrEmptyString(v *string) bool {
 	return v == nil || *v == ""
 }
 
-func NewUUID() *string {
+func NewUUID() string {
 	var r [32]byte
 
 	u := uuid.New()
 	hex.Encode(r[:], u[:])
 
-	return PtrTo(string(r[:]))
+	return string(r[:])
 }

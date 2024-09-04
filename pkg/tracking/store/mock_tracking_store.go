@@ -315,6 +315,129 @@ func (_c *MockTrackingStore_GetExperimentByName_Call) RunAndReturn(run func(cont
 	return _c
 }
 
+// GetRun provides a mock function with given fields: ctx, runID
+func (_m *MockTrackingStore) GetRun(ctx context.Context, runID string) (*protos.Run, *contract.Error) {
+	ret := _m.Called(ctx, runID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetRun")
+	}
+
+	var r0 *protos.Run
+	var r1 *contract.Error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*protos.Run, *contract.Error)); ok {
+		return rf(ctx, runID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) *protos.Run); ok {
+		r0 = rf(ctx, runID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*protos.Run)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) *contract.Error); ok {
+		r1 = rf(ctx, runID)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(*contract.Error)
+		}
+	}
+
+	return r0, r1
+}
+
+// MockTrackingStore_GetRun_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetRun'
+type MockTrackingStore_GetRun_Call struct {
+	*mock.Call
+}
+
+// GetRun is a helper method to define mock.On call
+//   - ctx context.Context
+//   - runID string
+func (_e *MockTrackingStore_Expecter) GetRun(ctx interface{}, runID interface{}) *MockTrackingStore_GetRun_Call {
+	return &MockTrackingStore_GetRun_Call{Call: _e.mock.On("GetRun", ctx, runID)}
+}
+
+func (_c *MockTrackingStore_GetRun_Call) Run(run func(ctx context.Context, runID string)) *MockTrackingStore_GetRun_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *MockTrackingStore_GetRun_Call) Return(_a0 *protos.Run, _a1 *contract.Error) *MockTrackingStore_GetRun_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockTrackingStore_GetRun_Call) RunAndReturn(run func(context.Context, string) (*protos.Run, *contract.Error)) *MockTrackingStore_GetRun_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetRunTag provides a mock function with given fields: ctx, runID, tagKey
+func (_m *MockTrackingStore) GetRunTag(ctx context.Context, runID string, tagKey string) (*protos.RunTag, *contract.Error) {
+	ret := _m.Called(ctx, runID, tagKey)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetRunTag")
+	}
+
+	var r0 *protos.RunTag
+	var r1 *contract.Error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) (*protos.RunTag, *contract.Error)); ok {
+		return rf(ctx, runID, tagKey)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) *protos.RunTag); ok {
+		r0 = rf(ctx, runID, tagKey)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*protos.RunTag)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, string) *contract.Error); ok {
+		r1 = rf(ctx, runID, tagKey)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(*contract.Error)
+		}
+	}
+
+	return r0, r1
+}
+
+// MockTrackingStore_GetRunTag_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetRunTag'
+type MockTrackingStore_GetRunTag_Call struct {
+	*mock.Call
+}
+
+// GetRunTag is a helper method to define mock.On call
+//   - ctx context.Context
+//   - runID string
+//   - tagKey string
+func (_e *MockTrackingStore_Expecter) GetRunTag(ctx interface{}, runID interface{}, tagKey interface{}) *MockTrackingStore_GetRunTag_Call {
+	return &MockTrackingStore_GetRunTag_Call{Call: _e.mock.On("GetRunTag", ctx, runID, tagKey)}
+}
+
+func (_c *MockTrackingStore_GetRunTag_Call) Run(run func(ctx context.Context, runID string, tagKey string)) *MockTrackingStore_GetRunTag_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(string))
+	})
+	return _c
+}
+
+func (_c *MockTrackingStore_GetRunTag_Call) Return(_a0 *protos.RunTag, _a1 *contract.Error) *MockTrackingStore_GetRunTag_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockTrackingStore_GetRunTag_Call) RunAndReturn(run func(context.Context, string, string) (*protos.RunTag, *contract.Error)) *MockTrackingStore_GetRunTag_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // LogBatch provides a mock function with given fields: ctx, runID, metrics, params, tags
 func (_m *MockTrackingStore) LogBatch(ctx context.Context, runID string, metrics []*protos.Metric, params []*protos.Param, tags []*protos.RunTag) *contract.Error {
 	ret := _m.Called(ctx, runID, metrics, params, tags)
@@ -577,6 +700,55 @@ func (_c *MockTrackingStore_SearchRuns_Call) Return(pagedList *PagedList[*protos
 }
 
 func (_c *MockTrackingStore_SearchRuns_Call) RunAndReturn(run func(context.Context, []string, string, protos.ViewType, int, []string, string) (*PagedList[*protos.Run], *contract.Error)) *MockTrackingStore_SearchRuns_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpdateRun provides a mock function with given fields: ctx, run
+func (_m *MockTrackingStore) UpdateRun(ctx context.Context, run *protos.Run) *contract.Error {
+	ret := _m.Called(ctx, run)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateRun")
+	}
+
+	var r0 *contract.Error
+	if rf, ok := ret.Get(0).(func(context.Context, *protos.Run) *contract.Error); ok {
+		r0 = rf(ctx, run)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*contract.Error)
+		}
+	}
+
+	return r0
+}
+
+// MockTrackingStore_UpdateRun_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateRun'
+type MockTrackingStore_UpdateRun_Call struct {
+	*mock.Call
+}
+
+// UpdateRun is a helper method to define mock.On call
+//   - ctx context.Context
+//   - run *protos.Run
+func (_e *MockTrackingStore_Expecter) UpdateRun(ctx interface{}, run interface{}) *MockTrackingStore_UpdateRun_Call {
+	return &MockTrackingStore_UpdateRun_Call{Call: _e.mock.On("UpdateRun", ctx, run)}
+}
+
+func (_c *MockTrackingStore_UpdateRun_Call) Run(run func(ctx context.Context, run *protos.Run)) *MockTrackingStore_UpdateRun_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*protos.Run))
+	})
+	return _c
+}
+
+func (_c *MockTrackingStore_UpdateRun_Call) Return(_a0 *contract.Error) *MockTrackingStore_UpdateRun_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockTrackingStore_UpdateRun_Call) RunAndReturn(run func(context.Context, *protos.Run) *contract.Error) *MockTrackingStore_UpdateRun_Call {
 	_c.Call.Return(run)
 	return _c
 }
