@@ -4,6 +4,7 @@ import logging
 from mlflow.entities import (
     Experiment,
     Run,
+    RunInfo,
     ViewType,
 )
 from mlflow.exceptions import MlflowException
@@ -19,6 +20,7 @@ from mlflow.protos.service_pb2 import (
     RestoreExperiment,
     SearchRuns,
     UpdateExperiment,
+    UpdateRun,
 )
 from mlflow.utils.uri import resolve_uri_if_local
 
@@ -101,6 +103,17 @@ class _TrackingStore:
         )
         response = self.service.call_endpoint(get_lib().TrackingServiceCreateRun, request)
         return Run.from_proto(response.run)
+
+    def update_run(self, run_id, run_status, end_time, run_name):
+        request = UpdateRun(
+            run_uuid=run_id,
+            run_id=run_id,
+            status=run_status,
+            end_time=end_time,
+            run_name=run_name,
+        )
+        response = self.service.call_endpoint(get_lib().TrackingServiceUpdateRun, request)
+        return RunInfo.from_proto(response.run_info)
 
     def _search_runs(
         self, experiment_ids, filter_string, run_view_type, max_results, order_by, page_token
