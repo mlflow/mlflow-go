@@ -11,7 +11,6 @@ from mlflow.exceptions import MlflowException
 from mlflow.protos import databricks_pb2
 from mlflow.protos.service_pb2 import (
     CreateExperiment,
-    GetRun,
     CreateRun,
     DeleteExperiment,
     GetExperiment,
@@ -93,11 +92,6 @@ class _TrackingStore:
     def rename_experiment(self, experiment_id, new_name):
         request = UpdateExperiment(experiment_id=str(experiment_id), new_name=new_name)
         self.service.call_endpoint(get_lib().TrackingServiceUpdateExperiment, request)
-
-    def get_run(self, run_id):
-        request = GetRun(run_uuid=run_id, run_id=run_id)
-        response = self.service.call_endpoint(get_lib().TrackingServiceGetRun, request)
-        return Run.from_proto(response.run)
 
     def create_run(self, experiment_id, user_id, start_time, tags, run_name):
         request = CreateRun(
