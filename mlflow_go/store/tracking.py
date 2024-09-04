@@ -11,11 +11,11 @@ from mlflow.exceptions import MlflowException
 from mlflow.protos import databricks_pb2
 from mlflow.protos.service_pb2 import (
     CreateExperiment,
-    GetRun,
     CreateRun,
     DeleteExperiment,
     GetExperiment,
     GetExperimentByName,
+    GetRun,
     LogBatch,
     LogMetric,
     RestoreExperiment,
