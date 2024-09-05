@@ -54,6 +54,17 @@ func (ts TrackingService) LogBatch(
 	return &protos.LogBatch_Response{}, nil
 }
 
+func (ts TrackingService) GetRun(
+	ctx context.Context, input *protos.GetRun,
+) (*protos.GetRun_Response, *contract.Error) {
+	run, err := ts.Store.GetRun(ctx, input.GetRunId())
+	if err != nil {
+		return nil, err
+	}
+
+	return &protos.GetRun_Response{Run: run}, nil
+}
+
 func (ts TrackingService) CreateRun(
 	ctx context.Context, input *protos.CreateRun,
 ) (*protos.CreateRun_Response, *contract.Error) {
