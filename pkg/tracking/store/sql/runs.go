@@ -581,7 +581,19 @@ func ensureRunName(runModel *models.Run) *contract.Error {
 
 func (s TrackingSQLStore) GetRun(ctx context.Context, runID string) (*protos.Run, *contract.Error) {
 	var run models.Run
-	if err := s.db.WithContext(ctx).Where("run_uuid = ?", runID).Preload("Tags").First(&run).Error; err != nil {
+	if err := s.db.WithContext(ctx).Where(
+		"run_uuid = ?", runID,
+	).Preload(
+		"Tags",
+	).Preload(
+		"Params",
+	).Preload(
+		"Inputs.Tags",
+	).Preload(
+		"LatestMetrics",
+	).Preload(
+		"Inputs.Dataset",
+	).First(&run).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, contract.NewError(
 				protos.ErrorCode_RESOURCE_DOES_NOT_EXIST,
