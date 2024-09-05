@@ -81,7 +81,7 @@ func (r Run) ToProto() *protos.Run {
 		LifecycleStage: utils.PtrTo(r.LifecycleStage.String()),
 	}
 
-	metrics := make([]*protos.Metric, 0, len(r.Metrics))
+	metrics := make([]*protos.Metric, 0, len(r.LatestMetrics))
 	for _, metric := range r.LatestMetrics {
 		metrics = append(metrics, metric.ToProto())
 	}
