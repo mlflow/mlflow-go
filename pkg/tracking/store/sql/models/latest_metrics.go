@@ -1,7 +1,10 @@
 package models
 
 import (
+	"math"
+
 	"github.com/mlflow/mlflow-go/pkg/protos"
+	"github.com/mlflow/mlflow-go/pkg/utils"
 )
 
 // Constants to represent non-usual numbers.
@@ -27,6 +30,9 @@ func (lm LatestMetric) ToProto() *protos.Metric {
 		Value:     &lm.Value,
 		Timestamp: &lm.Timestamp,
 		Step:      &lm.Step,
+	}
+	if lm.IsNan {
+		metric.Value = utils.PtrTo(math.NaN())
 	}
 
 	return &metric
