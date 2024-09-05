@@ -306,3 +306,8 @@ FAILED .mlflow.repo/tests/store/model_registry/test_sqlalchemy_store.py::test_ge
 
 27 failed, 327 passed, 9 skipped, 124 deselected, 10 warnings in 363.89s
 ```
+
+## Debug failing tests
+
+Sometimes it could be very useful to modify failing tests and use `print` to print an actual situation or difference between
+the object from from Python or Go services.
