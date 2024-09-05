@@ -4,6 +4,13 @@ import (
 	"github.com/mlflow/mlflow-go/pkg/protos"
 )
 
+// Constants to represent non-usual numbers.
+const (
+	NANValue            = "NaN"
+	NANPositiveInfinity = "Infinity"
+	NANNegativeInfinity = "-Infinity"
+)
+
 // LatestMetric mapped from table <latest_metrics>.
 type LatestMetric struct {
 	Key       string  `db:"key"       gorm:"column:key;primaryKey"`
@@ -15,10 +22,12 @@ type LatestMetric struct {
 }
 
 func (lm LatestMetric) ToProto() *protos.Metric {
-	return &protos.Metric{
+	metric := protos.Metric{
 		Key:       &lm.Key,
 		Value:     &lm.Value,
 		Timestamp: &lm.Timestamp,
 		Step:      &lm.Step,
 	}
+
+	return &metric
 }
