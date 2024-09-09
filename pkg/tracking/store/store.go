@@ -19,6 +19,8 @@ type (
 		GetRun(ctx context.Context, runID string) (*protos.Run, *contract.Error)
 		CreateRun(ctx context.Context, input *protos.CreateRun) (*protos.Run, *contract.Error)
 		UpdateRun(ctx context.Context, run *protos.Run) *contract.Error
+		DeleteRun(ctx context.Context, runID string) *contract.Error
+		RestoreRun(ctx context.Context, runID string) *contract.Error
 
 		GetRunTag(ctx context.Context, runID, tagKey string) (*protos.RunTag, *contract.Error)
 	}

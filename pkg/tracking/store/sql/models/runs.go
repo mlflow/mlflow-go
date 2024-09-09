@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"strings"
 
 	"github.com/mlflow/mlflow-go/pkg/protos"
@@ -22,7 +23,7 @@ type Run struct {
 	LifecycleStage LifecycleStage `db:"lifecycle_stage"  gorm:"column:lifecycle_stage"`
 	ArtifactURI    string         `db:"artifact_uri"     gorm:"column:artifact_uri"`
 	ExperimentID   int32          `db:"experiment_id"    gorm:"column:experiment_id"`
-	DeletedTime    int64          `db:"deleted_time"     gorm:"column:deleted_time"`
+	DeletedTime    sql.NullInt64  `db:"deleted_time"     gorm:"column:deleted_time"`
 	Params         []Param
 	Tags           []Tag
 	Metrics        []Metric
