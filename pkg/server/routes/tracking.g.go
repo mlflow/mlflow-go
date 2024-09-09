@@ -99,6 +99,28 @@ func RegisterTrackingServiceRoutes(service service.TrackingService, parser *pars
 		}
 		return ctx.JSON(output)
 	})
+	app.Post("/mlflow/runs/delete", func(ctx *fiber.Ctx) error {
+		input := &protos.DeleteRun{}
+		if err := parser.ParseBody(ctx, input); err != nil {
+			return err
+		}
+		output, err := service.DeleteRun(utils.NewContextWithLoggerFromFiberContext(ctx), input)
+		if err != nil {
+			return err
+		}
+		return ctx.JSON(output)
+	})
+	app.Post("/mlflow/runs/restore", func(ctx *fiber.Ctx) error {
+		input := &protos.RestoreRun{}
+		if err := parser.ParseBody(ctx, input); err != nil {
+			return err
+		}
+		output, err := service.RestoreRun(utils.NewContextWithLoggerFromFiberContext(ctx), input)
+		if err != nil {
+			return err
+		}
+		return ctx.JSON(output)
+	})
 	app.Post("/mlflow/runs/log-metric", func(ctx *fiber.Ctx) error {
 		input := &protos.LogMetric{}
 		if err := parser.ParseBody(ctx, input); err != nil {

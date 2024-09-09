@@ -71,6 +71,22 @@ func TrackingServiceUpdateRun(serviceID int64, requestData unsafe.Pointer, reque
 	}
 	return invokeServiceMethod(service.UpdateRun, new(protos.UpdateRun), requestData, requestSize, responseSize)
 }
+//export TrackingServiceDeleteRun
+func TrackingServiceDeleteRun(serviceID int64, requestData unsafe.Pointer, requestSize C.int, responseSize *C.int) unsafe.Pointer {
+	service, err := trackingServices.Get(serviceID)
+	if err != nil {
+		return makePointerFromError(err, responseSize)
+	}
+	return invokeServiceMethod(service.DeleteRun, new(protos.DeleteRun), requestData, requestSize, responseSize)
+}
+//export TrackingServiceRestoreRun
+func TrackingServiceRestoreRun(serviceID int64, requestData unsafe.Pointer, requestSize C.int, responseSize *C.int) unsafe.Pointer {
+	service, err := trackingServices.Get(serviceID)
+	if err != nil {
+		return makePointerFromError(err, responseSize)
+	}
+	return invokeServiceMethod(service.RestoreRun, new(protos.RestoreRun), requestData, requestSize, responseSize)
+}
 //export TrackingServiceLogMetric
 func TrackingServiceLogMetric(serviceID int64, requestData unsafe.Pointer, requestSize C.int, responseSize *C.int) unsafe.Pointer {
 	service, err := trackingServices.Get(serviceID)
