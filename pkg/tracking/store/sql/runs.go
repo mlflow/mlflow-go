@@ -28,13 +28,13 @@ type PageToken struct {
 }
 
 func checkRunIsActive(transaction *gorm.DB, runID string) *contract.Error {
-	var lifecycleStage models.LifecycleStage
+	var run models.Run
 
 	err := transaction.
 		Model(&models.Run{}).
 		Where("run_uuid = ?", runID).
 		Select("lifecycle_stage").
-		Scan(&lifecycleStage).
+		First(&run).
 		Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -54,14 +54,14 @@ func checkRunIsActive(transaction *gorm.DB, runID string) *contract.Error {
 		)
 	}
 
-	if lifecycleStage != models.LifecycleStageActive {
+	if run.LifecycleStage != models.LifecycleStageActive {
 		return contract.NewError(
 			protos.ErrorCode_INVALID_PARAMETER_VALUE,
 			fmt.Sprintf(
 				"The run %s must be in the 'active' state.\n"+
 					"Current state is %v.",
 				runID,
-				lifecycleStage,
+				run.LifecycleStage,
 			),
 		)
 	}
