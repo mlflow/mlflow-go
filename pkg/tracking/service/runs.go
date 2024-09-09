@@ -125,3 +125,23 @@ func (ts TrackingService) UpdateRun(
 
 	return &protos.UpdateRun_Response{RunInfo: run.Info}, nil
 }
+
+func (ts TrackingService) DeleteRun(
+	ctx context.Context, input *protos.DeleteRun,
+) (*protos.DeleteRun_Response, *contract.Error) {
+	if err := ts.Store.DeleteRun(ctx, input.GetRunId()); err != nil {
+		return nil, err
+	}
+
+	return &protos.DeleteRun_Response{}, nil
+}
+
+func (ts TrackingService) RestoreRun(
+	ctx context.Context, input *protos.RestoreRun,
+) (*protos.RestoreRun_Response, *contract.Error) {
+	if err := ts.Store.RestoreRun(ctx, input.GetRunId()); err != nil {
+		return nil, err
+	}
+
+	return &protos.RestoreRun_Response{}, nil
+}

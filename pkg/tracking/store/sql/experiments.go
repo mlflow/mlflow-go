@@ -2,6 +2,7 @@ package sql
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"net/url"
@@ -84,7 +85,8 @@ func (s TrackingSQLStore) RenameExperiment(ctx context.Context, experiment *prot
 	if err := s.db.WithContext(ctx).Model(&models.Experiment{}).
 		Where("experiment_id = ?", experiment.GetExperimentId()).
 		Updates(&models.Experiment{
-			Name: experiment.GetName(),
+			Name:           experiment.GetName(),
+			LastUpdateTime: time.Now().UnixMilli(),
 		}).Error; err != nil {
 		return contract.NewErrorWith(protos.ErrorCode_INTERNAL_ERROR, "failed to update experiment", err)
 	}
@@ -124,7 +126,7 @@ func (s TrackingSQLStore) DeleteExperiment(ctx context.Context, id string) *cont
 			Where("experiment_id = ?", idInt).
 			Updates(&models.Run{
 				LifecycleStage: models.LifecycleStageDeleted,
-				DeletedTime:    time.Now().UnixMilli(),
+				DeletedTime:    sql.NullInt64{Valid: true, Int64: time.Now().UnixMilli()},
 			}).Error; err != nil {
 			return fmt.Errorf("failed to update runs during delete: %w", err)
 		}
@@ -181,7 +183,7 @@ func (s TrackingSQLStore) RestoreExperiment(ctx context.Context, id string) *con
 			Where("experiment_id = ?", idInt).
 			Updates(&models.Run{
 				LifecycleStage: models.LifecycleStageActive,
-				DeletedTime:    time.Now().UnixMilli(),
+				DeletedTime:    sql.NullInt64{Valid: true, Int64: time.Now().UnixMilli()},
 			}).Error; err != nil {
 			return fmt.Errorf("failed to update runs during delete: %w", err)
 		}

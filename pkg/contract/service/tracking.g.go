@@ -17,6 +17,8 @@ type TrackingService interface {
 	UpdateExperiment(ctx context.Context, input *protos.UpdateExperiment) (*protos.UpdateExperiment_Response, *contract.Error)
 	CreateRun(ctx context.Context, input *protos.CreateRun) (*protos.CreateRun_Response, *contract.Error)
 	UpdateRun(ctx context.Context, input *protos.UpdateRun) (*protos.UpdateRun_Response, *contract.Error)
+	DeleteRun(ctx context.Context, input *protos.DeleteRun) (*protos.DeleteRun_Response, *contract.Error)
+	RestoreRun(ctx context.Context, input *protos.RestoreRun) (*protos.RestoreRun_Response, *contract.Error)
 	LogMetric(ctx context.Context, input *protos.LogMetric) (*protos.LogMetric_Response, *contract.Error)
 	GetRun(ctx context.Context, input *protos.GetRun) (*protos.GetRun_Response, *contract.Error)
 	SearchRuns(ctx context.Context, input *protos.SearchRuns) (*protos.SearchRuns_Response, *contract.Error)

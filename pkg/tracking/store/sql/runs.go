@@ -2,12 +2,14 @@ package sql
 
 import (
 	"context"
+	"database/sql"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/url"
 	"strings"
+	"time"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -688,6 +690,42 @@ func (s TrackingSQLStore) UpdateRun(ctx context.Context, run *protos.Run) *contr
 		return nil
 	}); err != nil {
 		return contract.NewErrorWith(protos.ErrorCode_INTERNAL_ERROR, "failed to update run", err)
+	}
+
+	return nil
+}
+
+func (s TrackingSQLStore) DeleteRun(ctx context.Context, runID string) *contract.Error {
+	run, err := s.GetRun(ctx, runID)
+	if err != nil {
+		return err
+	}
+
+	if err := s.db.WithContext(ctx).Model(&models.Run{}).
+		Where("run_uuid = ?", run.Info.GetRunId()).
+		Updates(&models.Run{
+			DeletedTime:    sql.NullInt64{Valid: true, Int64: time.Now().UnixMilli()},
+			LifecycleStage: models.LifecycleStageDeleted,
+		}).Error; err != nil {
+		return contract.NewErrorWith(protos.ErrorCode_INTERNAL_ERROR, "failed to delete run", err)
+	}
+
+	return nil
+}
+
+func (s TrackingSQLStore) RestoreRun(ctx context.Context, runID string) *contract.Error {
+	run, err := s.GetRun(ctx, runID)
+	if err != nil {
+		return err
+	}
+
+	if err := s.db.WithContext(ctx).Model(&models.Run{}).
+		Where("run_uuid = ?", run.Info.GetRunId()).
+		Updates(&models.Run{
+			DeletedTime:    sql.NullInt64{},
+			LifecycleStage: models.LifecycleStageActive,
+		}).Error; err != nil {
+		return contract.NewErrorWith(protos.ErrorCode_INTERNAL_ERROR, "failed to restore run", err)
 	}
 
 	return nil
