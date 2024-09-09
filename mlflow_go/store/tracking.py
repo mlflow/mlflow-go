@@ -13,12 +13,14 @@ from mlflow.protos.service_pb2 import (
     CreateExperiment,
     CreateRun,
     DeleteExperiment,
+    DeleteRun,
     GetExperiment,
     GetExperimentByName,
     GetRun,
     LogBatch,
     LogMetric,
     RestoreExperiment,
+    RestoreRun,
     SearchRuns,
     UpdateExperiment,
     UpdateRun,
@@ -109,6 +111,14 @@ class _TrackingStore:
         )
         response = self.service.call_endpoint(get_lib().TrackingServiceCreateRun, request)
         return Run.from_proto(response.run)
+
+    def delete_run(self, run_id):
+        request = DeleteRun(run_id=run_id)
+        self.service.call_endpoint(get_lib().TrackingServiceDeleteRun, request)
+
+    def restore_run(self, run_id):
+        request = RestoreRun(run_id=run_id)
+        self.service.call_endpoint(get_lib().TrackingServiceRestoreRun, request)
 
     def update_run(self, run_id, run_status, end_time, run_name):
         request = UpdateRun(

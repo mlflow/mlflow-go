@@ -193,6 +193,55 @@ func (_c *MockTrackingStore_DeleteExperiment_Call) RunAndReturn(run func(context
 	return _c
 }
 
+// DeleteRun provides a mock function with given fields: ctx, runID
+func (_m *MockTrackingStore) DeleteRun(ctx context.Context, runID string) *contract.Error {
+	ret := _m.Called(ctx, runID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteRun")
+	}
+
+	var r0 *contract.Error
+	if rf, ok := ret.Get(0).(func(context.Context, string) *contract.Error); ok {
+		r0 = rf(ctx, runID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*contract.Error)
+		}
+	}
+
+	return r0
+}
+
+// MockTrackingStore_DeleteRun_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteRun'
+type MockTrackingStore_DeleteRun_Call struct {
+	*mock.Call
+}
+
+// DeleteRun is a helper method to define mock.On call
+//   - ctx context.Context
+//   - runID string
+func (_e *MockTrackingStore_Expecter) DeleteRun(ctx interface{}, runID interface{}) *MockTrackingStore_DeleteRun_Call {
+	return &MockTrackingStore_DeleteRun_Call{Call: _e.mock.On("DeleteRun", ctx, runID)}
+}
+
+func (_c *MockTrackingStore_DeleteRun_Call) Run(run func(ctx context.Context, runID string)) *MockTrackingStore_DeleteRun_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *MockTrackingStore_DeleteRun_Call) Return(_a0 *contract.Error) *MockTrackingStore_DeleteRun_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockTrackingStore_DeleteRun_Call) RunAndReturn(run func(context.Context, string) *contract.Error) *MockTrackingStore_DeleteRun_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetExperiment provides a mock function with given fields: ctx, id
 func (_m *MockTrackingStore) GetExperiment(ctx context.Context, id string) (*protos.Experiment, *contract.Error) {
 	ret := _m.Called(ctx, id)
@@ -634,6 +683,55 @@ func (_c *MockTrackingStore_RestoreExperiment_Call) Return(_a0 *contract.Error) 
 }
 
 func (_c *MockTrackingStore_RestoreExperiment_Call) RunAndReturn(run func(context.Context, string) *contract.Error) *MockTrackingStore_RestoreExperiment_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// RestoreRun provides a mock function with given fields: ctx, runID
+func (_m *MockTrackingStore) RestoreRun(ctx context.Context, runID string) *contract.Error {
+	ret := _m.Called(ctx, runID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for RestoreRun")
+	}
+
+	var r0 *contract.Error
+	if rf, ok := ret.Get(0).(func(context.Context, string) *contract.Error); ok {
+		r0 = rf(ctx, runID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*contract.Error)
+		}
+	}
+
+	return r0
+}
+
+// MockTrackingStore_RestoreRun_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RestoreRun'
+type MockTrackingStore_RestoreRun_Call struct {
+	*mock.Call
+}
+
+// RestoreRun is a helper method to define mock.On call
+//   - ctx context.Context
+//   - runID string
+func (_e *MockTrackingStore_Expecter) RestoreRun(ctx interface{}, runID interface{}) *MockTrackingStore_RestoreRun_Call {
+	return &MockTrackingStore_RestoreRun_Call{Call: _e.mock.On("RestoreRun", ctx, runID)}
+}
+
+func (_c *MockTrackingStore_RestoreRun_Call) Run(run func(ctx context.Context, runID string)) *MockTrackingStore_RestoreRun_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *MockTrackingStore_RestoreRun_Call) Return(_a0 *contract.Error) *MockTrackingStore_RestoreRun_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockTrackingStore_RestoreRun_Call) RunAndReturn(run func(context.Context, string) *contract.Error) *MockTrackingStore_RestoreRun_Call {
 	_c.Call.Return(run)
 	return _c
 }

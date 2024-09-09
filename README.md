@@ -276,35 +276,30 @@ pre-commit run golangci-lint --all-files
 The following Python tests are currently failing:
 
 ```
-FAILED .mlflow.repo/tests/tracking/test_rest_tracking.py::test_create_experiment_validation[sqlalchemy] - assert "Invalid value 5 for parameter 'tags'" in '{"error_code":"INVALID_PARAMETER_VALUE","message":"Invalid value \\"5\\" for parameter \'tags\'"}'
-FAILED .mlflow.repo/tests/tracking/test_rest_tracking.py::test_log_metrics_params_tags[sqlalchemy] - mlflow.exceptions.RestException: INVALID_PARAMETER_VALUE: Invalid value "NaN" for parameter 'value'
-FAILED .mlflow.repo/tests/tracking/test_rest_tracking.py::test_log_metric_validation[sqlalchemy] - assert "Invalid value 31 for parameter 'run_id' supplied" in '{"error_code":"INVALID_PARAMETER_VALUE","message":"Invalid value 31 for parameter \'run_id\'"}'
-FAILED .mlflow.repo/tests/tracking/test_rest_tracking.py::test_log_batch_validation[sqlalchemy] - assert "Invalid value foo for parameter 'metrics' supplied" in '{"error_code":"INVALID_PARAMETER_VALUE","message":"Invalid value \\"foo\\" for parameter \'metrics\'"}'
-FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_delete_restore_experiment_with_runs - mlflow.exceptions.MlflowException: assert 1725392497116 is None
-FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_search_experiments_filter_by_time_attribute - AssertionError: assert [] == ['1']
-FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_search_experiments_order_by_time_attribute - AssertionError: assert ['0', '1', '2'] == ['0', '2', '1']
-FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_create_run_with_tags - AssertionError: assert 3 == 2
-FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_log_metric_concurrent_logging_succeeds - mlflow.exceptions.MlflowException: error creating metrics in batch for run_uuid "d3a7dec09ac0446ab3bd195417ca38da"
+======================================================================= short test summary info ========================================================================
+FAILED .mlflow.repo/tests/tracking/test_rest_tracking.py::test_log_metrics_params_tags[sqlalchemy] - mlflow.exceptions.RestException: INVALID_PARAMETER_VALUE: Invalid value "NaN" for parameter 'value' supplied
+FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_delete_restore_experiment_with_runs - mlflow.exceptions.MlflowException: assert 1725699783457 is None
+FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_create_experiments - Failed: DID NOT RAISE <class 'mlflow.exceptions.MlflowException'>
+FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_log_metric_concurrent_logging_succeeds - mlflow.exceptions.MlflowException: error creating metrics in batch for run_uuid "36d0d0457d35466c9eb287119d037098"
 FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_log_null_metric - AssertionError: Regex pattern did not match.
-FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_rename_experiment - AssertionError: assert 1725392509509 > 1725392509509
+FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_delete_restore_run - mlflow.exceptions.MlflowException: assert 1725699804046 is None
 FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_error_logging_to_deleted_run - Failed: DID NOT RAISE <class 'mlflow.exceptions.MlflowException'>
 FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_order_by_metric_tag_param - mlflow.exceptions.MlflowException: error getting runs: [INTERNAL_ERROR] Failed to query search runs: no such column: x
 FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_order_by_attributes - AssertionError: assert ['-123', 'Non... '456', '789'] == ['-123', '123...'789', 'None']
 FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_search_attrs - Failed: DID NOT RAISE <class 'mlflow.exceptions.MlflowException'>
-FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_search_with_max_results - ValueError: Value out of range: 10000000000
 FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_search_runs_pagination - AssertionError: assert '' is None
-FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_search_runs_datasets - AssertionError: assert {'0b8a5d4b8e2...561405d01af5'} == {'5c0d21602c4...561405d01af5'}
+FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_search_runs_datasets - AssertionError: assert {'22cd946d5d1...fc87c5bd5a3e'} == {'2f2080ed1fa...fc87c5bd5a3e'}
 FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_log_batch_param_overwrite_disallowed_single_req - AssertionError: Regex pattern did not match.
 FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_log_batch_internal_error - Failed: DID NOT RAISE <class 'mlflow.exceptions.MlflowException'>
 FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_log_batch_nonexistent_run - AssertionError: Regex pattern did not match.
 FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_log_batch_null_metrics - TypeError: must be real number, not NoneType
 FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_log_batch_params_max_length_value - AssertionError: Regex pattern did not match.
+FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_log_inputs_with_large_inputs_limit_check - AssertionError: assert {'digest': 'd...ema': '', ...} == {'digest': 'd...a': None, ...}
 FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_sqlalchemy_store_behaves_as_expected_with_inmemory_sqlite_db - mlflow.exceptions.MlflowException: failed to create experiment
 FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_create_experiment_appends_to_artifact_local_path_file_uri_correctly[#path/to/local/folder?-{cwd}/#path/to/local/folder?/{e}] - AssertionError: assert '/workspaces/...local/folder?' == '/workspaces/...cal/folder?/1'
-FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_create_run_appends_to_artifact_local_path_file_uri_correctly[#path/to/local/folder?-{cwd}/#path/to/local/folder?/{e}/{r}/artifacts] - AssertionError: assert '/workspaces/...local/folder?' == '/workspaces/...1c2/artifacts'
+FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_create_run_appends_to_artifact_local_path_file_uri_correctly[#path/to/local/folder?-{cwd}/#path/to/local/folder?/{e}/{r}/artifacts] - AssertionError: assert '/workspaces/...local/folder?' == '/workspaces/...6e2/artifacts'
 FAILED .mlflow.repo/tests/store/model_registry/test_sqlalchemy_store.py::test_get_latest_versions - AssertionError: assert {'None': '1',...Staging': '4'} == {'None': 1, '... 'Staging': 4}
-
-27 failed, 327 passed, 9 skipped, 124 deselected, 10 warnings in 363.89s
+========================================== 22 failed, 337 passed, 9 skipped, 128 deselected, 10 warnings in 510.33s (0:08:30) ==========================================
 ```
 
 ## Debug failing tests
