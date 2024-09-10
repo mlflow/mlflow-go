@@ -1,10 +1,9 @@
 package validation_test
 
 import (
-	"errors"
+	"strings"
 	"testing"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/stretchr/testify/require"
 
 	"github.com/mlflow/mlflow-go/pkg/protos"
@@ -172,20 +171,74 @@ func TestMissingTimestampInNestedMetric(t *testing.T) {
 
 	err = serverValidator.Struct(&logBatch)
 	if err == nil {
-		t.Error("Expected dip validation error, got none")
+		t.Error("Expected dive validation error, got none")
 	}
 
-	var validationErrors validator.ValidationErrors
-	if errors.As(err, &validationErrors) {
-		if len(validationErrors) != 1 {
-			t.Errorf("Expected 1 validation error, got %v", len(validationErrors))
+	msg := validation.NewErrorFromValidationError(err).Message
+	if !strings.Contains(msg, "metrics[0].timestamp") {
+		t.Errorf("Expected required validation error for nested property, got %v", msg)
+	}
+}
+
+type avecTruncate struct {
+	X *string `validate:"truncate=3"`
+	Y string  `validate:"truncate=3"`
+}
+
+func TestTruncate(t *testing.T) {
+	input := &avecTruncate{
+		X: utils.PtrTo("123456"),
+		Y: "654321",
+	}
+
+	t.Setenv("MLFLOW_TRUNCATE_LONG_VALUES", "true")
+
+	validator, err := validation.NewValidator()
+	require.NoError(t, err)
+
+	err = validator.Struct(input)
+	require.NoError(t, err)
+
+	if len(*input.X) != 3 {
+		t.Errorf("Expected the length of x to be 3, was %d", len(*input.X))
+	}
+
+	if len(input.Y) != 3 {
+		t.Errorf("Expected the length of y to be 3, was %d", len(input.Y))
+	}
+}
+
+// This unit test is a sanity test that confirms the `dive` validation
+// enters a nested slice of pointer structs.
+func TestNestedErrorsInSubCollection(t *testing.T) {
+	t.Parallel()
+
+	value := strings.Repeat("X", 6001) + "Y"
+
+	logBatchRequest := &protos.LogBatch{
+		RunId: utils.PtrTo("odcppTsGTMkHeDcqfZOYDMZSf"),
+		Params: []*protos.Param{
+			{Key: utils.PtrTo("key1"), Value: utils.PtrTo(value)},
+			{Key: utils.PtrTo("key2"), Value: utils.PtrTo(value)},
+		},
+	}
+
+	validator, err := validation.NewValidator()
+	require.NoError(t, err)
+
+	err = validator.Struct(logBatchRequest)
+	if err != nil {
+		msg := validation.NewErrorFromValidationError(err).Message
+		// Assert the root struct name is not present in the error message
+		if strings.Contains(msg, "logBatch") {
+			t.Errorf("Validation message contained root struct name, got %s", msg)
 		}
 
-		validationError := validationErrors[0]
-		if validationError.Tag() != "dip" {
-			t.Errorf("Expected dip validation error, got %v", validationError.Tag())
+		// Assert the index is listed in the parameter path
+		if !strings.Contains(msg, "params[0].value") ||
+			!strings.Contains(msg, "params[1].value") ||
+			!strings.Contains(msg, "length 6002 exceeded length limit of 6000") {
+			t.Errorf("Unexpected validation error message, got %s", msg)
 		}
-	} else {
-		t.Error("Expected validation error, got none")
 	}
 }
