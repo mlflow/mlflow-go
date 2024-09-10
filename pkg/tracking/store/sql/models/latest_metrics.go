@@ -3,6 +3,7 @@ package models
 import (
 	"math"
 
+	"github.com/mlflow/mlflow-go/pkg/entities"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 	"github.com/mlflow/mlflow-go/pkg/utils"
 )
@@ -22,6 +23,20 @@ type LatestMetric struct {
 	Step      int64   `db:"step"      gorm:"column:step;not null"`
 	IsNan     bool    `db:"is_nan"    gorm:"column:is_nan;not null"`
 	RunID     string  `db:"run_uuid"  gorm:"column:run_uuid;primaryKey"`
+}
+
+func (lm LatestMetric) ToEntity() *entities.Metric {
+	metric := entities.Metric{
+		Key:       lm.Key,
+		Value:     lm.Value,
+		Timestamp: lm.Timestamp,
+		Step:      lm.Step,
+	}
+	if lm.IsNan {
+		metric.Value = math.NaN()
+	}
+
+	return &metric
 }
 
 func (lm LatestMetric) ToProto() *protos.Metric {

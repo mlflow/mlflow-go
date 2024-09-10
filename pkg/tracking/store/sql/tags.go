@@ -68,7 +68,7 @@ func (s TrackingSQLStore) setTagsWithTransaction(
 	runTags := make([]models.Tag, 0, len(tags))
 
 	for _, tag := range tags {
-		runTags = append(runTags, models.NewTagFromProto(&runID, tag))
+		runTags = append(runTags, models.NewTagFromProto(runID, tag))
 	}
 
 	if err := transaction.Clauses(clause.OnConflict{

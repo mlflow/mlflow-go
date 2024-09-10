@@ -1,6 +1,9 @@
 package models
 
-import "github.com/mlflow/mlflow-go/pkg/protos"
+import (
+	"github.com/mlflow/mlflow-go/pkg/entities"
+	"github.com/mlflow/mlflow-go/pkg/protos"
+)
 
 // Dataset mapped from table <datasets>.
 type Dataset struct {
@@ -12,6 +15,17 @@ type Dataset struct {
 	Source       string `db:"dataset_source"      gorm:"column:dataset_source;not null"`
 	Schema       string `db:"dataset_schema"      gorm:"column:dataset_schema"`
 	Profile      string `db:"dataset_profile"     gorm:"column:dataset_profile"`
+}
+
+func (d *Dataset) ToEntity() *entities.Dataset {
+	return &entities.Dataset{
+		Name:       d.Name,
+		Digest:     d.Digest,
+		SourceType: d.SourceType,
+		Source:     d.Source,
+		Schema:     d.Schema,
+		Profile:    d.Profile,
+	}
 }
 
 func (d *Dataset) ToProto() *protos.Dataset {

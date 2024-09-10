@@ -531,8 +531,8 @@ const (
 
 func getRunNameFromTags(tags []models.Tag) string {
 	for _, tag := range tags {
-		if *tag.Key == utils.TagRunName {
-			return *tag.Value
+		if tag.Key == utils.TagRunName {
+			return tag.Value
 		}
 	}
 
@@ -573,8 +573,8 @@ func ensureRunName(runModel *models.Run) *contract.Error {
 
 	if runNameFromTags == "" {
 		runModel.Tags = append(runModel.Tags, models.Tag{
-			Key:   utils.PtrTo(utils.TagRunName),
-			Value: &runModel.Name,
+			Key:   utils.TagRunName,
+			Value: runModel.Name,
 		})
 	}
 
@@ -621,7 +621,7 @@ func (s TrackingSQLStore) CreateRun(ctx context.Context, input *protos.CreateRun
 			fmt.Sprintf(
 				"The experiment %q must be in the 'active' state.\n"+
 					"Current state is %q.",
-				input.GetExperimentId(),
+				experiment,
 				experiment.GetLifecycleStage(),
 			),
 		)
@@ -653,7 +653,7 @@ func (s TrackingSQLStore) CreateRun(ctx context.Context, input *protos.CreateRun
 			protos.ErrorCode_INTERNAL_ERROR,
 			fmt.Sprintf(
 				"failed to create run for experiment_id %q",
-				input.GetExperimentId(),
+				experiment,
 			),
 			err,
 		)
@@ -677,7 +677,7 @@ func (s TrackingSQLStore) UpdateRun(ctx context.Context, run *protos.Run) *contr
 		if run.Data != nil && len(run.Data.Tags) > 0 {
 			runTags := make([]models.Tag, 0, len(run.Data.Tags))
 			for _, tag := range run.Data.Tags {
-				runTags = append(runTags, models.NewTagFromProto(utils.PtrTo(run.Info.GetRunId()), tag))
+				runTags = append(runTags, models.NewTagFromProto(run.Info.GetRunId(), tag))
 			}
 
 			if err := transaction.Clauses(clause.OnConflict{
