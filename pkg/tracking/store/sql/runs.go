@@ -15,6 +15,7 @@ import (
 	"gorm.io/gorm/clause"
 
 	"github.com/mlflow/mlflow-go/pkg/contract"
+	"github.com/mlflow/mlflow-go/pkg/entities"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 	"github.com/mlflow/mlflow-go/pkg/tracking/service/query"
 	"github.com/mlflow/mlflow-go/pkg/tracking/service/query/parser"
@@ -609,8 +610,15 @@ func (s TrackingSQLStore) GetRun(ctx context.Context, runID string) (*protos.Run
 	return run.ToProto(), nil
 }
 
-func (s TrackingSQLStore) CreateRun(ctx context.Context, input *protos.CreateRun) (*protos.Run, *contract.Error) {
-	experiment, err := s.GetExperiment(ctx, input.GetExperimentId())
+//nolint:funlen
+func (s TrackingSQLStore) CreateRun(
+	ctx context.Context,
+	experimentID, userID string,
+	startTime int64,
+	tags []*entities.RunTag,
+	runName string,
+) (*protos.Run, *contract.Error) {
+	experiment, err := s.GetExperiment(ctx, experimentID)
 	if err != nil {
 		return nil, err
 	}
@@ -627,7 +635,21 @@ func (s TrackingSQLStore) CreateRun(ctx context.Context, input *protos.CreateRun
 		)
 	}
 
-	runModel := models.NewRunFromCreateRunProto(input)
+	runModel := &models.Run{
+		ID:             utils.NewUUID(),
+		Name:           runName,
+		ExperimentID:   utils.ConvertStringPointerToInt32Pointer(&experimentID),
+		StartTime:      startTime,
+		UserID:         userID,
+		Tags:           make([]models.Tag, 0, len(tags)),
+		LifecycleStage: models.LifecycleStageActive,
+		Status:         models.RunStatusRunning,
+		SourceType:     models.SourceTypeUnknown,
+	}
+
+	for _, tag := range tags {
+		runModel.Tags = append(runModel.Tags, models.NewTagFromEntity(runModel.ID, tag))
+	}
 
 	artifactLocation, appendErr := url.JoinPath(
 		experiment.GetArtifactLocation(),

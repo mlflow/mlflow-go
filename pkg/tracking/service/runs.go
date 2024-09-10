@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/mlflow/mlflow-go/pkg/contract"
+	"github.com/mlflow/mlflow-go/pkg/entities"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 	"github.com/mlflow/mlflow-go/pkg/tracking/store/sql/models"
 	"github.com/mlflow/mlflow-go/pkg/utils"
@@ -68,7 +69,19 @@ func (ts TrackingService) GetRun(
 func (ts TrackingService) CreateRun(
 	ctx context.Context, input *protos.CreateRun,
 ) (*protos.CreateRun_Response, *contract.Error) {
-	run, err := ts.Store.CreateRun(ctx, input)
+	tags := make([]*entities.RunTag, 0, len(input.GetTags()))
+	for _, tag := range input.GetTags() {
+		tags = append(tags, entities.NewTagFromProto(tag))
+	}
+
+	run, err := ts.Store.CreateRun(
+		ctx,
+		input.GetExperimentId(),
+		input.GetUserId(),
+		input.GetStartTime(),
+		tags,
+		input.GetRunName(),
+	)
 	if err != nil {
 		return nil, err
 	}

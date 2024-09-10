@@ -164,22 +164,3 @@ func (r Run) ToProto() *protos.Run {
 		Inputs: inputs,
 	}
 }
-
-func NewRunFromCreateRunProto(run *protos.CreateRun) *Run {
-	tags := make([]Tag, 0, len(run.GetTags()))
-	for _, tag := range run.GetTags() {
-		tags = append(tags, NewTagFromProto("", tag))
-	}
-
-	return &Run{
-		ID:             utils.NewUUID(),
-		Name:           run.GetRunName(),
-		ExperimentID:   utils.ConvertStringPointerToInt32Pointer(run.ExperimentId),
-		StartTime:      run.GetStartTime(),
-		UserID:         run.GetUserId(),
-		Tags:           tags,
-		LifecycleStage: LifecycleStageActive,
-		Status:         RunStatusRunning,
-		SourceType:     SourceTypeUnknown,
-	}
-}

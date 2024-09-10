@@ -37,3 +37,15 @@ func NewTagFromProto(runID string, proto *protos.RunTag) Tag {
 
 	return tag
 }
+
+func NewTagFromEntity(runID string, entity *entities.RunTag) Tag {
+	tag := Tag{
+		Key:   entity.Key,
+		Value: entity.Value,
+	}
+	if runID != "" {
+		tag.RunID = runID
+	}
+
+	return tag
+}

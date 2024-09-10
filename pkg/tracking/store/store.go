@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/mlflow/mlflow-go/pkg/contract"
+	"github.com/mlflow/mlflow-go/pkg/entities"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 )
 
@@ -17,7 +18,14 @@ type TrackingStore interface {
 type (
 	RunTrackingStore interface {
 		GetRun(ctx context.Context, runID string) (*protos.Run, *contract.Error)
-		CreateRun(ctx context.Context, input *protos.CreateRun) (*protos.Run, *contract.Error)
+		CreateRun(
+			ctx context.Context,
+			experimentID string,
+			userID string,
+			startTime int64,
+			tags []*entities.RunTag,
+			runName string,
+		) (*protos.Run, *contract.Error)
 		UpdateRun(ctx context.Context, run *protos.Run) *contract.Error
 		DeleteRun(ctx context.Context, runID string) *contract.Error
 		RestoreRun(ctx context.Context, runID string) *contract.Error
