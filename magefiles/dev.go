@@ -12,7 +12,11 @@ import (
 func Dev() error {
 	mg.Deps(Generate)
 
-	return sh.RunV(
+	envs := make(map[string]string)
+	envs["MLFLOW_TRUNCATE_LONG_VALUES"] = "false"
+
+	return sh.RunWithV(
+		envs,
 		"mlflow-go",
 		"server",
 		"--backend-store-uri",
