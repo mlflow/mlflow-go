@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"os"
 	"path/filepath"
 	"reflect"
 	"regexp"
@@ -18,8 +19,9 @@ import (
 )
 
 const (
-	QuoteLength         = 2
-	MaxEntitiesPerBatch = 1000
+	QuoteLength              = 2
+	MaxEntitiesPerBatch      = 1000
+	MaxValidationInputLength = 100
 )
 
 // regex for valid param and metric names: may only contain slashes, alphanumerics,
@@ -28,39 +30,6 @@ var paramAndMetricNameRegex = regexp.MustCompile(`^[/\w.\- ]*$`)
 
 // regex for valid run IDs: must be an alphanumeric string of length 1 to 256.
 var runIDRegex = regexp.MustCompile(`^[a-zA-Z0-9][\w\-]{0,255}$`)
-
-func getValue(x reflect.Value) reflect.Value {
-	if x.Kind() == reflect.Pointer {
-		return x.Elem()
-	}
-
-	return x
-}
-
-func validateNested(validate *validator.Validate, current reflect.Value) bool {
-	val := getValue(current)
-
-	//nolint:exhaustive
-	switch val.Kind() {
-	case reflect.Slice, reflect.Array:
-		for i := range val.Len() {
-			if !validateNested(validate, val.Index(i)) {
-				return false
-			}
-		}
-
-	case reflect.Struct:
-		if err := validate.Struct(val.Interface()); err != nil {
-			return false
-		}
-	default:
-		if err := validate.Var(val.Interface(), ""); err != nil {
-			return false
-		}
-	}
-
-	return true
-}
 
 func stringAsPositiveIntegerValidation(fl validator.FieldLevel) bool {
 	valueStr := fl.Field().String()
@@ -138,6 +107,37 @@ func validateLogBatchLimits(structLevel validator.StructLevel) {
 	}
 }
 
+func truncateFn(fieldLevel validator.FieldLevel) bool {
+	param := fieldLevel.Param() // Get the parameter from the tag
+
+	maxLength, err := strconv.Atoi(param)
+	if err != nil {
+		return false // If the parameter isn't a valid integer, fail the validation.
+	}
+
+	truncateLongValues, shouldTruncate := os.LookupEnv("MLFLOW_TRUNCATE_LONG_VALUES")
+	shouldTruncate = shouldTruncate && truncateLongValues == "true"
+
+	field := fieldLevel.Field()
+
+	if field.Kind() == reflect.String {
+		strValue := field.String()
+		if len(strValue) <= maxLength {
+			return true
+		}
+
+		if shouldTruncate {
+			field.SetString(strValue[:maxLength])
+
+			return true
+		}
+
+		return false
+	}
+
+	return true
+}
+
 func NewValidator() (*validator.Validate, error) {
 	validate := validator.New()
 
@@ -150,18 +150,6 @@ func NewValidator() (*validator.Validate, error) {
 
 		return name
 	})
-
-	// Validate nested content of a struct field while reporting a problem on the current level.
-	if err := validate.RegisterValidation(
-		"dip",
-		func(fl validator.FieldLevel) bool {
-			val := fl.Field()
-
-			return validateNested(validate, val)
-		},
-	); err != nil {
-		return nil, fmt.Errorf("validation registration for 'dip' failed: %w", err)
-	}
 
 	// Verify that the input string is a positive integer.
 	if err := validate.RegisterValidation(
@@ -195,6 +183,10 @@ func NewValidator() (*validator.Validate, error) {
 		return nil, fmt.Errorf("validation registration for 'runId' failed: %w", err)
 	}
 
+	if err := validate.RegisterValidation("truncate", truncateFn); err != nil {
+		return nil, fmt.Errorf("validation registration for 'truncateFn' failed: %w", err)
+	}
+
 	validate.RegisterStructValidation(validateLogBatchLimits, &protos.LogBatch{})
 
 	return validate, nil
@@ -213,13 +205,36 @@ func dereference(value interface{}) interface{} {
 	return value
 }
 
+func getErrorPath(err validator.FieldError) string {
+	path := err.Field()
+
+	if err.Namespace() != "" {
+		// Strip first item in struct namespace
+		idx := strings.Index(err.Namespace(), ".")
+		if idx != -1 {
+			path = err.Namespace()[(idx + 1):]
+		}
+	}
+
+	return path
+}
+
+func constructValidationError(field string, value any, suffix string) string {
+	formattedValue, err := json.Marshal(value)
+	if err != nil {
+		formattedValue = []byte(fmt.Sprintf("%v", value))
+	}
+
+	return fmt.Sprintf("Invalid value %s for parameter '%s' supplied%s", formattedValue, field, suffix)
+}
+
 func NewErrorFromValidationError(err error) *contract.Error {
 	var ve validator.ValidationErrors
 	if errors.As(err, &ve) {
 		validationErrors := make([]string, 0)
 
 		for _, err := range ve {
-			field := err.Field()
+			field := getErrorPath(err)
 			tag := err.Tag()
 			value := dereference(err.Value())
 
@@ -229,15 +244,33 @@ func NewErrorFromValidationError(err error) *contract.Error {
 					validationErrors,
 					fmt.Sprintf("Missing value for required parameter '%s'", field),
 				)
-			default:
-				formattedValue, err := json.Marshal(value)
-				if err != nil {
-					formattedValue = []byte(fmt.Sprintf("%v", value))
+			case "truncate":
+				strValue, ok := value.(string)
+				if ok {
+					expected := len(strValue)
+
+					if expected > MaxValidationInputLength {
+						strValue = strValue[:MaxValidationInputLength] + "..."
+					}
+
+					validationErrors = append(
+						validationErrors,
+						constructValidationError(
+							field,
+							strValue,
+							fmt.Sprintf(": length %d exceeded length limit of %s", expected, err.Param())),
+					)
+				} else {
+					validationErrors = append(
+						validationErrors,
+						constructValidationError(field, value, ""),
+					)
 				}
 
+			default:
 				validationErrors = append(
 					validationErrors,
-					fmt.Sprintf("Invalid value %s for parameter '%s' supplied", formattedValue, field),
+					constructValidationError(field, value, ""),
 				)
 			}
 		}
