@@ -271,6 +271,11 @@ func NewErrorFromValidationError(err error) *contract.Error {
 					validationErrors,
 					"Duplicate parameter keys have been submitted",
 				)
+			case "max":
+				validationErrors = append(
+					validationErrors,
+					fmt.Sprintf("'%s' exceeds the maximum length of %s characters", field, err.Param()),
+				)
 			default:
 				validationErrors = append(
 					validationErrors,
