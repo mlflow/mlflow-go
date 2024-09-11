@@ -808,17 +808,17 @@ func (_c *MockTrackingStore_SearchRuns_Call) RunAndReturn(run func(context.Conte
 	return _c
 }
 
-// UpdateRun provides a mock function with given fields: ctx, run
-func (_m *MockTrackingStore) UpdateRun(ctx context.Context, run *protos.Run) *contract.Error {
-	ret := _m.Called(ctx, run)
+// UpdateRun provides a mock function with given fields: ctx, runID, runStatus, endTime, runName
+func (_m *MockTrackingStore) UpdateRun(ctx context.Context, runID string, runStatus string, endTime int64, runName string) *contract.Error {
+	ret := _m.Called(ctx, runID, runStatus, endTime, runName)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateRun")
 	}
 
 	var r0 *contract.Error
-	if rf, ok := ret.Get(0).(func(context.Context, *protos.Run) *contract.Error); ok {
-		r0 = rf(ctx, run)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, int64, string) *contract.Error); ok {
+		r0 = rf(ctx, runID, runStatus, endTime, runName)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*contract.Error)
@@ -835,14 +835,17 @@ type MockTrackingStore_UpdateRun_Call struct {
 
 // UpdateRun is a helper method to define mock.On call
 //   - ctx context.Context
-//   - run *protos.Run
-func (_e *MockTrackingStore_Expecter) UpdateRun(ctx interface{}, run interface{}) *MockTrackingStore_UpdateRun_Call {
-	return &MockTrackingStore_UpdateRun_Call{Call: _e.mock.On("UpdateRun", ctx, run)}
+//   - runID string
+//   - runStatus string
+//   - endTime int64
+//   - runName string
+func (_e *MockTrackingStore_Expecter) UpdateRun(ctx interface{}, runID interface{}, runStatus interface{}, endTime interface{}, runName interface{}) *MockTrackingStore_UpdateRun_Call {
+	return &MockTrackingStore_UpdateRun_Call{Call: _e.mock.On("UpdateRun", ctx, runID, runStatus, endTime, runName)}
 }
 
-func (_c *MockTrackingStore_UpdateRun_Call) Run(run func(ctx context.Context, run *protos.Run)) *MockTrackingStore_UpdateRun_Call {
+func (_c *MockTrackingStore_UpdateRun_Call) Run(run func(ctx context.Context, runID string, runStatus string, endTime int64, runName string)) *MockTrackingStore_UpdateRun_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*protos.Run))
+		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(int64), args[4].(string))
 	})
 	return _c
 }
@@ -852,7 +855,7 @@ func (_c *MockTrackingStore_UpdateRun_Call) Return(_a0 *contract.Error) *MockTra
 	return _c
 }
 
-func (_c *MockTrackingStore_UpdateRun_Call) RunAndReturn(run func(context.Context, *protos.Run) *contract.Error) *MockTrackingStore_UpdateRun_Call {
+func (_c *MockTrackingStore_UpdateRun_Call) RunAndReturn(run func(context.Context, string, string, int64, string) *contract.Error) *MockTrackingStore_UpdateRun_Call {
 	_c.Call.Return(run)
 	return _c
 }

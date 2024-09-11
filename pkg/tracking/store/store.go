@@ -26,7 +26,13 @@ type (
 			tags []*entities.RunTag,
 			runName string,
 		) (*protos.Run, *contract.Error)
-		UpdateRun(ctx context.Context, run *protos.Run) *contract.Error
+		UpdateRun(
+			ctx context.Context,
+			runID string,
+			runStatus string,
+			endTime int64,
+			runName string,
+		) *contract.Error
 		DeleteRun(ctx context.Context, runID string) *contract.Error
 		RestoreRun(ctx context.Context, runID string) *contract.Error
 

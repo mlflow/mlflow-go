@@ -684,28 +684,43 @@ func (s TrackingSQLStore) CreateRun(
 	return runModel.ToProto(), nil
 }
 
-func (s TrackingSQLStore) UpdateRun(ctx context.Context, run *protos.Run) *contract.Error {
+func (s TrackingSQLStore) UpdateRun(
+	ctx context.Context,
+	runID string,
+	runStatus string,
+	endTime int64,
+	runName string,
+) *contract.Error {
+	runTag, err := s.GetRunTag(ctx, runID, utils.TagRunName)
+	if err != nil {
+		return err
+	}
+
+	tags := make([]models.Tag, 0, 1)
+	if runTag == nil {
+		tags = append(tags, models.Tag{
+			RunID: runID,
+			Key:   utils.TagRunName,
+			Value: runName,
+		})
+	}
+
 	if err := s.db.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
 		if err := transaction.Model(&models.Run{}).
-			Where("run_uuid = ?", run.Info.GetRunId()).
+			Where("run_uuid = ?", runID).
 			Updates(&models.Run{
-				Name:    run.Info.GetRunName(),
-				Status:  models.RunStatus(protos.RunStatus_name[int32(run.Info.GetStatus())]),
-				EndTime: run.Info.GetEndTime(),
+				Name:    runName,
+				Status:  models.RunStatus(runStatus),
+				EndTime: endTime,
 			}).Error; err != nil {
 			return err
 		}
 
-		if run.Data != nil && len(run.Data.Tags) > 0 {
-			runTags := make([]models.Tag, 0, len(run.Data.Tags))
-			for _, tag := range run.Data.Tags {
-				runTags = append(runTags, models.NewTagFromProto(run.Info.GetRunId(), tag))
-			}
-
+		if len(tags) > 0 {
 			if err := transaction.Clauses(clause.OnConflict{
 				UpdateAll: true,
-			}).CreateInBatches(runTags, tagsBatchSize).Error; err != nil {
-				return fmt.Errorf("failed to create tags for run %q: %w", run.Info.GetRunId(), err)
+			}).CreateInBatches(tags, tagsBatchSize).Error; err != nil {
+				return fmt.Errorf("failed to create tags for run %q: %w", runID, err)
 			}
 		}
 

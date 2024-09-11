@@ -118,21 +118,15 @@ func (ts TrackingService) UpdateRun(
 
 	if runName := input.GetRunName(); runName != "" {
 		run.Info.RunName = utils.PtrTo(runName)
-
-		runTag, err := ts.Store.GetRunTag(ctx, input.GetRunId(), utils.TagRunName)
-		if err != nil {
-			return nil, err
-		}
-
-		if runTag == nil {
-			run.Data.Tags = append(run.Data.Tags, &protos.RunTag{
-				Key:   utils.PtrTo(utils.TagRunName),
-				Value: &runName,
-			})
-		}
 	}
 
-	if err := ts.Store.UpdateRun(ctx, run); err != nil {
+	if err := ts.Store.UpdateRun(
+		ctx,
+		run.Info.GetRunId(),
+		run.Info.GetStatus().String(),
+		run.Info.GetEndTime(),
+		run.Info.GetRunName(),
+	); err != nil {
 		return nil, err
 	}
 
