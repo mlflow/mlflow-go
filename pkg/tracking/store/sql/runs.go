@@ -721,6 +721,8 @@ func (s TrackingSQLStore) RestoreRun(ctx context.Context, runID string) *contrac
 
 	if err := s.db.WithContext(ctx).Model(&models.Run{}).
 		Where("run_uuid = ?", run.Info.GetRunId()).
+		// Force GORM to update fields with zero values by selecting them.
+		Select("DeletedTime", "LifecycleStage").
 		Updates(&models.Run{
 			DeletedTime:    sql.NullInt64{},
 			LifecycleStage: models.LifecycleStageActive,
