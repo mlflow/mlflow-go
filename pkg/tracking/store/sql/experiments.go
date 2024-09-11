@@ -181,11 +181,12 @@ func (s TrackingSQLStore) RestoreExperiment(ctx context.Context, id string) *con
 		// Update runs
 		if err := transaction.Model(&models.Run{}).
 			Where("experiment_id = ?", idInt).
+			Select("DeletedTime", "LifecycleStage").
 			Updates(&models.Run{
 				LifecycleStage: models.LifecycleStageActive,
-				DeletedTime:    sql.NullInt64{Valid: true, Int64: time.Now().UnixMilli()},
+				DeletedTime:    sql.NullInt64{},
 			}).Error; err != nil {
-			return fmt.Errorf("failed to update runs during delete: %w", err)
+			return fmt.Errorf("failed to update runs during restore: %w", err)
 		}
 
 		return nil
