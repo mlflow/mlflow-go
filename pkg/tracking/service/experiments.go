@@ -112,7 +112,6 @@ func (ts TrackingService) UpdateExperiment(
 	}
 
 	if name := input.GetNewName(); name != "" {
-		input.NewName = &name
 		if err := ts.Store.RenameExperiment(ctx, input.GetExperimentId(), input.GetNewName()); err != nil {
 			return nil, err
 		}
