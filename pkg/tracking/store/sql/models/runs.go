@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"strings"
 
+	"github.com/mlflow/mlflow-go/pkg/entities"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 	"github.com/mlflow/mlflow-go/pkg/utils"
 )
@@ -68,6 +69,51 @@ func RunStatusToProto(status RunStatus) *protos.RunStatus {
 	return nil
 }
 
+func (r Run) ToEntity() *entities.Run {
+	metrics := make([]*entities.Metric, 0, len(r.LatestMetrics))
+	for _, metric := range r.LatestMetrics {
+		metrics = append(metrics, metric.ToEntity())
+	}
+
+	params := make([]*entities.Param, 0, len(r.Params))
+	for _, param := range r.Params {
+		params = append(params, param.ToEntity())
+	}
+
+	tags := make([]*entities.RunTag, 0, len(r.Tags))
+	for _, tag := range r.Tags {
+		tags = append(tags, tag.ToEntity())
+	}
+
+	datasetInputs := make([]*entities.DatasetInput, 0, len(r.Inputs))
+	for _, input := range r.Inputs {
+		datasetInputs = append(datasetInputs, input.ToEntity())
+	}
+
+	return &entities.Run{
+		Info: &entities.RunInfo{
+			RunID:          r.ID,
+			RunUUID:        r.ID,
+			RunName:        r.Name,
+			ExperimentID:   r.ExperimentID,
+			UserID:         r.UserID,
+			Status:         r.Status.String(),
+			StartTime:      r.StartTime,
+			EndTime:        r.EndTime,
+			ArtifactURI:    r.ArtifactURI,
+			LifecycleStage: r.LifecycleStage.String(),
+		},
+		Data: &entities.RunData{
+			Tags:    tags,
+			Params:  params,
+			Metrics: metrics,
+		},
+		Inputs: &entities.RunInputs{
+			DatasetInputs: datasetInputs,
+		},
+	}
+}
+
 func (r Run) ToProto() *protos.Run {
 	info := &protos.RunInfo{
 		RunId:          &r.ID,
@@ -116,24 +162,5 @@ func (r Run) ToProto() *protos.Run {
 		Info:   info,
 		Data:   data,
 		Inputs: inputs,
-	}
-}
-
-func NewRunFromCreateRunProto(run *protos.CreateRun) *Run {
-	tags := make([]Tag, 0, len(run.GetTags()))
-	for _, tag := range run.GetTags() {
-		tags = append(tags, NewTagFromProto(nil, tag))
-	}
-
-	return &Run{
-		ID:             utils.NewUUID(),
-		Name:           run.GetRunName(),
-		ExperimentID:   utils.ConvertStringPointerToInt32Pointer(run.ExperimentId),
-		StartTime:      run.GetStartTime(),
-		UserID:         run.GetUserId(),
-		Tags:           tags,
-		LifecycleStage: LifecycleStageActive,
-		Status:         RunStatusRunning,
-		SourceType:     SourceTypeUnknown,
 	}
 }

@@ -15,6 +15,7 @@ import (
 	"gorm.io/gorm/clause"
 
 	"github.com/mlflow/mlflow-go/pkg/contract"
+	"github.com/mlflow/mlflow-go/pkg/entities"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 	"github.com/mlflow/mlflow-go/pkg/tracking/service/query"
 	"github.com/mlflow/mlflow-go/pkg/tracking/service/query/parser"
@@ -531,8 +532,8 @@ const (
 
 func getRunNameFromTags(tags []models.Tag) string {
 	for _, tag := range tags {
-		if *tag.Key == utils.TagRunName {
-			return *tag.Value
+		if tag.Key == utils.TagRunName {
+			return tag.Value
 		}
 	}
 
@@ -573,8 +574,8 @@ func ensureRunName(runModel *models.Run) *contract.Error {
 
 	if runNameFromTags == "" {
 		runModel.Tags = append(runModel.Tags, models.Tag{
-			Key:   utils.PtrTo(utils.TagRunName),
-			Value: &runModel.Name,
+			Key:   utils.TagRunName,
+			Value: runModel.Name,
 		})
 	}
 
@@ -609,8 +610,15 @@ func (s TrackingSQLStore) GetRun(ctx context.Context, runID string) (*protos.Run
 	return run.ToProto(), nil
 }
 
-func (s TrackingSQLStore) CreateRun(ctx context.Context, input *protos.CreateRun) (*protos.Run, *contract.Error) {
-	experiment, err := s.GetExperiment(ctx, input.GetExperimentId())
+//nolint:funlen
+func (s TrackingSQLStore) CreateRun(
+	ctx context.Context,
+	experimentID, userID string,
+	startTime int64,
+	tags []*entities.RunTag,
+	runName string,
+) (*protos.Run, *contract.Error) {
+	experiment, err := s.GetExperiment(ctx, experimentID)
 	if err != nil {
 		return nil, err
 	}
@@ -621,13 +629,27 @@ func (s TrackingSQLStore) CreateRun(ctx context.Context, input *protos.CreateRun
 			fmt.Sprintf(
 				"The experiment %q must be in the 'active' state.\n"+
 					"Current state is %q.",
-				input.GetExperimentId(),
+				experiment,
 				experiment.GetLifecycleStage(),
 			),
 		)
 	}
 
-	runModel := models.NewRunFromCreateRunProto(input)
+	runModel := &models.Run{
+		ID:             utils.NewUUID(),
+		Name:           runName,
+		ExperimentID:   utils.ConvertStringPointerToInt32Pointer(&experimentID),
+		StartTime:      startTime,
+		UserID:         userID,
+		Tags:           make([]models.Tag, 0, len(tags)),
+		LifecycleStage: models.LifecycleStageActive,
+		Status:         models.RunStatusRunning,
+		SourceType:     models.SourceTypeUnknown,
+	}
+
+	for _, tag := range tags {
+		runModel.Tags = append(runModel.Tags, models.NewTagFromEntity(runModel.ID, tag))
+	}
 
 	artifactLocation, appendErr := url.JoinPath(
 		experiment.GetArtifactLocation(),
@@ -653,7 +675,7 @@ func (s TrackingSQLStore) CreateRun(ctx context.Context, input *protos.CreateRun
 			protos.ErrorCode_INTERNAL_ERROR,
 			fmt.Sprintf(
 				"failed to create run for experiment_id %q",
-				input.GetExperimentId(),
+				experiment,
 			),
 			err,
 		)
@@ -662,28 +684,43 @@ func (s TrackingSQLStore) CreateRun(ctx context.Context, input *protos.CreateRun
 	return runModel.ToProto(), nil
 }
 
-func (s TrackingSQLStore) UpdateRun(ctx context.Context, run *protos.Run) *contract.Error {
+func (s TrackingSQLStore) UpdateRun(
+	ctx context.Context,
+	runID string,
+	runStatus string,
+	endTime int64,
+	runName string,
+) *contract.Error {
+	runTag, err := s.GetRunTag(ctx, runID, utils.TagRunName)
+	if err != nil {
+		return err
+	}
+
+	tags := make([]models.Tag, 0, 1)
+	if runTag == nil {
+		tags = append(tags, models.Tag{
+			RunID: runID,
+			Key:   utils.TagRunName,
+			Value: runName,
+		})
+	}
+
 	if err := s.db.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
 		if err := transaction.Model(&models.Run{}).
-			Where("run_uuid = ?", run.Info.GetRunId()).
+			Where("run_uuid = ?", runID).
 			Updates(&models.Run{
-				Name:    run.Info.GetRunName(),
-				Status:  models.RunStatus(protos.RunStatus_name[int32(run.Info.GetStatus())]),
-				EndTime: run.Info.GetEndTime(),
+				Name:    runName,
+				Status:  models.RunStatus(runStatus),
+				EndTime: endTime,
 			}).Error; err != nil {
 			return err
 		}
 
-		if run.Data != nil && len(run.Data.Tags) > 0 {
-			runTags := make([]models.Tag, 0, len(run.Data.Tags))
-			for _, tag := range run.Data.Tags {
-				runTags = append(runTags, models.NewTagFromProto(utils.PtrTo(run.Info.GetRunId()), tag))
-			}
-
+		if len(tags) > 0 {
 			if err := transaction.Clauses(clause.OnConflict{
 				UpdateAll: true,
-			}).CreateInBatches(runTags, tagsBatchSize).Error; err != nil {
-				return fmt.Errorf("failed to create tags for run %q: %w", run.Info.GetRunId(), err)
+			}).CreateInBatches(tags, tagsBatchSize).Error; err != nil {
+				return fmt.Errorf("failed to create tags for run %q: %w", runID, err)
 			}
 		}
 
