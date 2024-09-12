@@ -1,8 +1,12 @@
 package parser
 
 import (
+	"errors"
 	"fmt"
 	"strings"
+
+	"github.com/mlflow/mlflow-go/pkg/contract"
+	"github.com/mlflow/mlflow-go/pkg/protos"
 )
 
 /*
@@ -119,14 +123,12 @@ const (
 // This should be configurable and only applies to the runs table.
 var searchableRunAttributes = []string{
 	RunID,
-	"experiment_id",
 	RunName,
 	"user_id",
 	"status",
 	StartTime,
 	"end_time",
 	"artifact_uri",
-	"lifecycle_stage",
 }
 
 var datasetAttributes = []string{"name", "digest", "context"}
@@ -136,23 +138,24 @@ func parseAttributeKey(key string) (string, error) {
 	case "run_id":
 		// We return run_uuid before that is the SQL column name.
 		return "run_uuid", nil
-	case "experiment_id",
+	case
 		"user_id",
 		"status",
 		StartTime,
 		"end_time",
-		"artifact_uri",
-		"lifecycle_stage":
+		"artifact_uri":
 		return key, nil
 	case Created, "Created":
 		return StartTime, nil
 	case RunName, "run name", "Run name", "Run Name":
 		return RunName, nil
 	default:
-		return "", NewValidationError(
-			"invalid attribute key valid: %s. Allowed values are %v",
-			key,
-			searchableRunAttributes,
+		return "", contract.NewError(protos.ErrorCode_BAD_REQUEST,
+			fmt.Sprintf(
+				"Invalid attribute key '{%s}' specified. Valid keys are '%v'",
+				key,
+				searchableRunAttributes,
+			),
 		)
 	}
 }
@@ -171,10 +174,12 @@ func parseKey(identifier ValidIdentifier, key string) (string, error) {
 		case "name", "digest", "context":
 			return key, nil
 		default:
-			return "", NewValidationError(
-				"invalid dataset attribute key: %s. Allowed values are %v",
-				key,
-				datasetAttributes,
+			return "", contract.NewError(protos.ErrorCode_BAD_REQUEST,
+				fmt.Sprintf(
+					"Invalid dataset key '{%s}' specified. Valid keys are '%v'",
+					key,
+					searchableRunAttributes,
+				),
 			)
 		}
 	default:
@@ -302,6 +307,11 @@ func validateAttributeValue(key string, value Value) (interface{}, error) {
 func ValidateExpression(expression *CompareExpr) (*ValidCompareExpr, error) {
 	validIdentifier, validKey, err := validatedIdentifier(&expression.Left)
 	if err != nil {
+		var contractError *contract.Error
+		if !errors.As(err, &contractError) {
+			return nil, contractError
+		}
+
 		return nil, fmt.Errorf("Error on parsing filter expression: %w", err)
 	}
 
