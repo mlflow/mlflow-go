@@ -162,6 +162,11 @@ func (s TrackingSQLStore) logMetricsWithTransaction(
 
 func (s TrackingSQLStore) LogMetric(ctx context.Context, runID string, metric *protos.Metric) *contract.Error {
 	err := s.db.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
+		contractError := checkRunIsActive(transaction, runID)
+		if contractError != nil {
+			return contractError
+		}
+
 		if err := s.logMetricsWithTransaction(transaction, runID, []*protos.Metric{
 			metric,
 		}); err != nil {
