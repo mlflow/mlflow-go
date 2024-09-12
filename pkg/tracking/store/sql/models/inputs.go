@@ -1,6 +1,9 @@
 package models
 
-import "github.com/mlflow/mlflow-go/pkg/protos"
+import (
+	"github.com/mlflow/mlflow-go/pkg/entities"
+	"github.com/mlflow/mlflow-go/pkg/protos"
+)
 
 // Input mapped from table <inputs>.
 type Input struct {
@@ -11,6 +14,18 @@ type Input struct {
 	DestinationID   string     `db:"destination_id"                      gorm:"column:destination_id;primaryKey"`
 	Tags            []InputTag `gorm:"foreignKey:InputID;references:ID"`
 	Dataset         Dataset    `gorm:"foreignKey:ID;references:SourceID"`
+}
+
+func (i *Input) ToEntity() *entities.DatasetInput {
+	tags := make([]*entities.InputTag, 0, len(i.Tags))
+	for _, tag := range i.Tags {
+		tags = append(tags, tag.ToEntity())
+	}
+
+	return &entities.DatasetInput{
+		Tags:    tags,
+		Dataset: i.Dataset.ToEntity(),
+	}
 }
 
 func (i *Input) ToProto() *protos.DatasetInput {

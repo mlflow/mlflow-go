@@ -12,6 +12,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/mlflow/mlflow-go/pkg/contract"
+	"github.com/mlflow/mlflow-go/pkg/entities"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 	"github.com/mlflow/mlflow-go/pkg/tracking/store/sql/models"
 )
@@ -46,9 +47,26 @@ func (s TrackingSQLStore) GetExperiment(ctx context.Context, id string) (*protos
 }
 
 func (s TrackingSQLStore) CreateExperiment(
-	ctx context.Context, input *protos.CreateExperiment,
+	ctx context.Context,
+	name string,
+	artifactLocation string,
+	tags []*entities.ExperimentTag,
 ) (string, *contract.Error) {
-	experiment := models.NewExperimentFromProto(input)
+	experiment := models.Experiment{
+		Name:             name,
+		Tags:             make([]models.ExperimentTag, len(tags)),
+		ArtifactLocation: artifactLocation,
+		LifecycleStage:   models.LifecycleStageActive,
+		CreationTime:     time.Now().UnixMilli(),
+		LastUpdateTime:   time.Now().UnixMilli(),
+	}
+
+	for i, tag := range tags {
+		experiment.Tags[i] = models.ExperimentTag{
+			Key:   tag.Key,
+			Value: tag.Value,
+		}
+	}
 
 	if err := s.db.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
 		if err := transaction.Create(&experiment).Error; err != nil {
@@ -81,11 +99,13 @@ func (s TrackingSQLStore) CreateExperiment(
 	return strconv.Itoa(int(experiment.ID)), nil
 }
 
-func (s TrackingSQLStore) RenameExperiment(ctx context.Context, experiment *protos.Experiment) *contract.Error {
+func (s TrackingSQLStore) RenameExperiment(
+	ctx context.Context, experimentID, name string,
+) *contract.Error {
 	if err := s.db.WithContext(ctx).Model(&models.Experiment{}).
-		Where("experiment_id = ?", experiment.GetExperimentId()).
+		Where("experiment_id = ?", experimentID).
 		Updates(&models.Experiment{
-			Name:           experiment.GetName(),
+			Name:           name,
 			LastUpdateTime: time.Now().UnixMilli(),
 		}).Error; err != nil {
 		return contract.NewErrorWith(protos.ErrorCode_INTERNAL_ERROR, "failed to update experiment", err)

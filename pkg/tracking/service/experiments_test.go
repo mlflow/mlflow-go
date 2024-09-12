@@ -29,7 +29,12 @@ func TestRelativeArtifactLocation(t *testing.T) {
 			t.Parallel()
 
 			store := store.NewMockTrackingStore(t)
-			store.EXPECT().CreateExperiment(context.Background(), mock.Anything).Return(mock.Anything, nil)
+			store.EXPECT().CreateExperiment(
+				context.Background(),
+				mock.Anything,
+				mock.Anything,
+				mock.Anything,
+			).Return(mock.Anything, nil)
 
 			service := TrackingService{
 				Store: store,

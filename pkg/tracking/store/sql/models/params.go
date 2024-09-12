@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/mlflow/mlflow-go/pkg/entities"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 )
 
@@ -9,6 +10,13 @@ type Param struct {
 	Key   string `db:"key"      gorm:"column:key;primaryKey"`
 	Value string `db:"value"    gorm:"column:value;not null"`
 	RunID string `db:"run_uuid" gorm:"column:run_uuid;primaryKey"`
+}
+
+func (p Param) ToEntity() *entities.Param {
+	return &entities.Param{
+		Key:   p.Key,
+		Value: p.Value,
+	}
 }
 
 func (p Param) ToProto() *protos.Param {
