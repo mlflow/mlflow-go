@@ -276,16 +276,14 @@ pre-commit run golangci-lint --all-files
 The following Python tests are currently failing:
 
 ```
-======================================================================================================================== short test summary info ========================================================================================================================
+=========================================================================================================================== short test summary info ===========================================================================================================================
 FAILED .mlflow.repo/tests/tracking/test_rest_tracking.py::test_log_metrics_params_tags[sqlalchemy] - mlflow.exceptions.RestException: INVALID_PARAMETER_VALUE: Invalid value "NaN" for parameter 'value' supplied
 FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_create_experiments - Failed: DID NOT RAISE <class 'mlflow.exceptions.MlflowException'>
-FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_log_metric_concurrent_logging_succeeds - mlflow.exceptions.MlflowException: error creating metrics in batch for run_uuid "98237ad47d43486f9dc0bd4b8c365d35"
-FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_error_logging_to_deleted_run - Failed: DID NOT RAISE <class 'mlflow.exceptions.MlflowException'>
+FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_log_metric_concurrent_logging_succeeds - mlflow.exceptions.MlflowException: error creating metrics in batch for run_uuid "17ccf12a728d4e4b9d60696aaf8b498e"
 FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_order_by_metric_tag_param - mlflow.exceptions.MlflowException: error getting runs: [INTERNAL_ERROR] Failed to query search runs: no such column: x
 FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_order_by_attributes - AssertionError: assert ['-123', 'Non... '456', '789'] == ['-123', '123...'789', 'None']
 FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_search_attrs - Failed: DID NOT RAISE <class 'mlflow.exceptions.MlflowException'>
-FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_search_runs_pagination - AssertionError: assert '' is None
-FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_search_runs_datasets - AssertionError: assert {'19e6c1838f7...3c7f7a492834'} == {'19e6c1838f7...3c7f7a492834'}
+FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_search_runs_datasets - AssertionError: assert {'18b3430395f...c9f4f470ff07'} == {'18b3430395f...f34d0212be2d'}
 FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_log_batch_param_overwrite_disallowed_single_req - AssertionError: Regex pattern did not match.
 FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_log_batch_internal_error - Failed: DID NOT RAISE <class 'mlflow.exceptions.MlflowException'>
 FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_log_batch_null_metrics - TypeError: must be real number, not NoneType
@@ -293,9 +291,8 @@ FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_log_batc
 FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_log_inputs_with_large_inputs_limit_check - AssertionError: assert {'digest': 'd...ema': '', ...} == {'digest': 'd...a': None, ...}
 FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_sqlalchemy_store_behaves_as_expected_with_inmemory_sqlite_db - mlflow.exceptions.MlflowException: failed to create experiment
 FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_create_experiment_appends_to_artifact_local_path_file_uri_correctly[#path/to/local/folder?-{cwd}/#path/to/local/folder?/{e}] - AssertionError: assert '/workspaces/...local/folder?' == '/workspaces/...cal/folder?/1'
-FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_create_run_appends_to_artifact_local_path_file_uri_correctly[#path/to/local/folder?-{cwd}/#path/to/local/folder?/{e}/{r}/artifacts] - AssertionError: assert '/workspaces/...local/folder?' == '/workspaces/...8f9/artifacts'
-FAILED .mlflow.repo/tests/store/model_registry/test_sqlalchemy_store.py::test_get_latest_versions - AssertionError: assert {'None': '1',...Staging': '4'} == {'None': 1, '... 'Staging': 4}
-========================================================================================== 18 failed, 341 passed, 9 skipped, 128 deselected, 10 warnings in 236.63s (0:03:56) ===========================================================================================
+FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_create_run_appends_to_artifact_local_path_file_uri_correctly[#path/to/local/folder?-{cwd}/#path/to/local/folder?/{e}/{r}/artifacts] - AssertionError: assert '/workspaces/...local/folder?' == '/workspaces/...ed0/artifacts'
+============================================================================================= 15 failed, 344 passed, 9 skipped, 128 deselected, 10 warnings in 227.91s (0:03:47) ==============================================================================================
 ```
 
 ## Debug failing tests
