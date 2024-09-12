@@ -56,9 +56,14 @@ type ExperimentTrackingStore interface {
 	GetExperiment(ctx context.Context, id string) (*protos.Experiment, *contract.Error)
 	GetExperimentByName(ctx context.Context, name string) (*protos.Experiment, *contract.Error)
 
-	CreateExperiment(ctx context.Context, input *protos.CreateExperiment) (string, *contract.Error)
+	CreateExperiment(
+		ctx context.Context,
+		name string,
+		artifactLocation string,
+		tags []*entities.ExperimentTag,
+	) (string, *contract.Error)
 	RestoreExperiment(ctx context.Context, id string) *contract.Error
-	RenameExperiment(ctx context.Context, experiment *protos.Experiment) *contract.Error
+	RenameExperiment(ctx context.Context, experimentID, name string) *contract.Error
 
 	SearchRuns(
 		ctx context.Context,

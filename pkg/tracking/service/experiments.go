@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/mlflow/mlflow-go/pkg/contract"
+	"github.com/mlflow/mlflow-go/pkg/entities"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 	"github.com/mlflow/mlflow-go/pkg/tracking/store/sql/models"
 )
@@ -44,7 +45,12 @@ func (ts TrackingService) CreateExperiment(ctx context.Context, input *protos.Cr
 		input.ArtifactLocation = &artifactLocation
 	}
 
-	experimentID, err := ts.Store.CreateExperiment(ctx, input)
+	tags := make([]*entities.ExperimentTag, len(input.GetTags()))
+	for i, tag := range input.GetTags() {
+		tags[i] = entities.NewExperimentTagFromProto(tag)
+	}
+
+	experimentID, err := ts.Store.CreateExperiment(ctx, input.GetName(), input.GetArtifactLocation(), tags)
 	if err != nil {
 		return nil, err
 	}
@@ -106,8 +112,8 @@ func (ts TrackingService) UpdateExperiment(
 	}
 
 	if name := input.GetNewName(); name != "" {
-		experiment.Name = &name
-		if err := ts.Store.RenameExperiment(ctx, experiment); err != nil {
+		input.NewName = &name
+		if err := ts.Store.RenameExperiment(ctx, input.GetExperimentId(), input.GetNewName()); err != nil {
 			return nil, err
 		}
 	}
