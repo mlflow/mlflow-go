@@ -51,12 +51,14 @@ func TestInvalidQueries(t *testing.T) {
 			expectedError: "invalid identifier",
 		},
 		{
-			input:         "attributes.foobar = 40",
-			expectedError: "invalid attribute key valid",
+			input: "attributes.foobar = 40",
+			expectedError: "Invalid attribute key '{foobar}' specified. " +
+				"Valid keys are '[run_id run_name user_id status start_time end_time artifact_uri]'",
 		},
 		{
-			input:         "datasets.foobar = 40",
-			expectedError: "invalid dataset attribute key",
+			input: "datasets.foobar = 40",
+			expectedError: "Invalid dataset key '{foobar}' specified. " +
+				"Valid keys are '[run_id run_name user_id status start_time end_time artifact_uri]'",
 		},
 		{
 			input:         "metric.yow = 'z'",

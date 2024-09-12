@@ -308,7 +308,7 @@ func ValidateExpression(expression *CompareExpr) (*ValidCompareExpr, error) {
 	validIdentifier, validKey, err := validatedIdentifier(&expression.Left)
 	if err != nil {
 		var contractError *contract.Error
-		if !errors.As(err, &contractError) {
+		if errors.As(err, &contractError) {
 			return nil, contractError
 		}
 
