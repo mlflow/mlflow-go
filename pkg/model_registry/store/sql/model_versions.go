@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	"gorm.io/gorm"
 
@@ -50,6 +51,24 @@ func (m *ModelRegistrySQLStore) GetLatestVersions(
 		Group("name, current_stage")
 
 	if len(stages) > 0 {
+		for idx, stage := range stages {
+			stages[idx] = strings.ToLower(stage)
+			if canonicalStage, ok := models.CanonicalMapping[stages[idx]]; ok {
+				stages[idx] = canonicalStage
+
+				continue
+			}
+
+			return nil, contract.NewError(
+				protos.ErrorCode_BAD_REQUEST,
+				fmt.Sprintf(
+					"Invalid Model Version stage: %s. Value must be one of %s.",
+					stage,
+					models.AllModelVersionStages(),
+				),
+			)
+		}
+
 		subQuery = subQuery.Where("current_stage IN (?)", stages)
 	}
 
