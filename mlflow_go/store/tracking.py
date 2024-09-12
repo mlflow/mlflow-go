@@ -144,7 +144,7 @@ class _TrackingStore:
         )
         response = self.service.call_endpoint(get_lib().TrackingServiceSearchRuns, request)
         runs = [Run.from_proto(proto_run) for proto_run in response.runs]
-        return runs, response.next_page_token
+        return runs, (response.next_page_token or None)
 
     def log_batch(self, run_id, metrics, params, tags):
         request = LogBatch(
