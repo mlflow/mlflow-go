@@ -266,7 +266,11 @@ func NewErrorFromValidationError(err error) *contract.Error {
 						constructValidationError(field, value, ""),
 					)
 				}
-
+			case "uniqueParams":
+				validationErrors = append(
+					validationErrors,
+					"Duplicate parameter keys have been submitted",
+				)
 			default:
 				validationErrors = append(
 					validationErrors,
