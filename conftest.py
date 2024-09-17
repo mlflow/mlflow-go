@@ -28,6 +28,17 @@ def pytest_configure(config):
             "mlflow.store.model_registry.sqlalchemy_store.SqlAlchemyStore",
             "tests/override_model_registry_store.py",
         ),
+        # This test will patch some Python internals to invoke an internal exception.
+        # We cannot do this in Go.
+        (
+            "tests.store.tracking.test_sqlalchemy_store.test_log_batch_internal_error",
+            "tests/override_test_sqlalchemy_store.py",
+        ),
+        # This test uses monkeypatch.setenv which does not flow through to the
+        (
+            "tests.store.tracking.test_sqlalchemy_store.test_log_batch_params_max_length_value",
+            "tests/override_test_sqlalchemy_store.py",
+        ),
     ):
         func_name = func_to_patch.rsplit(".", 1)[1]
         new_func_file = (
