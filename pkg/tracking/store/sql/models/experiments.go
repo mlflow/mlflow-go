@@ -2,10 +2,8 @@ package models
 
 import (
 	"strconv"
-	"time"
 
-	"github.com/mlflow/mlflow-go/pkg/protos"
-	"github.com/mlflow/mlflow-go/pkg/utils"
+	"github.com/mlflow/mlflow-go/pkg/entities"
 )
 
 // Experiment mapped from table <experiments>.
@@ -20,44 +18,23 @@ type Experiment struct {
 	Runs             []Run
 }
 
-//nolint:exportloopref
-func (e Experiment) ToProto() *protos.Experiment {
-	experimentID := strconv.FormatInt(int64(e.ID), 10)
-	tags := make([]*protos.ExperimentTag, len(e.Tags))
+func (e Experiment) ToEntity() *entities.Experiment {
+	experiment := entities.Experiment{
+		ExperimentID:     strconv.Itoa(int(e.ID)),
+		Name:             e.Name,
+		ArtifactLocation: e.ArtifactLocation,
+		LifecycleStage:   e.LifecycleStage.String(),
+		CreationTime:     e.CreationTime,
+		LastUpdateTime:   e.LastUpdateTime,
+		Tags:             make([]*entities.ExperimentTag, len(e.Tags)),
+	}
 
 	for i, tag := range e.Tags {
-		tags[i] = &protos.ExperimentTag{
-			Key:   &tag.Key,
-			Value: &tag.Value,
+		experiment.Tags[i] = &entities.ExperimentTag{
+			Key:   tag.Key,
+			Value: tag.Value,
 		}
 	}
 
-	return &protos.Experiment{
-		ExperimentId:     &experimentID,
-		Name:             &e.Name,
-		ArtifactLocation: &e.ArtifactLocation,
-		LifecycleStage:   utils.PtrTo(e.LifecycleStage.String()),
-		CreationTime:     &e.CreationTime,
-		LastUpdateTime:   &e.LastUpdateTime,
-		Tags:             tags,
-	}
-}
-
-func NewExperimentFromProto(proto *protos.CreateExperiment) Experiment {
-	tags := make([]ExperimentTag, len(proto.GetTags()))
-	for i, tag := range proto.GetTags() {
-		tags[i] = ExperimentTag{
-			Key:   tag.GetKey(),
-			Value: tag.GetValue(),
-		}
-	}
-
-	return Experiment{
-		Name:             proto.GetName(),
-		ArtifactLocation: proto.GetArtifactLocation(),
-		LifecycleStage:   LifecycleStageActive,
-		CreationTime:     time.Now().UnixMilli(),
-		LastUpdateTime:   time.Now().UnixMilli(),
-		Tags:             tags,
-	}
+	return &experiment
 }

@@ -2,7 +2,6 @@ package models
 
 import (
 	"github.com/mlflow/mlflow-go/pkg/entities"
-	"github.com/mlflow/mlflow-go/pkg/protos"
 )
 
 // Dataset mapped from table <datasets>.
@@ -25,16 +24,5 @@ func (d *Dataset) ToEntity() *entities.Dataset {
 		Source:     d.Source,
 		Schema:     d.Schema,
 		Profile:    d.Profile,
-	}
-}
-
-func (d *Dataset) ToProto() *protos.Dataset {
-	return &protos.Dataset{
-		Name:       &d.Name,
-		Digest:     &d.Digest,
-		SourceType: &d.SourceType,
-		Source:     &d.Source,
-		Schema:     &d.Schema,
-		Profile:    &d.Profile,
 	}
 }

@@ -19,7 +19,6 @@ import (
 	"github.com/mlflow/mlflow-go/pkg/protos"
 	"github.com/mlflow/mlflow-go/pkg/tracking/service/query"
 	"github.com/mlflow/mlflow-go/pkg/tracking/service/query/parser"
-	"github.com/mlflow/mlflow-go/pkg/tracking/store"
 	"github.com/mlflow/mlflow-go/pkg/tracking/store/sql/models"
 	"github.com/mlflow/mlflow-go/pkg/utils"
 )
@@ -431,8 +430,8 @@ func applyOrderBy(ctx context.Context, database, transaction *gorm.DB, orderBy [
 	return nil
 }
 
-func mkNextPageToken(runLength, maxResults, offset int) (*string, *contract.Error) {
-	var nextPageToken *string
+func mkNextPageToken(runLength, maxResults, offset int) (string, *contract.Error) {
+	var nextPageToken string
 
 	if runLength == maxResults {
 		var token strings.Builder
@@ -441,14 +440,14 @@ func mkNextPageToken(runLength, maxResults, offset int) (*string, *contract.Erro
 		).Encode(PageToken{
 			Offset: int32(offset + maxResults),
 		}); err != nil {
-			return nil, contract.NewErrorWith(
+			return "", contract.NewErrorWith(
 				protos.ErrorCode_INTERNAL_ERROR,
 				"error encoding 'nextPageToken' value",
 				err,
 			)
 		}
 
-		nextPageToken = utils.PtrTo(token.String())
+		nextPageToken = token.String()
 	}
 
 	return nextPageToken, nil
@@ -459,7 +458,7 @@ func (s TrackingSQLStore) SearchRuns(
 	ctx context.Context,
 	experimentIDs []string, filter string,
 	runViewType protos.ViewType, maxResults int, orderBy []string, pageToken string,
-) (*store.PagedList[*protos.Run], *contract.Error) {
+) ([]*entities.Run, string, *contract.Error) {
 	// ViewType
 	lifecyleStages := getLifecyleStages(runViewType)
 	transaction := s.db.WithContext(ctx).Where(
@@ -474,7 +473,7 @@ func (s TrackingSQLStore) SearchRuns(
 	// PageToken
 	offset, contractError := getOffset(pageToken)
 	if contractError != nil {
-		return nil, contractError
+		return nil, "", contractError
 	}
 
 	transaction.Offset(offset)
@@ -482,13 +481,13 @@ func (s TrackingSQLStore) SearchRuns(
 	// Filter
 	contractError = applyFilter(ctx, s.db, transaction, filter)
 	if contractError != nil {
-		return nil, contractError
+		return nil, "", contractError
 	}
 
 	// OrderBy
 	contractError = applyOrderBy(ctx, s.db, transaction, orderBy)
 	if contractError != nil {
-		return nil, contractError
+		return nil, "", contractError
 	}
 
 	// Actual query
@@ -499,27 +498,24 @@ func (s TrackingSQLStore) SearchRuns(
 		Preload("Inputs.Dataset").Preload("Inputs.Tags").Find(&runs)
 
 	if transaction.Error != nil {
-		return nil, contract.NewErrorWith(
+		return nil, "", contract.NewErrorWith(
 			protos.ErrorCode_INTERNAL_ERROR,
 			"Failed to query search runs",
 			transaction.Error,
 		)
 	}
 
-	contractRuns := make([]*protos.Run, 0, len(runs))
-	for _, run := range runs {
-		contractRuns = append(contractRuns, run.ToProto())
+	entityRuns := make([]*entities.Run, len(runs))
+	for i, run := range runs {
+		entityRuns[i] = run.ToEntity()
 	}
 
 	nextPageToken, contractError := mkNextPageToken(len(runs), maxResults, offset)
 	if contractError != nil {
-		return nil, contractError
+		return nil, "", contractError
 	}
 
-	return &store.PagedList[*protos.Run]{
-		Items:         contractRuns,
-		NextPageToken: nextPageToken,
-	}, nil
+	return entityRuns, nextPageToken, nil
 }
 
 const RunIDMaxLength = 32
@@ -582,7 +578,7 @@ func ensureRunName(runModel *models.Run) *contract.Error {
 	return nil
 }
 
-func (s TrackingSQLStore) GetRun(ctx context.Context, runID string) (*protos.Run, *contract.Error) {
+func (s TrackingSQLStore) GetRun(ctx context.Context, runID string) (*entities.Run, *contract.Error) {
 	var run models.Run
 	if err := s.db.WithContext(ctx).Where(
 		"run_uuid = ?", runID,
@@ -607,7 +603,7 @@ func (s TrackingSQLStore) GetRun(ctx context.Context, runID string) (*protos.Run
 		return nil, contract.NewErrorWith(protos.ErrorCode_INTERNAL_ERROR, "failed to get run", err)
 	}
 
-	return run.ToProto(), nil
+	return run.ToEntity(), nil
 }
 
 //nolint:funlen
@@ -617,20 +613,20 @@ func (s TrackingSQLStore) CreateRun(
 	startTime int64,
 	tags []*entities.RunTag,
 	runName string,
-) (*protos.Run, *contract.Error) {
+) (*entities.Run, *contract.Error) {
 	experiment, err := s.GetExperiment(ctx, experimentID)
 	if err != nil {
 		return nil, err
 	}
 
-	if models.LifecycleStage(experiment.GetLifecycleStage()) != models.LifecycleStageActive {
+	if models.LifecycleStage(experiment.LifecycleStage) != models.LifecycleStageActive {
 		return nil, contract.NewError(
 			protos.ErrorCode_INVALID_PARAMETER_VALUE,
 			fmt.Sprintf(
 				"The experiment %q must be in the 'active' state.\n"+
 					"Current state is %q.",
-				experiment,
-				experiment.GetLifecycleStage(),
+				experiment.ExperimentID,
+				experiment.LifecycleStage,
 			),
 		)
 	}
@@ -652,7 +648,7 @@ func (s TrackingSQLStore) CreateRun(
 	}
 
 	artifactLocation, appendErr := url.JoinPath(
-		experiment.GetArtifactLocation(),
+		experiment.ArtifactLocation,
 		runModel.ID,
 		ArtifactFolderName,
 	)
@@ -675,13 +671,13 @@ func (s TrackingSQLStore) CreateRun(
 			protos.ErrorCode_INTERNAL_ERROR,
 			fmt.Sprintf(
 				"failed to create run for experiment_id %q",
-				experiment,
+				experiment.ExperimentID,
 			),
 			err,
 		)
 	}
 
-	return runModel.ToProto(), nil
+	return runModel.ToEntity(), nil
 }
 
 func (s TrackingSQLStore) UpdateRun(
@@ -739,7 +735,7 @@ func (s TrackingSQLStore) DeleteRun(ctx context.Context, runID string) *contract
 	}
 
 	if err := s.db.WithContext(ctx).Model(&models.Run{}).
-		Where("run_uuid = ?", run.Info.GetRunId()).
+		Where("run_uuid = ?", run.Info.RunID).
 		Updates(&models.Run{
 			DeletedTime:    sql.NullInt64{Valid: true, Int64: time.Now().UnixMilli()},
 			LifecycleStage: models.LifecycleStageDeleted,
@@ -757,7 +753,7 @@ func (s TrackingSQLStore) RestoreRun(ctx context.Context, runID string) *contrac
 	}
 
 	if err := s.db.WithContext(ctx).Model(&models.Run{}).
-		Where("run_uuid = ?", run.Info.GetRunId()).
+		Where("run_uuid = ?", run.Info.RunID).
 		// Force GORM to update fields with zero values by selecting them.
 		Select("DeletedTime", "LifecycleStage").
 		Updates(&models.Run{
@@ -771,7 +767,7 @@ func (s TrackingSQLStore) RestoreRun(ctx context.Context, runID string) *contrac
 }
 
 func (s TrackingSQLStore) LogBatch(
-	ctx context.Context, runID string, metrics []*protos.Metric, params []*protos.Param, tags []*protos.RunTag,
+	ctx context.Context, runID string, metrics []*entities.Metric, params []*entities.Param, tags []*entities.RunTag,
 ) *contract.Error {
 	err := s.db.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
 		contractError := checkRunIsActive(transaction, runID)

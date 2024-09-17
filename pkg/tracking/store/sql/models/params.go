@@ -2,7 +2,6 @@ package models
 
 import (
 	"github.com/mlflow/mlflow-go/pkg/entities"
-	"github.com/mlflow/mlflow-go/pkg/protos"
 )
 
 // Param mapped from table <params>.
@@ -19,17 +18,10 @@ func (p Param) ToEntity() *entities.Param {
 	}
 }
 
-func (p Param) ToProto() *protos.Param {
-	return &protos.Param{
-		Key:   &p.Key,
-		Value: &p.Value,
-	}
-}
-
-func NewParamFromProto(runID string, p *protos.Param) Param {
+func NewParamFromEntity(runID string, param *entities.Param) Param {
 	return Param{
-		Key:   *p.Key,
-		Value: *p.Value,
+		Key:   param.Key,
+		Value: param.Value,
 		RunID: runID,
 	}
 }

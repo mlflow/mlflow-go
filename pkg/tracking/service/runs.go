@@ -8,7 +8,6 @@ import (
 	"github.com/mlflow/mlflow-go/pkg/entities"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 	"github.com/mlflow/mlflow-go/pkg/tracking/store/sql/models"
-	"github.com/mlflow/mlflow-go/pkg/utils"
 )
 
 func (ts TrackingService) SearchRuns(
@@ -23,7 +22,7 @@ func (ts TrackingService) SearchRuns(
 
 	maxResults := int(input.GetMaxResults())
 
-	page, err := ts.Store.SearchRuns(
+	runs, nextPageToken, err := ts.Store.SearchRuns(
 		ctx,
 		input.GetExperimentIds(),
 		input.GetFilter(),
@@ -37,8 +36,12 @@ func (ts TrackingService) SearchRuns(
 	}
 
 	response := protos.SearchRuns_Response{
-		Runs:          page.Items,
-		NextPageToken: page.NextPageToken,
+		Runs:          make([]*protos.Run, len(runs)),
+		NextPageToken: &nextPageToken,
+	}
+
+	for i, run := range runs {
+		response.Runs[i] = run.ToProto()
 	}
 
 	return &response, nil
@@ -47,7 +50,22 @@ func (ts TrackingService) SearchRuns(
 func (ts TrackingService) LogBatch(
 	ctx context.Context, input *protos.LogBatch,
 ) (*protos.LogBatch_Response, *contract.Error) {
-	err := ts.Store.LogBatch(ctx, input.GetRunId(), input.GetMetrics(), input.GetParams(), input.GetTags())
+	metrics := make([]*entities.Metric, len(input.GetMetrics()))
+	for i, metric := range input.GetMetrics() {
+		metrics[i] = entities.MetricFromProto(metric)
+	}
+
+	params := make([]*entities.Param, len(input.GetParams()))
+	for i, param := range input.GetParams() {
+		params[i] = entities.ParamFromProto(param)
+	}
+
+	tags := make([]*entities.RunTag, len(input.GetTags()))
+	for i, tag := range input.GetTags() {
+		tags[i] = entities.NewTagFromProto(tag)
+	}
+
+	err := ts.Store.LogBatch(ctx, input.GetRunId(), metrics, params, tags)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +81,7 @@ func (ts TrackingService) GetRun(
 		return nil, err
 	}
 
-	return &protos.GetRun_Response{Run: run}, nil
+	return &protos.GetRun_Response{Run: run.ToProto()}, nil
 }
 
 func (ts TrackingService) CreateRun(
@@ -86,7 +104,7 @@ func (ts TrackingService) CreateRun(
 		return nil, err
 	}
 
-	return &protos.CreateRun_Response{Run: run}, nil
+	return &protos.CreateRun_Response{Run: run.ToProto()}, nil
 }
 
 func (ts TrackingService) UpdateRun(
@@ -97,40 +115,40 @@ func (ts TrackingService) UpdateRun(
 		return nil, err
 	}
 
-	if *run.Info.LifecycleStage != string(models.LifecycleStageActive) {
+	if run.Info.LifecycleStage != string(models.LifecycleStageActive) {
 		return nil, contract.NewError(
 			protos.ErrorCode_INVALID_STATE,
 			fmt.Sprintf(
 				"The run %s must be in the 'active' state. Current state is %s.",
 				input.GetRunUuid(),
-				*run.Info.LifecycleStage,
+				run.Info.LifecycleStage,
 			),
 		)
 	}
 
 	if status := input.GetStatus(); status != 0 {
-		run.Info.Status = utils.PtrTo(status)
+		run.Info.Status = status.String()
 	}
 
 	if endTime := input.GetEndTime(); endTime != 0 {
-		run.Info.EndTime = utils.PtrTo(endTime)
+		run.Info.EndTime = endTime
 	}
 
 	if runName := input.GetRunName(); runName != "" {
-		run.Info.RunName = utils.PtrTo(runName)
+		run.Info.RunName = runName
 	}
 
 	if err := ts.Store.UpdateRun(
 		ctx,
-		run.Info.GetRunId(),
-		run.Info.GetStatus().String(),
-		run.Info.GetEndTime(),
-		run.Info.GetRunName(),
+		run.Info.RunID,
+		run.Info.Status,
+		run.Info.EndTime,
+		run.Info.RunName,
 	); err != nil {
 		return nil, err
 	}
 
-	return &protos.UpdateRun_Response{RunInfo: run.Info}, nil
+	return &protos.UpdateRun_Response{RunInfo: run.Info.ToProto()}, nil
 }
 
 func (ts TrackingService) DeleteRun(

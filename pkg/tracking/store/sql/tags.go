@@ -9,6 +9,7 @@ import (
 	"gorm.io/gorm/clause"
 
 	"github.com/mlflow/mlflow-go/pkg/contract"
+	"github.com/mlflow/mlflow-go/pkg/entities"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 	"github.com/mlflow/mlflow-go/pkg/tracking/store/sql/models"
 	"github.com/mlflow/mlflow-go/pkg/utils"
@@ -18,7 +19,7 @@ const tagsBatchSize = 100
 
 func (s TrackingSQLStore) GetRunTag(
 	ctx context.Context, runID, tagKey string,
-) (*protos.RunTag, *contract.Error) {
+) (*entities.RunTag, *contract.Error) {
 	var runTag models.Tag
 	if err := s.db.WithContext(
 		ctx,
@@ -38,20 +39,20 @@ func (s TrackingSQLStore) GetRunTag(
 		)
 	}
 
-	return runTag.ToProto(), nil
+	return runTag.ToEntity(), nil
 }
 
 func (s TrackingSQLStore) setTagsWithTransaction(
-	transaction *gorm.DB, runID string, tags []*protos.RunTag,
+	transaction *gorm.DB, runID string, tags []*entities.RunTag,
 ) error {
 	runColumns := make(map[string]interface{})
 
 	for _, tag := range tags {
-		switch tag.GetKey() {
+		switch tag.Key {
 		case utils.TagUser:
-			runColumns["user_id"] = tag.GetValue()
+			runColumns["user_id"] = tag.Value
 		case utils.TagRunName:
-			runColumns["name"] = tag.GetValue()
+			runColumns["name"] = tag.Value
 		}
 	}
 
@@ -68,7 +69,7 @@ func (s TrackingSQLStore) setTagsWithTransaction(
 	runTags := make([]models.Tag, 0, len(tags))
 
 	for _, tag := range tags {
-		runTags = append(runTags, models.NewTagFromProto(runID, tag))
+		runTags = append(runTags, models.NewTagFromEntity(runID, tag))
 	}
 
 	if err := transaction.Clauses(clause.OnConflict{

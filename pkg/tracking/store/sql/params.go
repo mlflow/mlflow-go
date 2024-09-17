@@ -7,6 +7,7 @@ import (
 	"gorm.io/gorm/clause"
 
 	"github.com/mlflow/mlflow-go/pkg/contract"
+	"github.com/mlflow/mlflow-go/pkg/entities"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 	"github.com/mlflow/mlflow-go/pkg/tracking/store/sql/models"
 )
@@ -61,14 +62,14 @@ func verifyBatchParamsInserts(
 }
 
 func (s TrackingSQLStore) logParamsWithTransaction(
-	transaction *gorm.DB, runID string, params []*protos.Param,
+	transaction *gorm.DB, runID string, params []*entities.Param,
 ) *contract.Error {
 	deduplicatedParamsMap := make(map[string]string, len(params))
 	deduplicatedParams := make([]models.Param, 0, len(deduplicatedParamsMap))
 
 	for _, param := range params {
-		oldValue, paramIsPresent := deduplicatedParamsMap[param.GetKey()]
-		if paramIsPresent && param.GetValue() != oldValue {
+		oldValue, paramIsPresent := deduplicatedParamsMap[param.Key]
+		if paramIsPresent && param.Value != oldValue {
 			return contract.NewError(
 				protos.ErrorCode_INVALID_PARAMETER_VALUE,
 				fmt.Sprintf(
@@ -76,17 +77,17 @@ func (s TrackingSQLStore) logParamsWithTransaction(
 						"Params with key=%q was already logged "+
 						"with value=%q for run ID=%q. "+
 						"Attempted logging new value %q",
-					param.GetKey(),
+					param.Key,
 					oldValue,
 					runID,
-					param.GetValue(),
+					param.Value,
 				),
 			)
 		}
 
 		if !paramIsPresent {
-			deduplicatedParamsMap[param.GetKey()] = param.GetValue()
-			deduplicatedParams = append(deduplicatedParams, models.NewParamFromProto(runID, param))
+			deduplicatedParamsMap[param.Key] = param.Value
+			deduplicatedParams = append(deduplicatedParams, models.NewParamFromEntity(runID, param))
 		}
 	}
 
