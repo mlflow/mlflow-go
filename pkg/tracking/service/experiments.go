@@ -70,7 +70,7 @@ func (ts TrackingService) GetExperiment(
 	}
 
 	return &protos.GetExperiment_Response{
-		Experiment: experiment,
+		Experiment: experiment.ToProto(),
 	}, nil
 }
 
@@ -104,7 +104,7 @@ func (ts TrackingService) UpdateExperiment(
 		return nil, err
 	}
 
-	if *experiment.LifecycleStage != string(models.LifecycleStageActive) {
+	if experiment.LifecycleStage != string(models.LifecycleStageActive) {
 		return nil, contract.NewError(
 			protos.ErrorCode_INVALID_STATE,
 			"Cannot rename a non-active experiment.",
@@ -129,6 +129,6 @@ func (ts TrackingService) GetExperimentByName(
 	}
 
 	return &protos.GetExperimentByName_Response{
-		Experiment: experiment,
+		Experiment: experiment.ToProto(),
 	}, nil
 }

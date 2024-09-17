@@ -17,7 +17,7 @@ import (
 	"github.com/mlflow/mlflow-go/pkg/tracking/store/sql/models"
 )
 
-func (s TrackingSQLStore) GetExperiment(ctx context.Context, id string) (*protos.Experiment, *contract.Error) {
+func (s TrackingSQLStore) GetExperiment(ctx context.Context, id string) (*entities.Experiment, *contract.Error) {
 	idInt, err := strconv.ParseInt(id, 10, 32)
 	if err != nil {
 		return nil, contract.NewErrorWith(
@@ -43,7 +43,7 @@ func (s TrackingSQLStore) GetExperiment(ctx context.Context, id string) (*protos
 		)
 	}
 
-	return experiment.ToProto(), nil
+	return experiment.ToEntity(), nil
 }
 
 func (s TrackingSQLStore) CreateExperiment(
@@ -228,7 +228,10 @@ func (s TrackingSQLStore) RestoreExperiment(ctx context.Context, id string) *con
 	return nil
 }
 
-func (s TrackingSQLStore) GetExperimentByName(ctx context.Context, name string) (*protos.Experiment, *contract.Error) {
+//nolint:perfsprint
+func (s TrackingSQLStore) GetExperimentByName(
+	ctx context.Context, name string,
+) (*entities.Experiment, *contract.Error) {
 	var experiment models.Experiment
 
 	err := s.db.WithContext(ctx).Preload("Tags").Where("name = ?", name).First(&experiment).Error
@@ -236,16 +239,16 @@ func (s TrackingSQLStore) GetExperimentByName(ctx context.Context, name string) 
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, contract.NewError(
 				protos.ErrorCode_RESOURCE_DOES_NOT_EXIST,
-				fmt.Sprintf("Could not find experiment with name %q", name),
+				fmt.Sprintf("Could not find experiment with name %s", name),
 			)
 		}
 
 		return nil, contract.NewErrorWith(
 			protos.ErrorCode_INTERNAL_ERROR,
-			fmt.Sprintf("failed to get experiment by name %q", name),
+			fmt.Sprintf("failed to get experiment by name %s", name),
 			err,
 		)
 	}
 
-	return experiment.ToProto(), nil
+	return experiment.ToEntity(), nil
 }

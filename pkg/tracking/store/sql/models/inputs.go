@@ -2,7 +2,6 @@ package models
 
 import (
 	"github.com/mlflow/mlflow-go/pkg/entities"
-	"github.com/mlflow/mlflow-go/pkg/protos"
 )
 
 // Input mapped from table <inputs>.
@@ -25,17 +24,5 @@ func (i *Input) ToEntity() *entities.DatasetInput {
 	return &entities.DatasetInput{
 		Tags:    tags,
 		Dataset: i.Dataset.ToEntity(),
-	}
-}
-
-func (i *Input) ToProto() *protos.DatasetInput {
-	tags := make([]*protos.InputTag, 0, len(i.Tags))
-	for _, tag := range i.Tags {
-		tags = append(tags, tag.ToProto())
-	}
-
-	return &protos.DatasetInput{
-		Dataset: i.Dataset.ToProto(),
-		Tags:    tags,
 	}
 }
