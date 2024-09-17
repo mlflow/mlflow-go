@@ -17,7 +17,7 @@ type TrackingStore interface {
 
 type (
 	RunTrackingStore interface {
-		GetRun(ctx context.Context, runID string) (*protos.Run, *contract.Error)
+		GetRun(ctx context.Context, runID string) (*entities.Run, *contract.Error)
 		CreateRun(
 			ctx context.Context,
 			experimentID string,
@@ -25,7 +25,7 @@ type (
 			startTime int64,
 			tags []*entities.RunTag,
 			runName string,
-		) (*protos.Run, *contract.Error)
+		) (*entities.Run, *contract.Error)
 		UpdateRun(
 			ctx context.Context,
 			runID string,
@@ -36,25 +36,25 @@ type (
 		DeleteRun(ctx context.Context, runID string) *contract.Error
 		RestoreRun(ctx context.Context, runID string) *contract.Error
 
-		GetRunTag(ctx context.Context, runID, tagKey string) (*protos.RunTag, *contract.Error)
+		GetRunTag(ctx context.Context, runID, tagKey string) (*entities.RunTag, *contract.Error)
 	}
 	MetricTrackingStore interface {
 		LogBatch(
 			ctx context.Context,
 			runID string,
-			metrics []*protos.Metric,
-			params []*protos.Param,
-			tags []*protos.RunTag) *contract.Error
+			metrics []*entities.Metric,
+			params []*entities.Param,
+			tags []*entities.RunTag) *contract.Error
 
-		LogMetric(ctx context.Context, runID string, metric *protos.Metric) *contract.Error
+		LogMetric(ctx context.Context, runID string, metric *entities.Metric) *contract.Error
 	}
 )
 
 type ExperimentTrackingStore interface {
 	// GetExperiment returns experiment by the experiment ID.
 	// The experiment should contain the linked tags.
-	GetExperiment(ctx context.Context, id string) (*protos.Experiment, *contract.Error)
-	GetExperimentByName(ctx context.Context, name string) (*protos.Experiment, *contract.Error)
+	GetExperiment(ctx context.Context, id string) (*entities.Experiment, *contract.Error)
+	GetExperimentByName(ctx context.Context, name string) (*entities.Experiment, *contract.Error)
 
 	CreateExperiment(
 		ctx context.Context,
@@ -73,12 +73,7 @@ type ExperimentTrackingStore interface {
 		maxResults int,
 		orderBy []string,
 		pageToken string,
-	) (pagedList *PagedList[*protos.Run], err *contract.Error)
+	) ([]*entities.Run, string, *contract.Error)
 
 	DeleteExperiment(ctx context.Context, id string) *contract.Error
-}
-
-type PagedList[T any] struct {
-	Items         []T
-	NextPageToken *string
 }

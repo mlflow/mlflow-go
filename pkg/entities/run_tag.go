@@ -7,6 +7,13 @@ type RunTag struct {
 	Value string
 }
 
+func (t RunTag) ToProto() *protos.RunTag {
+	return &protos.RunTag{
+		Key:   &t.Key,
+		Value: &t.Value,
+	}
+}
+
 func NewTagFromProto(proto *protos.RunTag) *RunTag {
 	return &RunTag{
 		Key:   proto.GetKey(),
