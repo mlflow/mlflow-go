@@ -2,11 +2,8 @@ package models
 
 import (
 	"database/sql"
-	"strings"
 
 	"github.com/mlflow/mlflow-go/pkg/entities"
-	"github.com/mlflow/mlflow-go/pkg/protos"
-	"github.com/mlflow/mlflow-go/pkg/utils"
 )
 
 // Run mapped from table <runs>.
@@ -57,18 +54,6 @@ const (
 	SourceTypeRecipe   SourceType = "RECIPE"
 )
 
-func RunStatusToProto(status RunStatus) *protos.RunStatus {
-	if status == "" {
-		return nil
-	}
-
-	if protoStatus, ok := protos.RunStatus_value[strings.ToUpper(status.String())]; ok {
-		return (*protos.RunStatus)(&protoStatus)
-	}
-
-	return nil
-}
-
 func (r Run) ToEntity() *entities.Run {
 	metrics := make([]*entities.Metric, 0, len(r.LatestMetrics))
 	for _, metric := range r.LatestMetrics {
@@ -111,56 +96,5 @@ func (r Run) ToEntity() *entities.Run {
 		Inputs: &entities.RunInputs{
 			DatasetInputs: datasetInputs,
 		},
-	}
-}
-
-func (r Run) ToProto() *protos.Run {
-	info := &protos.RunInfo{
-		RunId:          &r.ID,
-		RunUuid:        &r.ID,
-		RunName:        &r.Name,
-		ExperimentId:   utils.ConvertInt32PointerToStringPointer(&r.ExperimentID),
-		UserId:         &r.UserID,
-		Status:         RunStatusToProto(r.Status),
-		StartTime:      &r.StartTime,
-		EndTime:        &r.EndTime,
-		ArtifactUri:    &r.ArtifactURI,
-		LifecycleStage: utils.PtrTo(r.LifecycleStage.String()),
-	}
-
-	metrics := make([]*protos.Metric, 0, len(r.LatestMetrics))
-	for _, metric := range r.LatestMetrics {
-		metrics = append(metrics, metric.ToProto())
-	}
-
-	params := make([]*protos.Param, 0, len(r.Params))
-	for _, param := range r.Params {
-		params = append(params, param.ToProto())
-	}
-
-	tags := make([]*protos.RunTag, 0, len(r.Tags))
-	for _, tag := range r.Tags {
-		tags = append(tags, tag.ToProto())
-	}
-
-	data := &protos.RunData{
-		Metrics: metrics,
-		Params:  params,
-		Tags:    tags,
-	}
-
-	datasetInputs := make([]*protos.DatasetInput, 0, len(r.Inputs))
-	for _, input := range r.Inputs {
-		datasetInputs = append(datasetInputs, input.ToProto())
-	}
-
-	inputs := &protos.RunInputs{
-		DatasetInputs: datasetInputs,
-	}
-
-	return &protos.Run{
-		Info:   info,
-		Data:   data,
-		Inputs: inputs,
 	}
 }

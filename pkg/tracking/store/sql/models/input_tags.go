@@ -2,7 +2,6 @@ package models
 
 import (
 	"github.com/mlflow/mlflow-go/pkg/entities"
-	"github.com/mlflow/mlflow-go/pkg/protos"
 )
 
 // InputTag mapped from table <input_tags>.
@@ -16,12 +15,5 @@ func (i *InputTag) ToEntity() *entities.InputTag {
 	return &entities.InputTag{
 		Key:   i.Key,
 		Value: i.Value,
-	}
-}
-
-func (i *InputTag) ToProto() *protos.InputTag {
-	return &protos.InputTag{
-		Key:   &i.Key,
-		Value: &i.Value,
 	}
 }
