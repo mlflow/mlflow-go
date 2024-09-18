@@ -112,13 +112,23 @@ var tests = []testData{
 		expectedSQL: map[string]string{
 			"postgres": `
 	SELECT "run_uuid" FROM "runs"
-	JOIN (SELECT "experiment_id","digest" FROM "datasets" WHERE digest IN ($1,$2))
-	AS filter_0 ON runs.experiment_id = filter_0.experiment_id
+	JOIN (
+		SELECT destination_id,"digest"
+		FROM "datasets" JOIN inputs ON inputs.source_id = datasets.dataset_uuid
+		WHERE digest IN ($1,$2)
+	) 
+	AS filter_0 ON runs.run_uuid = filter_0.destination_id
 	ORDER BY runs.start_time DESC,runs.run_uuid`,
 			"sqlite": `
-	SELECT run_uuid FROM runs
-	JOIN (SELECT experiment_id,digest FROM datasets WHERE digest IN (?,?))
-	AS filter_0 ON runs.experiment_id = filter_0.experiment_id
+	SELECT run_uuid FROM runs 
+	JOIN (
+		SELECT destination_id,digest
+		FROM datasets JOIN inputs
+		ON inputs.source_id = datasets.dataset_uuid
+		WHERE digest IN (?,?)
+	)
+	AS filter_0 
+	ON runs.run_uuid = filter_0.destination_id
 	ORDER BY runs.start_time DESC,runs.run_uuid`,
 		},
 		expectedVars: []any{"s8ds293b", "jks834s2"},
@@ -230,14 +240,23 @@ var tests = []testData{
 		query: "datasets.digest ILIKE '%s'",
 		expectedSQL: map[string]string{
 			"postgres": `
-	SELECT "run_uuid" FROM "runs"
-	JOIN (SELECT "experiment_id","digest" FROM "datasets" WHERE digest ILIKE $1)
-	AS filter_0 ON runs.experiment_id = filter_0.experiment_id
+	SELECT "run_uuid" FROM "runs" 
+	JOIN (
+		SELECT destination_id,"digest" 
+		FROM "datasets"
+		JOIN inputs ON inputs.source_id = datasets.dataset_uuid 
+		WHERE digest ILIKE $1
+	)
+	AS filter_0 ON runs.run_uuid = filter_0.destination_id
 	ORDER BY runs.start_time DESC,runs.run_uuid`,
 			"sqlite": `
 	SELECT run_uuid FROM runs
-	JOIN (SELECT experiment_id,digest FROM datasets WHERE LOWER(digest) LIKE ?)
-	AS filter_0 ON runs.experiment_id = filter_0.experiment_id
+	JOIN (
+		SELECT destination_id,digest
+		FROM datasets
+		JOIN inputs ON inputs.source_id = datasets.dataset_uuid
+		WHERE LOWER(digest) LIKE ?) 
+	AS filter_0 ON runs.run_uuid = filter_0.destination_id
 	ORDER BY runs.start_time DESC,runs.run_uuid`,
 		},
 		expectedVars: []any{"%s"},
@@ -446,7 +465,7 @@ func TestOrderByClauseParsing(t *testing.T) {
 		{
 			input: "params.input DESC",
 			expected: orderByExpr{
-				identifier: utils.PtrTo("params"),
+				identifier: utils.PtrTo("parameter"),
 				key:        "input",
 				order:      utils.PtrTo("DESC"),
 			},
@@ -454,7 +473,7 @@ func TestOrderByClauseParsing(t *testing.T) {
 		{
 			input: "metrics.alpha ASC",
 			expected: orderByExpr{
-				identifier: utils.PtrTo("metrics"),
+				identifier: utils.PtrTo("metric"),
 				key:        "alpha",
 				order:      utils.PtrTo("ASC"),
 			},
@@ -468,7 +487,7 @@ func TestOrderByClauseParsing(t *testing.T) {
 		{
 			input: "tags.`foo bar` ASC",
 			expected: orderByExpr{
-				identifier: utils.PtrTo("tags"),
+				identifier: utils.PtrTo("tag"),
 				key:        "foo bar",
 				order:      utils.PtrTo("ASC"),
 			},
