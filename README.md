@@ -291,7 +291,30 @@ FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_create_r
 ========================================================================================== 11 failed, 348 passed, 9 skipped, 128 deselected, 10 warnings in 239.50s (0:03:59) ===========================================================================================
 ```
 
-## Debug failing tests
+## Debug Failing Tests
 
-Sometimes it could be very useful to modify failing tests and use `print` to print an actual situation or difference between
-the object from from Python or Go services.
+Sometimes, it can be very useful to modify failing tests and use `print` statements to display the current state or differences between objects from Python or Go services.
+
+Adding `"-vv"` to the `pytest` command in `magefiles/tests.go` can also provide more information when assertions are not met.
+
+### Targeting Local Postgres in Integration Tests
+
+At times, you might want to apply store calls to your local database to investigate certain read operations via the local tracking server.
+
+You can achieve this by changing:
+
+```python
+def test_search_runs_datasets(store: SqlAlchemyStore):
+```
+
+to:
+
+```python
+def test_search_runs_datasets():
+    db_uri = "postgresql://postgres:postgres@localhost:5432/postgres"
+    artifact_uri = Path("/tmp/artifacts")
+    artifact_uri.mkdir(exist_ok=True)
+    store = SqlAlchemyStore(db_uri, artifact_uri.as_uri())
+```
+
+in the test file located in `.mlflow.repo`.
