@@ -10,6 +10,7 @@ import (
 	"gorm.io/gorm/clause"
 
 	"github.com/mlflow/mlflow-go/pkg/contract"
+	"github.com/mlflow/mlflow-go/pkg/entities"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 	"github.com/mlflow/mlflow-go/pkg/tracking/store/sql/models"
 )
@@ -125,14 +126,14 @@ func updateLatestMetricsIfNecessary(transaction *gorm.DB, runID string, metrics 
 }
 
 func (s TrackingSQLStore) logMetricsWithTransaction(
-	transaction *gorm.DB, runID string, metrics []*protos.Metric,
+	transaction *gorm.DB, runID string, metrics []*entities.Metric,
 ) *contract.Error {
 	// Duplicate metric values are eliminated
 	seenMetrics := make(map[models.Metric]struct{})
 	modelMetrics := make([]models.Metric, 0, len(metrics))
 
 	for _, metric := range metrics {
-		currentMetric := models.NewMetricFromProto(runID, metric)
+		currentMetric := models.NewMetricFromEntity(runID, metric)
 		if _, ok := seenMetrics[*currentMetric]; !ok {
 			seenMetrics[*currentMetric] = struct{}{}
 
@@ -160,14 +161,14 @@ func (s TrackingSQLStore) logMetricsWithTransaction(
 	return nil
 }
 
-func (s TrackingSQLStore) LogMetric(ctx context.Context, runID string, metric *protos.Metric) *contract.Error {
+func (s TrackingSQLStore) LogMetric(ctx context.Context, runID string, metric *entities.Metric) *contract.Error {
 	err := s.db.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
 		contractError := checkRunIsActive(transaction, runID)
 		if contractError != nil {
 			return contractError
 		}
 
-		if err := s.logMetricsWithTransaction(transaction, runID, []*protos.Metric{
+		if err := s.logMetricsWithTransaction(transaction, runID, []*entities.Metric{
 			metric,
 		}); err != nil {
 			return err

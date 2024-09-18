@@ -7,6 +7,13 @@ type ExperimentTag struct {
 	Value string
 }
 
+func (et *ExperimentTag) ToProto() *protos.ExperimentTag {
+	return &protos.ExperimentTag{
+		Key:   &et.Key,
+		Value: &et.Value,
+	}
+}
+
 func NewExperimentTagFromProto(proto *protos.ExperimentTag) *ExperimentTag {
 	return &ExperimentTag{
 		Key:   proto.GetKey(),

@@ -3,6 +3,7 @@ package models
 import (
 	"math"
 
+	"github.com/mlflow/mlflow-go/pkg/entities"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 )
 
@@ -16,12 +17,37 @@ type Metric struct {
 	IsNan     bool    `db:"is_nan"    gorm:"column:is_nan;primaryKey"`
 }
 
-func (m Metric) ToProto() *protos.Metric {
-	return &protos.Metric{
-		Key:       &m.Key,
-		Value:     &m.Value,
-		Timestamp: &m.Timestamp,
-		Step:      &m.Step,
+func NewMetricFromEntity(runID string, metric *entities.Metric) *Metric {
+	var value float64
+
+	isNaN := math.IsNaN(metric.Value)
+
+	switch {
+	case isNaN:
+		value = 0
+	case math.IsInf(metric.Value, 0):
+		// NB: SQL cannot represent Infs => We replace +/- Inf with max/min 64b float value
+		if metric.Value > 0 {
+			value = math.MaxFloat64
+		} else {
+			value = -math.MaxFloat64
+		}
+	default:
+		value = metric.Value
+	}
+
+	var step int64
+	if metric.Step != 0 {
+		step = metric.Step
+	}
+
+	return &Metric{
+		RunID:     runID,
+		Key:       metric.Key,
+		Value:     value,
+		Timestamp: metric.Timestamp,
+		Step:      step,
+		IsNan:     isNaN,
 	}
 }
 
