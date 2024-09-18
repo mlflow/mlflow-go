@@ -210,7 +210,8 @@ func applyFilter(ctx context.Context, database, transaction *gorm.DB, filter str
 			// add join with datasets
 			// JOIN (
 			// 		SELECT "experiment_id", key
-			//		FROM datasests
+			//		FROM datasests d
+			// 		JOIN inputs ON inputs.source_id = datasets.dataset_uuid
 			//		WHERE key comparison value
 			// ) AS filter_0 ON runs.experiment_id = dataset.experiment_id
 			//
@@ -225,8 +226,11 @@ func applyFilter(ctx context.Context, database, transaction *gorm.DB, filter str
 			}
 
 			transaction.Joins(
-				fmt.Sprintf("JOIN (?) AS %s ON runs.experiment_id = %s.experiment_id", table, table),
-				database.Select("experiment_id", key).Where(where, value).Model(kind),
+				fmt.Sprintf("JOIN (?) AS %s ON runs.run_uuid = %s.destination_id", table, table),
+				database.Model(kind).
+					Joins("JOIN inputs ON inputs.source_id = datasets.dataset_uuid").
+					Where(where, value).
+					Select("destination_id", key),
 			)
 		default:
 			where := fmt.Sprintf("value %s ?", comparison)
@@ -338,6 +342,23 @@ func splitOrderByClauseWithQuotes(input string) []string {
 	return result
 }
 
+func translateIdentifierAlias(identifier string) string {
+	switch strings.ToLower(identifier) {
+	case "metrics":
+		return "metric"
+	case "parameters", "param", "params":
+		return "parameter"
+	case "tags":
+		return "tag"
+	case "attr", "attributes", "run":
+		return "attribute"
+	case "datasets":
+		return "dataset"
+	default:
+		return identifier
+	}
+}
+
 func processOrderByClause(input string) (orderByExpr, error) {
 	parts := splitOrderByClauseWithQuotes(input)
 
@@ -350,7 +371,7 @@ func processOrderByClause(input string) (orderByExpr, error) {
 	identifierKey := strings.Split(parts[0], ".")
 
 	if len(identifierKey) == identifierAndKeyLength {
-		expr.identifier = &identifierKey[0]
+		expr.identifier = utils.PtrTo(translateIdentifierAlias(identifierKey[0]))
 		expr.key = orderByKeyAlias(identifierKey[1])
 	} else if len(identifierKey) == 1 {
 		expr.key = orderByKeyAlias(identifierKey[0])
@@ -379,7 +400,13 @@ func applyOrderBy(ctx context.Context, database, transaction *gorm.DB, orderBy [
 			)
 		}
 
-		utils.GetLoggerFromContext(ctx).Debugf("OrderByExpr: %#v", orderByExpr)
+		utils.GetLoggerFromContext(ctx).
+			Debugf(
+				"OrderByExpr: identifier: %v, key: %v, order: %v",
+				utils.DumpStringPointer(orderByExpr.identifier),
+				orderByExpr.key,
+				utils.DumpStringPointer(orderByExpr.order),
+			)
 
 		var kind any
 

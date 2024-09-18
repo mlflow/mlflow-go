@@ -12,6 +12,22 @@ import (
 
 type Test mg.Namespace
 
+func cleanUpMemoryFile() error {
+	// Clean up :memory: file
+	filename := ":memory:"
+	_, err := os.Stat(filename)
+
+	if err == nil {
+		// File exists, delete it
+		err = os.Remove(filename)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // Run mlflow Python tests against the Go backend.
 func (Test) Python() error {
 	libpath, err := os.MkdirTemp("", "")
@@ -21,6 +37,8 @@ func (Test) Python() error {
 
 	// Remove the Go binary
 	defer os.RemoveAll(libpath)
+	//nolint:errcheck
+	defer cleanUpMemoryFile()
 
 	// Build the Go binary in a temporary directory
 	if err := sh.RunV("python", "-m", "mlflow_go.lib", ".", libpath); err != nil {

@@ -14,6 +14,7 @@ func Dev() error {
 
 	envs := make(map[string]string)
 	envs["MLFLOW_TRUNCATE_LONG_VALUES"] = "false"
+	envs["MLFLOW_SQLALCHEMYSTORE_ECHO"] = "true"
 
 	return sh.RunWithV(
 		envs,
