@@ -31,3 +31,11 @@ func ConvertStringPointerToInt32Pointer(s *string) int32 {
 
 	return int32(iValue)
 }
+
+func DumpStringPointer(s *string) string {
+	if s == nil {
+		return "<nil>"
+	}
+
+	return *s
+}
