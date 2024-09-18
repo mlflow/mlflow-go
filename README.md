@@ -271,6 +271,8 @@ We have enabled various linters from [golangci-lint](https://golangci-lint.run/)
 pre-commit run golangci-lint --all-files
 ```
 
+Sometimes `golangci-lint` can complain about unrelated files, run `golangci-lint cache clean` to clear the cache.
+
 ## Failing tests
 
 The following Python tests are currently failing:
