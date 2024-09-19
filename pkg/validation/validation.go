@@ -228,12 +228,43 @@ func constructValidationError(field string, value any, suffix string) string {
 	return fmt.Sprintf("Invalid value %s for parameter '%s' supplied%s", formattedValue, field, suffix)
 }
 
+func mkTruncateValidationError(field string, value interface{}, err validator.FieldError) string {
+	strValue, ok := value.(string)
+	if ok {
+		expected := len(strValue)
+
+		if expected > MaxValidationInputLength {
+			strValue = strValue[:MaxValidationInputLength] + "..."
+		}
+
+		return constructValidationError(
+			field,
+			strValue,
+			fmt.Sprintf(": length %d exceeded length limit of %s", expected, err.Param()),
+		)
+	}
+
+	return constructValidationError(field, value, "")
+}
+
+func mkMaxValidationError(field string, value interface{}, err validator.FieldError) string {
+	if _, ok := value.(string); ok {
+		return fmt.Sprintf(
+			"'%s' exceeds the maximum length of %s characters",
+			field,
+			err.Param(),
+		)
+	}
+
+	return constructValidationError(field, value, "")
+}
+
 func NewErrorFromValidationError(err error) *contract.Error {
-	var ve validator.ValidationErrors
-	if errors.As(err, &ve) {
+	var validatorValidationErrors validator.ValidationErrors
+	if errors.As(err, &validatorValidationErrors) {
 		validationErrors := make([]string, 0)
 
-		for _, err := range ve {
+		for _, err := range validatorValidationErrors {
 			field := getErrorPath(err)
 			tag := err.Tag()
 			value := dereference(err.Value())
@@ -245,32 +276,14 @@ func NewErrorFromValidationError(err error) *contract.Error {
 					fmt.Sprintf("Missing value for required parameter '%s'", field),
 				)
 			case "truncate":
-				strValue, ok := value.(string)
-				if ok {
-					expected := len(strValue)
-
-					if expected > MaxValidationInputLength {
-						strValue = strValue[:MaxValidationInputLength] + "..."
-					}
-
-					validationErrors = append(
-						validationErrors,
-						constructValidationError(
-							field,
-							strValue,
-							fmt.Sprintf(": length %d exceeded length limit of %s", expected, err.Param())),
-					)
-				} else {
-					validationErrors = append(
-						validationErrors,
-						constructValidationError(field, value, ""),
-					)
-				}
+				validationErrors = append(validationErrors, mkTruncateValidationError(field, value, err))
 			case "uniqueParams":
 				validationErrors = append(
 					validationErrors,
 					"Duplicate parameter keys have been submitted",
 				)
+			case "max":
+				validationErrors = append(validationErrors, mkMaxValidationError(field, value, err))
 			default:
 				validationErrors = append(
 					validationErrors,
