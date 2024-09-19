@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"net/url"
 	"strconv"
 	"time"
 
@@ -15,6 +14,7 @@ import (
 	"github.com/mlflow/mlflow-go/pkg/entities"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 	"github.com/mlflow/mlflow-go/pkg/tracking/store/sql/models"
+	"github.com/mlflow/mlflow-go/pkg/utils"
 )
 
 func (s TrackingSQLStore) GetExperiment(ctx context.Context, id string) (*entities.Experiment, *contract.Error) {
@@ -74,7 +74,7 @@ func (s TrackingSQLStore) CreateExperiment(
 		}
 
 		if experiment.ArtifactLocation == "" {
-			artifactLocation, err := url.JoinPath(s.config.DefaultArtifactRoot, strconv.Itoa(int(experiment.ID)))
+			artifactLocation, err := utils.AppendToURIPath(s.config.DefaultArtifactRoot, strconv.Itoa(int(experiment.ID)))
 			if err != nil {
 				return fmt.Errorf("failed to join artifact location: %w", err)
 			}
