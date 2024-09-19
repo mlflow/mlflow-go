@@ -2,7 +2,7 @@ package generate
 
 var validations = map[string]string{
 	"GetExperiment_ExperimentId":         "required,stringAsPositiveInteger",
-	"CreateExperiment_Name":              "required",
+	"CreateExperiment_Name":              "required,max=500",
 	"CreateExperiment_ArtifactLocation":  "omitempty,uriWithoutFragmentsOrParamsOrDotDotInQuery",
 	"SearchRuns_RunViewType":             "omitempty",
 	"SearchRuns_MaxResults":              "gt=0,max=50000",
