@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net/url"
 	"strings"
 	"time"
 
@@ -674,7 +673,7 @@ func (s TrackingSQLStore) CreateRun(
 		runModel.Tags = append(runModel.Tags, models.NewTagFromEntity(runModel.ID, tag))
 	}
 
-	artifactLocation, appendErr := url.JoinPath(
+	artifactLocation, appendErr := utils.AppendToURIPath(
 		experiment.ArtifactLocation,
 		runModel.ID,
 		ArtifactFolderName,
