@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/mlflow/mlflow-go/pkg/entities"
+	"github.com/mlflow/mlflow-go/pkg/utils"
 )
 
 // Run mapped from table <runs>.
@@ -16,7 +17,7 @@ type Run struct {
 	UserID         string         `db:"user_id"          gorm:"column:user_id"`
 	Status         RunStatus      `db:"status"           gorm:"column:status"`
 	StartTime      int64          `db:"start_time"       gorm:"column:start_time"`
-	EndTime        int64          `db:"end_time"         gorm:"column:end_time"`
+	EndTime        sql.NullInt64  `db:"end_time"         gorm:"column:end_time"`
 	SourceVersion  string         `db:"source_version"   gorm:"column:source_version"`
 	LifecycleStage LifecycleStage `db:"lifecycle_stage"  gorm:"column:lifecycle_stage"`
 	ArtifactURI    string         `db:"artifact_uri"     gorm:"column:artifact_uri"`
@@ -75,6 +76,11 @@ func (r Run) ToEntity() *entities.Run {
 		datasetInputs = append(datasetInputs, input.ToEntity())
 	}
 
+	var endTime *int64
+	if r.EndTime.Valid {
+		endTime = utils.PtrTo(r.EndTime.Int64)
+	}
+
 	return &entities.Run{
 		Info: &entities.RunInfo{
 			RunID:          r.ID,
@@ -84,7 +90,7 @@ func (r Run) ToEntity() *entities.Run {
 			UserID:         r.UserID,
 			Status:         r.Status.String(),
 			StartTime:      r.StartTime,
-			EndTime:        r.EndTime,
+			EndTime:        endTime,
 			ArtifactURI:    r.ArtifactURI,
 			LifecycleStage: r.LifecycleStage.String(),
 		},
