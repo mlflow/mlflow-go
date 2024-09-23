@@ -130,10 +130,6 @@ func (ts TrackingService) UpdateRun(
 		run.Info.Status = status.String()
 	}
 
-	if endTime := input.GetEndTime(); endTime != 0 {
-		run.Info.EndTime = endTime
-	}
-
 	if runName := input.GetRunName(); runName != "" {
 		run.Info.RunName = runName
 	}
@@ -142,7 +138,7 @@ func (ts TrackingService) UpdateRun(
 		ctx,
 		run.Info.RunID,
 		run.Info.Status,
-		run.Info.EndTime,
+		input.EndTime,
 		run.Info.RunName,
 	); err != nil {
 		return nil, err

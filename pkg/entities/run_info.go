@@ -13,7 +13,7 @@ type RunInfo struct {
 	UserID         string
 	Status         string
 	StartTime      int64
-	EndTime        int64
+	EndTime        *int64
 	ArtifactURI    string
 	LifecycleStage string
 }
@@ -27,7 +27,7 @@ func (ri RunInfo) ToProto() *protos.RunInfo {
 		UserId:         &ri.UserID,
 		Status:         RunStatusToProto(ri.Status),
 		StartTime:      &ri.StartTime,
-		EndTime:        &ri.EndTime,
+		EndTime:        ri.EndTime,
 		ArtifactUri:    &ri.ArtifactURI,
 		LifecycleStage: utils.PtrTo(ri.LifecycleStage),
 	}
