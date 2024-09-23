@@ -30,7 +30,7 @@ type (
 			ctx context.Context,
 			runID string,
 			runStatus string,
-			endTime int64,
+			endTime *int64,
 			runName string,
 		) *contract.Error
 		DeleteRun(ctx context.Context, runID string) *contract.Error

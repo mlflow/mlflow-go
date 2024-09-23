@@ -65,7 +65,7 @@ func (r Run) ToProto() *protos.Run {
 			UserId:         &r.Info.UserID,
 			Status:         RunStatusToProto(r.Info.Status),
 			StartTime:      &r.Info.StartTime,
-			EndTime:        &r.Info.EndTime,
+			EndTime:        r.Info.EndTime,
 			ArtifactUri:    &r.Info.ArtifactURI,
 			LifecycleStage: utils.PtrTo(r.Info.LifecycleStage),
 		},

@@ -116,18 +116,18 @@ var tests = []testData{
 		SELECT destination_id,"digest"
 		FROM "datasets" JOIN inputs ON inputs.source_id = datasets.dataset_uuid
 		WHERE digest IN ($1,$2)
-	) 
+	)
 	AS filter_0 ON runs.run_uuid = filter_0.destination_id
 	ORDER BY runs.start_time DESC,runs.run_uuid`,
 			"sqlite": `
-	SELECT run_uuid FROM runs 
+	SELECT run_uuid FROM runs
 	JOIN (
 		SELECT destination_id,digest
 		FROM datasets JOIN inputs
 		ON inputs.source_id = datasets.dataset_uuid
 		WHERE digest IN (?,?)
 	)
-	AS filter_0 
+	AS filter_0
 	ON runs.run_uuid = filter_0.destination_id
 	ORDER BY runs.start_time DESC,runs.run_uuid`,
 		},
@@ -240,11 +240,11 @@ var tests = []testData{
 		query: "datasets.digest ILIKE '%s'",
 		expectedSQL: map[string]string{
 			"postgres": `
-	SELECT "run_uuid" FROM "runs" 
+	SELECT "run_uuid" FROM "runs"
 	JOIN (
-		SELECT destination_id,"digest" 
+		SELECT destination_id,"digest"
 		FROM "datasets"
-		JOIN inputs ON inputs.source_id = datasets.dataset_uuid 
+		JOIN inputs ON inputs.source_id = datasets.dataset_uuid
 		WHERE digest ILIKE $1
 	)
 	AS filter_0 ON runs.run_uuid = filter_0.destination_id
@@ -255,7 +255,7 @@ var tests = []testData{
 		SELECT destination_id,digest
 		FROM datasets
 		JOIN inputs ON inputs.source_id = datasets.dataset_uuid
-		WHERE LOWER(digest) LIKE ?) 
+		WHERE LOWER(digest) LIKE ?)
 	AS filter_0 ON runs.run_uuid = filter_0.destination_id
 	ORDER BY runs.start_time DESC,runs.run_uuid`,
 		},
@@ -288,7 +288,7 @@ var tests = []testData{
 		query:   "",
 		orderBy: []string{"start_time ASC"},
 		expectedSQL: map[string]string{
-			"postgres": `SELECT "run_uuid" FROM "runs" ORDER BY "start_time",runs.run_uuid`,
+			"postgres": `SELECT "run_uuid" FROM "runs" ORDER BY order_null_0, "start_time",runs.run_uuid`,
 		},
 		expectedVars: []any{},
 	},
@@ -296,7 +296,7 @@ var tests = []testData{
 		name:  "OrderByStatusDesc",
 		query: "",
 		expectedSQL: map[string]string{
-			"postgres": `SELECT "run_uuid" FROM "runs" ORDER BY "status" DESC,runs.start_time DESC,runs.run_uuid`,
+			"postgres": `SELECT "run_uuid" FROM "runs" ORDER BY order_null_0, "status" DESC,runs.start_time DESC,runs.run_uuid`,
 		},
 		orderBy:      []string{"status DESC"},
 		expectedVars: []any{},
@@ -305,7 +305,7 @@ var tests = []testData{
 		name:  "OrderByRunNameSnakeCase",
 		query: "",
 		expectedSQL: map[string]string{
-			"postgres": `SELECT "run_uuid" FROM "runs" ORDER BY "name",runs.start_time DESC,runs.run_uuid`,
+			"postgres": `SELECT "run_uuid" FROM "runs" ORDER BY order_null_0, "name",runs.start_time DESC,runs.run_uuid`,
 		},
 		orderBy:      []string{"run_name"},
 		expectedVars: []any{},
@@ -314,7 +314,7 @@ var tests = []testData{
 		name:  "OrderByRunNameLowerName",
 		query: "",
 		expectedSQL: map[string]string{
-			"postgres": `SELECT "run_uuid" FROM "runs" ORDER BY "name",runs.start_time DESC,runs.run_uuid`,
+			"postgres": `SELECT "run_uuid" FROM "runs" ORDER BY order_null_0, "name",runs.start_time DESC,runs.run_uuid`,
 		},
 		orderBy:      []string{"`Run name`"},
 		expectedVars: []any{},
@@ -323,7 +323,7 @@ var tests = []testData{
 		name:  "OrderByRunNamePascal",
 		query: "",
 		expectedSQL: map[string]string{
-			"postgres": `SELECT "run_uuid" FROM "runs" ORDER BY "name",runs.start_time DESC,runs.run_uuid`,
+			"postgres": `SELECT "run_uuid" FROM "runs" ORDER BY order_null_0, "name",runs.start_time DESC,runs.run_uuid`,
 		},
 		orderBy:      []string{"`Run Name`"},
 		expectedVars: []any{},

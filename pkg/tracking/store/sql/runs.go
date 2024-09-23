@@ -263,6 +263,8 @@ const (
 	identifierAndKeyLength = 2
 	startTime              = "start_time"
 	name                   = "name"
+	attribute              = "attribute"
+	metric                 = "metric"
 )
 
 func orderByKeyAlias(input string) string {
@@ -344,13 +346,13 @@ func splitOrderByClauseWithQuotes(input string) []string {
 func translateIdentifierAlias(identifier string) string {
 	switch strings.ToLower(identifier) {
 	case "metrics":
-		return "metric"
+		return metric
 	case "parameters", "param", "params":
 		return "parameter"
 	case "tags":
 		return "tag"
 	case "attr", "attributes", "run":
-		return "attribute"
+		return attribute
 	case "datasets":
 		return "dataset"
 	default:
@@ -386,6 +388,7 @@ func processOrderByClause(input string) (orderByExpr, error) {
 //nolint:funlen, cyclop
 func applyOrderBy(ctx context.Context, database, transaction *gorm.DB, orderBy []string) *contract.Error {
 	startTimeOrder := false
+	columnSelection := "runs.*"
 
 	for index, orderByClause := range orderBy {
 		orderByExpr, err := processOrderByClause(orderByClause)
@@ -399,7 +402,8 @@ func applyOrderBy(ctx context.Context, database, transaction *gorm.DB, orderBy [
 			)
 		}
 
-		utils.GetLoggerFromContext(ctx).
+		logger := utils.GetLoggerFromContext(ctx)
+		logger.
 			Debugf(
 				"OrderByExpr: identifier: %v, key: %v, order: %v",
 				utils.DumpStringPointer(orderByExpr.identifier),
@@ -413,9 +417,9 @@ func applyOrderBy(ctx context.Context, database, transaction *gorm.DB, orderBy [
 			startTimeOrder = true
 		} else if orderByExpr.identifier != nil {
 			switch {
-			case *orderByExpr.identifier == "attribute" && orderByExpr.key == "start_time":
+			case *orderByExpr.identifier == attribute && orderByExpr.key == "start_time":
 				startTimeOrder = true
-			case *orderByExpr.identifier == "metric":
+			case *orderByExpr.identifier == metric:
 				kind = &models.LatestMetric{}
 			case *orderByExpr.identifier == "param":
 				kind = &models.Param{}
@@ -439,6 +443,30 @@ func applyOrderBy(ctx context.Context, database, transaction *gorm.DB, orderBy [
 			desc = *orderByExpr.order == "DESC"
 		}
 
+		if orderByExpr.identifier == nil || *orderByExpr.identifier != metric {
+			nullableColumnAlias := fmt.Sprintf("order_null_%d", index)
+
+			var originalColumn string
+
+			switch {
+			case orderByExpr.identifier != nil && *orderByExpr.identifier == "attribute":
+				originalColumn = "runs." + orderByExpr.key
+			case orderByExpr.identifier != nil:
+				originalColumn = fmt.Sprintf("%s.%s", *orderByExpr.identifier, originalColumn)
+			default:
+				originalColumn = orderByExpr.key
+			}
+
+			columnSelection = fmt.Sprintf(
+				"%s, (CASE WHEN (%s IS NULL) THEN 1 ELSE 0 END) AS %s",
+				columnSelection,
+				originalColumn,
+				nullableColumnAlias,
+			)
+
+			transaction.Order(nullableColumnAlias)
+		}
+
 		transaction.Order(clause.OrderByColumn{
 			Column: clause.Column{
 				Name: orderByExpr.key,
@@ -452,6 +480,11 @@ func applyOrderBy(ctx context.Context, database, transaction *gorm.DB, orderBy [
 	}
 
 	transaction.Order("runs.run_uuid")
+
+	// mlflow orders all nullable columns to have null last.
+	// For each order by clause, an additional dynamic order clause was added.
+	// We need to include these columns in the select clause.
+	transaction.Select(columnSelection)
 
 	return nil
 }
@@ -710,7 +743,7 @@ func (s TrackingSQLStore) UpdateRun(
 	ctx context.Context,
 	runID string,
 	runStatus string,
-	endTime int64,
+	endTime *int64,
 	runName string,
 ) *contract.Error {
 	runTag, err := s.GetRunTag(ctx, runID, utils.TagRunName)
@@ -727,13 +760,20 @@ func (s TrackingSQLStore) UpdateRun(
 		})
 	}
 
+	var endTimeValue sql.NullInt64
+	if endTime == nil {
+		endTimeValue = sql.NullInt64{}
+	} else {
+		endTimeValue = sql.NullInt64{Int64: *endTime, Valid: true}
+	}
+
 	if err := s.db.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
 		if err := transaction.Model(&models.Run{}).
 			Where("run_uuid = ?", runID).
 			Updates(&models.Run{
 				Name:    runName,
 				Status:  models.RunStatus(runStatus),
-				EndTime: endTime,
+				EndTime: endTimeValue,
 			}).Error; err != nil {
 			return err
 		}

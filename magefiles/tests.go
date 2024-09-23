@@ -56,6 +56,7 @@ func (Test) Python() error {
 		".mlflow.repo/tests/store/model_registry/test_sqlalchemy_store.py",
 		"-k",
 		"not [file",
+		// "-vv",
 	); err != nil {
 		return err
 	}
