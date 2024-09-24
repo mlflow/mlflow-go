@@ -385,7 +385,7 @@ func processOrderByClause(input string) (orderByExpr, error) {
 	return expr, nil
 }
 
-//nolint:funlen, cyclop
+//nolint:funlen, cyclop, gocognit
 func applyOrderBy(ctx context.Context, database, transaction *gorm.DB, orderBy []string) *contract.Error {
 	startTimeOrder := false
 	columnSelection := "runs.*"
@@ -421,18 +421,24 @@ func applyOrderBy(ctx context.Context, database, transaction *gorm.DB, orderBy [
 				startTimeOrder = true
 			case *orderByExpr.identifier == metric:
 				kind = &models.LatestMetric{}
-			case *orderByExpr.identifier == "param":
+			case *orderByExpr.identifier == "parameter":
 				kind = &models.Param{}
 			case *orderByExpr.identifier == "tag":
 				kind = &models.Tag{}
 			}
 		}
 
+		table := fmt.Sprintf("order_%d", index)
+
 		if kind != nil {
-			table := fmt.Sprintf("order_%d", index)
+			columnsInJoin := []string{"run_uuid", "value"}
+			if *orderByExpr.identifier == metric {
+				columnsInJoin = append(columnsInJoin, "is_nan")
+			}
+
 			transaction.Joins(
 				fmt.Sprintf("LEFT OUTER JOIN (?) AS %s ON runs.run_uuid = %s.run_uuid", table, table),
-				database.Select("run_uuid", "value").Where("key = ?", orderByExpr.key).Model(kind),
+				database.Select(columnsInJoin).Where("key = ?", orderByExpr.key).Model(kind),
 			)
 
 			orderByExpr.key = table + ".value"
@@ -443,16 +449,16 @@ func applyOrderBy(ctx context.Context, database, transaction *gorm.DB, orderBy [
 			desc = *orderByExpr.order == "DESC"
 		}
 
-		if orderByExpr.identifier == nil || *orderByExpr.identifier != metric {
-			nullableColumnAlias := fmt.Sprintf("order_null_%d", index)
+		nullableColumnAlias := fmt.Sprintf("order_null_%d", index)
 
+		if orderByExpr.identifier == nil || *orderByExpr.identifier != metric {
 			var originalColumn string
 
 			switch {
 			case orderByExpr.identifier != nil && *orderByExpr.identifier == "attribute":
 				originalColumn = "runs." + orderByExpr.key
 			case orderByExpr.identifier != nil:
-				originalColumn = fmt.Sprintf("%s.%s", *orderByExpr.identifier, originalColumn)
+				originalColumn = table + ".value"
 			default:
 				originalColumn = orderByExpr.key
 			}
@@ -461,6 +467,25 @@ func applyOrderBy(ctx context.Context, database, transaction *gorm.DB, orderBy [
 				"%s, (CASE WHEN (%s IS NULL) THEN 1 ELSE 0 END) AS %s",
 				columnSelection,
 				originalColumn,
+				nullableColumnAlias,
+			)
+
+			transaction.Order(nullableColumnAlias)
+		}
+
+		// the metric table has the is_nan column
+		if orderByExpr.identifier != nil && *orderByExpr.identifier == metric {
+			trueColumnValue := "true"
+			if database.Dialector.Name() == "sqlite" {
+				trueColumnValue = "1"
+			}
+
+			columnSelection = fmt.Sprintf(
+				"%s, (CASE WHEN (%s.is_nan = %s) THEN 1 WHEN (%s.value IS NULL) THEN 2 ELSE 0 END) AS %s",
+				columnSelection,
+				table,
+				trueColumnValue,
+				table,
 				nullableColumnAlias,
 			)
 
