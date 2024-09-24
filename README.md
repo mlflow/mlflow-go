@@ -278,13 +278,12 @@ Sometimes `golangci-lint` can complain about unrelated files, run `golangci-lint
 The following Python tests are currently failing:
 
 ```
-========================================================================================================================= short test summary info ==========================================================================================================================
-FAILED .mlflow.repo/tests/tracking/test_rest_tracking.py::test_log_metrics_params_tags[sqlalchemy] - mlflow.exceptions.RestException: INVALID_PARAMETER_VALUE: Invalid value "NaN" for parameter 'value' supplied
-FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_log_metric_concurrent_logging_succeeds - mlflow.exceptions.MlflowException: error creating metrics in batch for run_uuid "23ad9801cd064fa1bc14b458ed5f609b"
+============================================================================= short test summary info ==============================================================================
+FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_log_metric_concurrent_logging_succeeds - mlflow.exceptions.MlflowException: error creating metrics in batch for run_uuid "de412cd72bcb4268a4d90d6c52ce4d3c"
 FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_log_batch_null_metrics - TypeError: must be real number, not NoneType
 FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_log_inputs_with_large_inputs_limit_check - AssertionError: assert {'digest': 'd...ema': '', ...} == {'digest': 'd...a': None, ...}
 FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_sqlalchemy_store_behaves_as_expected_with_inmemory_sqlite_db - mlflow.exceptions.MlflowException: failed to create experiment
-============================================================================================ 5 failed, 354 passed, 9 skipped, 128 deselected, 10 warnings in 231.73s (0:03:51) =============================================================================================
+================================================ 4 failed, 355 passed, 9 skipped, 128 deselected, 10 warnings in 557.37s (0:09:17) =================================================
 ```
 
 ## Debug Failing Tests
