@@ -53,6 +53,14 @@ func NewDatabase(ctx context.Context, storeURL string) (*gorm.DB, error) {
 
 	if dialector.Name() == "sqlite" {
 		database.Exec("PRAGMA case_sensitive_like = true;")
+
+		sqlDB, err := database.DB()
+		if err != nil {
+			return nil, fmt.Errorf("failed to get database instance: %w", err)
+		}
+		// set SetMaxOpenConns to be 1 only in case of SQLite to avoid `database is locked`
+		// in case of parallel calls to some endpoints that use `transactions`.
+		sqlDB.SetMaxOpenConns(1)
 	}
 
 	return database, nil
