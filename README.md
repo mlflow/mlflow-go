@@ -278,11 +278,9 @@ Sometimes `golangci-lint` can complain about unrelated files, run `golangci-lint
 The following Python tests are currently failing:
 
 ```
-======================================================================================== short test summary info ========================================================================================
-FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_log_batch_null_metrics - TypeError: must be real number, not NoneType
+===================================================================================================================== short test summary info ======================================================================================================================
 FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_log_inputs_with_large_inputs_limit_check - AssertionError: assert {'digest': 'd...ema': '', ...} == {'digest': 'd...a': None, ...}
-FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_sqlalchemy_store_behaves_as_expected_with_inmemory_sqlite_db - mlflow.exceptions.MlflowException: failed to create experiment
-=========================================================== 3 failed, 356 passed, 9 skipped, 128 deselected, 10 warnings in 429.04s (0:07:09) ===========================================================
+======================================================================================== 1 failed, 358 passed, 9 skipped, 128 deselected, 10 warnings in 227.64s (0:03:47) =========================================================================================
 ```
 
 ## Debug Failing Tests
