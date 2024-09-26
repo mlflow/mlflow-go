@@ -261,7 +261,11 @@ See the [pytest documentation](https://docs.pytest.org/en/8.2.x/how-to/usage.htm
 
 ## Supported endpoints
 
-The currently supported endpoints can be found in [mlflow/cmd/generate/endspoints.go](./cmd/generate/endspoints.go).
+The currently supported endpoints can be found by running
+
+```bash
+mage endpoints
+```
 
 ## Linters
 
