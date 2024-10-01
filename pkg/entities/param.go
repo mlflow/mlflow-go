@@ -20,3 +20,10 @@ func ParamFromProto(proto *protos.Param) *Param {
 		Value: *proto.Value,
 	}
 }
+
+func ParamFromLogMetricProtoInput(input *protos.LogParam) *Param {
+	return &Param{
+		Key:   input.GetKey(),
+		Value: input.GetValue(),
+	}
+}
