@@ -6,10 +6,7 @@ In order to increase the performance of the tracking server and the various stor
 # Topics
 * [Installation](#installation)
 * [Mage](#mage)
-* [Development Setup](#development-setup)
-  * [Installation](#installation)
-  * [Run tests](#run-tests)
-  * [Tests state](#tests-state)
+* [Contributing](./docs/CONTRIBUTING.md)
 * [Common information](#common-information)
   * [MLflow source code](#mlflow-source-code)
   * [Protos](#protos)
@@ -53,106 +50,6 @@ mage generate
 The beauty of Mage is that we can use regular Go code for our scripting.  
 That being said, we are not married to this tool.
 
-## Development Setup
-
-### Installation
-
-```bash
-# Install our Python package and its dependencies
-pip install -e .
-
-# Install the dreaded psycho
-pip install psycopg2-binary
-
-# Archive the MLFlow pre-built UI
-tar -C /usr/local/python/current/lib/python3.8/site-packages/mlflow -czvf ./ui.tgz ./server/js/build
-
-# Clone the MLflow repo
-git clone https://github.com/jgiannuzzi/mlflow.git -b master .mlflow.repo
-
-# Add the UI back to it
-tar -C .mlflow.repo/mlflow -xzvf ./ui.tgz
-
-# Install it in editable mode
-pip install -e .mlflow.repo
-```
-
-or run:
-```bash
-mage configure
-```
-
-### Run tests
-
-The Python integration tests have been adapted to also run against the Go implementation. Just run them as usual, e.g.
-
-```bash
-pytest tests/tracking/test_rest_tracking.py
-```
-
-To run only the tests targetting the Go implementation, you can use the `-k` flag:
-
-```bash
-pytest tests/tracking/test_rest_tracking.py -k '[go-'
-```
-
-If you'd like to run a specific test and see its output 'live', you can use the `-s` flag:
-
-```bash
-pytest -s "tests/tracking/test_rest_tracking.py::test_create_experiment_validation[go-postgresql]"
-```
-
-See the [pytest documentation](https://docs.pytest.org/en/8.2.x/how-to/usage.html#specifying-which-tests-to-run) for more details.
-
-```bash
-# Build the Go binary in a temporary directory
-libpath=$(mktemp -d)
-python -m mlflow_go.lib . $libpath
-
-# Run the tests (currently just the server ones)
-MLFLOW_GO_LIBRARY_PATH=$libpath pytest --confcutdir=. \
-  .mlflow.repo/tests/tracking/test_rest_tracking.py \
-  .mlflow.repo/tests/tracking/test_model_registry.py \
-  .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py \
-  .mlflow.repo/tests/store/model_registry/test_sqlalchemy_store.py \
-  -k 'not [file'
-
-# Remove the Go binary
-rm -rf $libpath
-
-# If you want to run a specific test with more verbosity
-# -s for live output
-# --log-level=debug for more verbosity (passed down to the Go server/stores)
-MLFLOW_GO_LIBRARY_PATH=$libpath pytest --confcutdir=. \
-  .mlflow.repo/tests/tracking/test_rest_tracking.py::test_create_experiment_validation \
-  -k 'not [file' \
-  -s --log-level=debug
-```
-
-next `mage` tests targets are available:
-
-```bash
-mage test:all
-```
-
-```bash
-mage test:python
-```
-
-```bash
-mage test:unit
-```
-
-### Tests state
-
-The following Python tests are currently failing:
-
-```
-===================================================================================================================== short test summary info ======================================================================================================================
-FAILED .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py::test_log_inputs_with_large_inputs_limit_check - AssertionError: assert {'digest': 'd...ema': '', ...} == {'digest': 'd...a': None, ...}
-======================================================================================== 1 failed, 358 passed, 9 skipped, 128 deselected, 10 warnings in 227.64s (0:03:47) =========================================================================================
-```
-
 ## Common information
 
 ### MLflow source code
@@ -177,9 +74,9 @@ Go code will be generated. Use the protos files from `.mlflow.repo` repository.
 
 This includes the generation of:
 
-- Structs for each endpoint. ([pkg/protos](./protos/service.pb.go))
-- Go interfaces for each service. ([pkg/contract/service/*.g.go](./contract/service/tracking.g.go))
-- [fiber](https://gofiber.io/) routes for each endpoint. ([pkg/server/routes/*.g.go](./server/routes/tracking.g.go))
+- Structs for each endpoint. ([pkg/protos](./pkg/protos/service.pb.go))
+- Go interfaces for each service. ([pkg/contract/service/*.g.go](./pkg/contract/service/tracking.g.go))
+- [fiber](https://gofiber.io/) routes for each endpoint. ([pkg/server/routes/*.g.go](./pkg/server/routes/tracking.g.go))
 
 If there is any change in the proto files, this should ripple into the Go code.
 
@@ -196,7 +93,7 @@ When the need arises, we can write custom validation function in [pkg/validation
 
 Initially, we want to focus on supporting Postgres SQL. We chose [Gorm](https://gorm.io/) as ORM to interact with the database.
 
-We do not generate any Go code based on the database schema. Gorm has generation capabilities but they didn't fit our needs. The plan would be to eventually assert the current code stil matches the database schema via an intergration test.
+We do not generate any Go code based on the database schema. Gorm has generation capabilities but they didn't fit our needs. The plan would be to eventually assert the current code still matches the database schema via an integration test.
 
 All the models use pointers for their fields. We do this for performance reasons and to distinguish between zero values and null values.
 
