@@ -168,15 +168,13 @@ If the `.mlflow.ref` file is modified and becomes out of sync with the current s
 
 ### Protos
 
-To ensure we stay compatible with the Python implementation, we aim to generate as much as possible based on the `.proto` files.
-
-By running 
+To ensure we stay compatible with the Python implementation, we aim to generate as much as possible based on the `.proto` files, by running:
 
 ```bash
 mage generate
 ```
 
-Go code will be generated. Use the protos files from `.mlflow.repo` repository.
+Go code will be generated using the protos files from `.mlflow.repo` repository.
 
 This incudes the generation of:
 
