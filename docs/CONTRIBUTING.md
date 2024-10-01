@@ -32,19 +32,19 @@ pip install -e .mlflow.repo
 
 ### Run Go Mlflow server
 
-To start, the mlflow-go dev server connecting to postgres just run next `mage` target:
+To start the mlflow-go dev server connecting to postgres just run next `mage` target:
 
 ```bash
 mage run:dev
 ```
 
-The postgres database should already be running prior to this command. Be default service uses next connection string:
+The postgres database should already be running prior to this command. By default service uses next connection string:
 
 ```
 postgresql://postgres:postgres@localhost:5432/postgres
 ```
 
-but it could be configured/overwritten in [mage run:dev](./../magefiles/run.go)
+but it could be configured in [mahe](./magefiles/run.go)
 
 
 ### Run tests
