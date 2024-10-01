@@ -39,16 +39,19 @@ This repository uses [mage](https://magefile.org/) to streamline some utility fu
 ```bash
 # Install mage (already done in the dev container)
 go install github.com/magefile/mage@v1.15.0
+```
 
+```bash
 # See all targets
 mage
+```
 
+```bash
 # Execute single target
 mage generate
 ```
 
-The beauty of Mage is that we can use regular Go code for our scripting.  
-That being said, we are not married to this tool.
+The beauty of Mage is that we can use regular Go code for our scripting. That being said, we are not married to this tool.
 
 ## Common information
 
