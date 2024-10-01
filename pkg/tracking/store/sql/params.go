@@ -1,6 +1,8 @@
 package sql
 
 import (
+	"context"
+	"errors"
 	"fmt"
 
 	"gorm.io/gorm"
@@ -113,6 +115,36 @@ func (s TrackingSQLStore) logParamsWithTransaction(
 		if contractError != nil {
 			return contractError
 		}
+	}
+
+	return nil
+}
+
+func (s TrackingSQLStore) LogParam(
+	ctx context.Context, runID string, param *entities.Param,
+) *contract.Error {
+	err := s.db.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
+		if err := checkRunIsActive(transaction, runID); err != nil {
+			return err
+		}
+
+		if err := s.logParamsWithTransaction(transaction, runID, []*entities.Param{param}); err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		var contractError *contract.Error
+		if errors.As(err, &contractError) {
+			return contractError
+		}
+
+		return contract.NewErrorWith(
+			protos.ErrorCode_INTERNAL_ERROR,
+			fmt.Sprintf("log param failed for %q", runID),
+			err,
+		)
 	}
 
 	return nil
