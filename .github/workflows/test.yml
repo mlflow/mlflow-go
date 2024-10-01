@@ -56,4 +56,4 @@ jobs:
       - name: Run integration tests
         run: mage test:python
         # Temporary workaround for failing tests
-        continue-on-error: true
+        continue-on-error: ${{ matrix.runner != 'ubuntu-latest' }}

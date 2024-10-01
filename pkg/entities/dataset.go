@@ -1,6 +1,8 @@
 package entities
 
-import "github.com/mlflow/mlflow-go/pkg/protos"
+import (
+	"github.com/mlflow/mlflow-go/pkg/protos"
+)
 
 type Dataset struct {
 	Name       string
@@ -12,12 +14,22 @@ type Dataset struct {
 }
 
 func (d *Dataset) ToProto() *protos.Dataset {
+	var schema *string
+	if d.Schema != "" {
+		schema = &d.Schema
+	}
+
+	var profile *string
+	if d.Profile != "" {
+		profile = &d.Profile
+	}
+
 	return &protos.Dataset{
 		Name:       &d.Name,
 		Digest:     &d.Digest,
 		SourceType: &d.SourceType,
 		Source:     &d.Source,
-		Schema:     &d.Schema,
-		Profile:    &d.Profile,
+		Schema:     schema,
+		Profile:    profile,
 	}
 }
