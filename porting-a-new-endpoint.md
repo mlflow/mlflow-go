@@ -1,8 +1,21 @@
 # Porting a New Endpoint
 
+In order to complete the Go implementation of the tracking server, we need to port the missing endpoints. 
+The following guide will walk you through the whole process of viewing the missing endpoints, implementing them and making sure they work with MLflow's existing integration tests.
+
+1. [View Missing Endpoints](#view-missing-endpoints): View the current state of implementated endpoints.
+2. [Enable the Endpoint](#enable-the-endpoint): Enable code generation for a new endpoint.
+3. [Validate Input](#validate-input): Apply validation on the incoming request data.
+4. [Implement the Service Method](#implement-the-service-method): Adding a new method to the TrackingService interface allows handling the logic for the new endpoint
+5. [Expose the Endpoint via FFI](#expose-the-endpoint-via-ffi): Update the Foreign Function Interface bindings so that the new endpoint can be accessed from Python
+6. [Implement the Service Logic](#implement-the-service-logic): Convert the coming proto struct and invoke the store.
+7. [Store Implementation](#store-implementation): Add a method to the Store interface to handle the new endpoint's database logic (implementation can be empty for now).
+8. [Write Tests](#write-tests): If required, add Go unit tests for isolated parts like validation, and rely on existing Python tests for integration.
+9. [Run Tests](#run-tests): Finally, run the Python integration tests to ensure that the Go implementation behaves consistently with the Python version. If required, adjust the tests for any differences in behavior between Go and Python.
+
 As mentioned elsewhere, the Go implementation of the tracking server is currently incomplete. This guide outlines how to implement a missing endpoint.
 
-## View Current Endpoint Status
+## View Missing Endpoints
 
 Run `mage endpoints` to view which endpoints are not yet implemented.
 
@@ -18,7 +31,7 @@ In this guide, we will implement `deleteTag`.
 +------------------------+------------------------------+-------------+
 ```
 
-## Enable the Endpoint for Generation
+## Enable the Endpoint
 
 Add the missing endpoint to [endpoints.go](magefiles/generate/endpoints.go) under the correct service. After that, run `mage generate`.
 
@@ -70,7 +83,7 @@ func TrackingServiceDeleteTag(serviceID int64, requestData unsafe.Pointer, reque
 }
 ```
 
-## Input Validation
+## Validate Input
 
 A first step to port an endpoint would be to check the request validation happening at the HTTP level. Open [handlers.py](.mlflow.repo/mlflow/server/handlers.py) (from the `.mlflow.repo`) to see which fields are required.
 
@@ -104,7 +117,7 @@ var validations = map[string]string{
 
 After that, run `mage generate` again and check if our fields in `DeleteTag` now contain `validate:"required"`.
 
-## Service Implementation
+## Implement the Service Method
 
 We aim to keep the Go implementation as close to the Python code as possible. That's why we have a thin service layer and keep most logic in the (SQL) store instead of the service. This keeps things similar to Python, making it easier to port and compare the code.
 
@@ -120,6 +133,18 @@ func (ts TrackingService) DeleteTag(ctx context.Context, input *protos.DeleteTag
 	return &protos.DeleteTag_Response{}, nil
 }
 ```
+
+## Expose the Endpoint via FFI
+
+To access our new endpoint in the Python FFI binding, we need to update our Python store as well. Update [mlflow_go/store/tracking.py](mlflow_go/store/tracking.py) and add the method matching our endpoint from [.mlflow.repo/mlflow/store/tracking/sqlalchemy_store.py](.mlflow.repo/mlflow/store/tracking/sqlalchemy_store.py):
+
+```python
+def delete_tag(self, run_id, key):
+	request = DeleteTag(run_id=run_id, key=key)
+	self.service.call_endpoint(get_lib().TrackingServiceDeleteTag, request)
+```
+
+Note that `DeleteTag` and `TrackingServiceDeleteTag` will match our newly generated code in [pkg/lib/tracking.g.go](pkg/lib/tracking.g.go).
 
 ## Store Implementation
 
@@ -156,19 +181,9 @@ It is important that the same data and exceptions are returned to ensure the Go 
 
 Don’t hesitate to challenge the current implementation of the Python code. You might find opportunities to revisit and improve parts of it.
 
-## Create the Python Binding
 
-To access our new endpoint in the Python FFI binding, we need to update our Python store as well. Update [mlflow_go/store/tracking.py](mlflow_go/store/tracking.py) and add the method matching our endpoint from [.mlflow.repo/mlflow/store/tracking/sqlalchemy_store.py](.mlflow.repo/mlflow/store/tracking/sqlalchemy_store.py):
 
-```python
-def delete_tag(self, run_id, key):
-	request = DeleteTag(run_id=run_id, key=key)
-	self.service.call_endpoint(get_lib().TrackingServiceDeleteTag, request)
-```
-
-Note that `DeleteTag` and `TrackingServiceDeleteTag` will match our newly generated code in [pkg/lib/tracking.g.go](pkg/lib/tracking.g.go).
-
-## Testing
+## Write Tests
 
 Depending on the endpoint you are porting, you may want to add Go unit tests or rely on the existing Python integration tests. It really depends on the complexity of the endpoint. 
 
