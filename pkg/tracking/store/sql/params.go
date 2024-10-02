@@ -17,7 +17,7 @@ import (
 const paramsBatchSize = 100
 
 func verifyBatchParamsInserts(
-	transaction *gorm.DB, runID string, deduplicatedParamsMap map[string]string,
+	transaction *gorm.DB, runID string, deduplicatedParamsMap map[string]*string,
 ) *contract.Error {
 	keys := make([]string, 0, len(deduplicatedParamsMap))
 	for key := range deduplicatedParamsMap {
@@ -43,7 +43,7 @@ func verifyBatchParamsInserts(
 	}
 
 	for _, existingParam := range existingParams {
-		if currentValue, ok := deduplicatedParamsMap[existingParam.Key]; ok && currentValue != existingParam.Value {
+		if currentValue, ok := deduplicatedParamsMap[existingParam.Key]; ok && currentValue != nil && *currentValue != existingParam.Value.String {
 			return contract.NewError(
 				protos.ErrorCode_INVALID_PARAMETER_VALUE,
 				fmt.Sprintf(
@@ -66,12 +66,12 @@ func verifyBatchParamsInserts(
 func (s TrackingSQLStore) logParamsWithTransaction(
 	transaction *gorm.DB, runID string, params []*entities.Param,
 ) *contract.Error {
-	deduplicatedParamsMap := make(map[string]string, len(params))
+	deduplicatedParamsMap := make(map[string]*string, len(params))
 	deduplicatedParams := make([]models.Param, 0, len(deduplicatedParamsMap))
 
 	for _, param := range params {
 		oldValue, paramIsPresent := deduplicatedParamsMap[param.Key]
-		if paramIsPresent && param.Value != oldValue {
+		if paramIsPresent && param.Value != nil && *param.Value != *oldValue {
 			return contract.NewError(
 				protos.ErrorCode_INVALID_PARAMETER_VALUE,
 				fmt.Sprintf(
@@ -102,9 +102,11 @@ func (s TrackingSQLStore) logParamsWithTransaction(
 		}).
 		CreateInBatches(deduplicatedParams, paramsBatchSize).Error
 	if err != nil {
+		// The strange thing that error has `protos.ErrorCode_BAD_REQUEST` code.
+		// This is exactly what MLFlow tests expect to see.
 		return contract.NewErrorWith(
-			protos.ErrorCode_INTERNAL_ERROR,
-			fmt.Sprintf("error creating params in batch for run_uuid %q", runID),
+			protos.ErrorCode_BAD_REQUEST,
+			fmt.Sprintf("error creating params in batch for run_uuid %q: %v", runID, err),
 			err,
 		)
 	}
