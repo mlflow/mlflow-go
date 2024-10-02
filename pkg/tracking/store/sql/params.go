@@ -52,7 +52,7 @@ func verifyBatchParamsInserts(
 						"with value=%q for run ID=%q. "+
 						"Attempted logging new value %q",
 					existingParam.Key,
-					existingParam.Value,
+					existingParam.Value.String,
 					runID,
 					currentValue,
 				),
@@ -80,7 +80,7 @@ func (s TrackingSQLStore) logParamsWithTransaction(
 						"with value=%q for run ID=%q. "+
 						"Attempted logging new value %q",
 					param.Key,
-					oldValue,
+					*oldValue,
 					runID,
 					param.Value,
 				),
