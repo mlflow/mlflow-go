@@ -2152,9 +2152,9 @@ type DeleteTag struct {
 	unknownFields protoimpl.UnknownFields
 
 	// ID of the run that the tag was logged under. Must be provided.
-	RunId *string `protobuf:"bytes,1,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id"`
+	RunId *string `protobuf:"bytes,1,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id" validate:"required"`
 	// Name of the tag. Maximum size is 255 bytes. Must be provided.
-	Key *string `protobuf:"bytes,2,opt,name=key" json:"key,omitempty" query:"key"`
+	Key *string `protobuf:"bytes,2,opt,name=key" json:"key,omitempty" query:"key" validate:"required"`
 }
 
 func (x *DeleteTag) Reset() {

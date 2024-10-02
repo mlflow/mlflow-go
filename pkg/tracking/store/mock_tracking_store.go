@@ -250,7 +250,7 @@ func (_c *MockTrackingStore_DeleteRun_Call) RunAndReturn(run func(context.Contex
 	return _c
 }
 
-// GetExperiment provides a mock function with given fields: ctx, id
+// GetExperiment provides a mock function with given fields: ctx, id.
 func (_m *MockTrackingStore) GetExperiment(ctx context.Context, id string) (*entities.Experiment, *contract.Error) {
 	ret := _m.Called(ctx, id)
 
@@ -597,58 +597,8 @@ func (_c *MockTrackingStore_LogMetric_Call) RunAndReturn(run func(context.Contex
 	return _c
 }
 
-// LogParam provides a mock function with given fields: ctx, runID, metric
-func (_m *MockTrackingStore) LogParam(ctx context.Context, runID string, metric *entities.Param) *contract.Error {
-	ret := _m.Called(ctx, runID, metric)
-
-	if len(ret) == 0 {
-		panic("no return value specified for LogParam")
-	}
-
-	var r0 *contract.Error
-	if rf, ok := ret.Get(0).(func(context.Context, string, *entities.Param) *contract.Error); ok {
-		r0 = rf(ctx, runID, metric)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*contract.Error)
-		}
-	}
-
-	return r0
-}
-
-// MockTrackingStore_LogParam_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LogParam'
-type MockTrackingStore_LogParam_Call struct {
-	*mock.Call
-}
-
-// LogParam is a helper method to define mock.On call
-//   - ctx context.Context
-//   - runID string
-//   - metric *entities.Param
-func (_e *MockTrackingStore_Expecter) LogParam(ctx interface{}, runID interface{}, metric interface{}) *MockTrackingStore_LogParam_Call {
-	return &MockTrackingStore_LogParam_Call{Call: _e.mock.On("LogParam", ctx, runID, metric)}
-}
-
-func (_c *MockTrackingStore_LogParam_Call) Run(run func(ctx context.Context, runID string, metric *entities.Param)) *MockTrackingStore_LogParam_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(*entities.Param))
-	})
-	return _c
-}
-
-func (_c *MockTrackingStore_LogParam_Call) Return(_a0 *contract.Error) *MockTrackingStore_LogParam_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockTrackingStore_LogParam_Call) RunAndReturn(run func(context.Context, string, *entities.Param) *contract.Error) *MockTrackingStore_LogParam_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// RenameExperiment provides a mock function with given fields: ctx, experimentID, name
-func (_m *MockTrackingStore) RenameExperiment(ctx context.Context, experimentID string, name string) *contract.Error {
+// RenameExperiment provides a mock function with given fields: ctx, experimentID, name.
+func (_m *MockTrackingStore) RenameExperiment(ctx context.Context, experimentID, name string) *contract.Error {
 	ret := _m.Called(ctx, experimentID, name)
 
 	if len(ret) == 0 {
