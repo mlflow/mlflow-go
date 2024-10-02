@@ -44,7 +44,7 @@ The postgres database should already be running prior to this command. By defaul
 postgresql://postgres:postgres@localhost:5432/postgres
 ```
 
-but it could be configured in [mahe](./magefiles/run.go)
+but it could be configured in [mage](./magefiles/run.go)
 
 
 ### Run tests

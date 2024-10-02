@@ -6,7 +6,7 @@ In order to increase the performance of the tracking server and the various stor
 # Topics
 * [Installation](#installation)
 * [Mage](#mage)
-* [Contributing](./docs/CONTRIBUTING.md)
+* [Contributing](./CONTRIBUTING.md)
 * [Common information](#common-information)
   * [MLflow source code](#mlflow-source-code)
   * [Protos](#protos)
