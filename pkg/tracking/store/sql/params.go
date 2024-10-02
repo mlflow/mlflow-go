@@ -43,7 +43,8 @@ func verifyBatchParamsInserts(
 	}
 
 	for _, existingParam := range existingParams {
-		if currentValue, ok := deduplicatedParamsMap[existingParam.Key]; ok && currentValue != nil && *currentValue != existingParam.Value.String {
+		if currentValue, ok := deduplicatedParamsMap[existingParam.Key]; ok &&
+			currentValue != nil && *currentValue != existingParam.Value.String {
 			return contract.NewError(
 				protos.ErrorCode_INVALID_PARAMETER_VALUE,
 				fmt.Sprintf(
@@ -54,7 +55,7 @@ func verifyBatchParamsInserts(
 					existingParam.Key,
 					existingParam.Value.String,
 					runID,
-					currentValue,
+					*currentValue,
 				),
 			)
 		}
@@ -82,7 +83,7 @@ func (s TrackingSQLStore) logParamsWithTransaction(
 					param.Key,
 					*oldValue,
 					runID,
-					param.Value,
+					*param.Value,
 				),
 			)
 		}

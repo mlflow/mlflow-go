@@ -20,15 +20,15 @@ func (p Param) ToEntity() *entities.Param {
 	}
 }
 
-func NewParamFromEntity(runID string, param *entities.Param) Param {
-	p := Param{
-		Key:   param.Key,
+func NewParamFromEntity(runID string, entity *entities.Param) Param {
+	param := Param{
+		Key:   entity.Key,
 		RunID: runID,
 	}
 
-	if param.Value != nil {
-		p.Value = sql.NullString{Valid: true, String: *param.Value}
+	if entity.Value != nil {
+		param.Value = sql.NullString{Valid: true, String: *entity.Value}
 	}
 
-	return p
+	return param
 }
