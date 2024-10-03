@@ -12,10 +12,6 @@ import (
 	"github.com/magefile/mage/sh"
 )
 
-const (
-	amd64 = "amd64"
-)
-
 // Build a Python wheel.
 func Build(target string) error {
 	env := "build/.venv"
