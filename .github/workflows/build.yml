@@ -12,8 +12,8 @@ jobs:
     strategy:
       matrix:
         # runner: [macos-latest, ubuntu-latest, windows-latest]
-        python: ["3.12"] # ["3.8", "3.9", "3.10", "3.11", "3.12"]
-        target: ["x86_64-linux-gnu"] # ["x86_64-linux-gnu", "aarch64-linux-gnu", "x86_64-macos", "aarch64-macos", "x86_64-windows-gnu"]
+        os: ["darwin","linux", "windows"]
+        arch: ["amd64", "arm64"]
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -27,8 +27,6 @@ jobs:
 
       - name: Setup Python
         uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python }}
 
       - name: Install mage
         run: go install github.com/magefile/mage@v1.15.0
@@ -40,5 +38,5 @@ jobs:
         run: mage repo:init
 
       - name: Run build target
-        run: mage build ${{ matrix.target }}
+        run: mage build ${{ matrix.os }} ${{ matrix.arch }}
 
