@@ -34,8 +34,8 @@ func Build(target string) error {
 	}
 
 	environmentVariables := map[string]string{
-		"GOOS":   runtime.GOOS,
-		"GOARCH": runtime.GOARCH,
+		"GOOS":   "linux", // runtime.GOOS,
+		"GOARCH": "amd64", // runtime.GOARCH,
 	}
 
 	// Set Zig as the C compiler for cross-compilation
