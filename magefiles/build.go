@@ -44,11 +44,11 @@ func getTargetTriple(goos, goarch string) (string, error) {
 
 // Build a Python wheel.
 func Build() error {
-	if err := sh.RunV("python3", "-mvenv", "env"); err != nil {
+	if err := sh.RunV("python3", "-mvenv", "build/.venv"); err != nil {
 		return err
 	}
 
-	if err := sh.RunV("./env/bin/pip", "install", "build", "ziglang"); err != nil {
+	if err := sh.RunV("./build/.venv/bin/pip", "install", "build", "ziglang"); err != nil {
 		return err
 	}
 
@@ -58,7 +58,7 @@ func Build() error {
 		return err
 	}
 
-	absPython, err := filepath.Abs("./env/bin/python")
+	absPython, err := filepath.Abs("./build/.venv/bin/python")
 	if err != nil {
 		return err
 	}
@@ -71,7 +71,7 @@ func Build() error {
 			"GOOS":   runtime.GOOS,
 			"GOARCH": runtime.GOARCH,
 		},
-		"./env/bin/python", "-mbuild"); err != nil {
+		"./build/.venv/bin/python", "-mbuild"); err != nil {
 		return err
 	}
 
