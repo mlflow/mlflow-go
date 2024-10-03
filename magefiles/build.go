@@ -47,11 +47,11 @@ func Build() error {
 		return err
 	}
 
-	if err := sh.RunV("sh", "-c", "'source ./env/bin/activate'"); err != nil {
+	if err := sh.RunV("./env/bin/pip", "install", "build", "ziglang"); err != nil {
 		return err
 	}
 
-	if err := sh.RunV("pip", "install", "build", "ziglang"); err != nil {
+	if err := sh.RunV("./env/bin/python", "-mziglang", "cc"); err != nil {
 		return err
 	}
 
