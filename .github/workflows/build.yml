@@ -22,27 +22,37 @@ jobs:
           if ! xcode-select -p; then
             sudo xcode-select --install
           fi
-      - name: Set SDK path
+      # Set the SDK path manually for CGO
+      - name: Set SDK and CGO environment variables
         run: |
-          echo "CGO_CFLAGS=-isysroot $(xcrun --show-sdk-path)" >> $GITHUB_ENV
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python }}
+          SDK_PATH=$(xcrun --show-sdk-path)
+          echo "CGO_CFLAGS=-isysroot $SDK_PATH" >> $GITHUB_ENV
+          echo "CGO_LDFLAGS=-isysroot $SDK_PATH" >> $GITHUB_ENV
+      # Install openresolv
+      - name: Install dependencies (if needed)
+        run: brew install openresolv || echo "openresolv already installed"  # Optional
+
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
           go-version: "1.22"
           check-latest: true
           cache: false
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
       - name: Install mage
         run: go install github.com/magefile/mage@v1.15.0
+
       - name: Install our package in editable mode
         run: pip install -e .
+
       - name: Initialize MLflow repo
         run: mage repo:init
-      - name: Install dependencies
-        run: pip install pytest==8.1.1 psycopg2-binary -e .mlflow.repo
+
       - name: Run build target
         run: mage build
 
