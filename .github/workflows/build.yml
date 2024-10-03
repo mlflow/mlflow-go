@@ -16,11 +16,12 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install Xcode Command Line Tools
+      # Skip installation if tools are already present
+      - name: Verify Xcode Command Line Tools
         run: |
-          sudo xcode-select --install
-          sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
-
+          if ! xcode-select -p; then
+            sudo xcode-select --install
+          fi
       - name: Set SDK path
         run: |
           echo "CGO_CFLAGS=-isysroot $(xcrun --show-sdk-path)" >> $GITHUB_ENV
