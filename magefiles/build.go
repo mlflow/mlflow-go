@@ -6,6 +6,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"path/filepath"
 	"runtime"
 
 	"github.com/magefile/mage/sh"
@@ -51,17 +52,18 @@ func Build() error {
 		return err
 	}
 
-	if err := sh.RunV("./env/bin/python", "-mziglang", "cc"); err != nil {
-		return err
-	}
-
 	// Set Zig as the C compiler for cross-compilation
 	targetTriple, err := getTargetTriple(runtime.GOOS, runtime.GOARCH)
 	if err != nil {
 		return err
 	}
 
-	zigCC := "zig cc -target " + targetTriple
+	absPython, err := filepath.Abs("./env/bin/python")
+	if err != nil {
+		return err
+	}
+
+	zigCC := absPython + " -mziglang cc -target " + targetTriple
 
 	if err := sh.RunWithV(
 		map[string]string{
@@ -69,7 +71,7 @@ func Build() error {
 			"GOOS":   runtime.GOOS,
 			"GOARCH": runtime.GOARCH,
 		},
-		"build"); err != nil {
+		"./env/bin/python", "-mbuild"); err != nil {
 		return err
 	}
 
