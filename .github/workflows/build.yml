@@ -13,30 +13,10 @@ jobs:
       matrix:
         # runner: [macos-latest, ubuntu-latest, windows-latest]
         python: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        target: ["x86_64-linux-gnu", "aarch64-linux-gnu", "x86_64-macos", "aarch64-macos", "x86_64-windows-gnu"]
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set Xcode Developer Directory
-        run: sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
-
-      - name: Install Xcode Command Line Tools via softwareupdate
-        run: sudo softwareupdate -i -a
-
-      - name: Set SDK and CGO environment variables
-        run: |
-          SDK_PATH=$(xcrun --show-sdk-path)
-          echo "CGO_CFLAGS=-isysroot $SDK_PATH" >> $GITHUB_ENV
-          echo "CGO_LDFLAGS=-isysroot $SDK_PATH" >> $GITHUB_ENV
-
-      # Manually install headers to resolve 'resolv.h' missing
-      - name: Install Missing Headers
-        run: |
-          sudo mkdir -p /usr/local/include
-          sudo ln -s /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include /usr/local/include
-
-      - name: Install dependencies (if needed)
-        run: brew install openresolv || echo "openresolv already installed"
 
       - name: Setup Go
         uses: actions/setup-go@v5
@@ -44,10 +24,6 @@ jobs:
           go-version: "1.22"
           check-latest: true
           cache: false
-
-      # Workaround SQLite3 issue
-      - name: Install SQLite Pre-built Binary
-        run: brew install sqlite3
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -64,5 +40,5 @@ jobs:
         run: mage repo:init
 
       - name: Run build target
-        run: mage build
+        run: mage build ${{ matrix.target }}
 
