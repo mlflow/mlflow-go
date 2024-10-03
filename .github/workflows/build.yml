@@ -11,11 +11,19 @@ jobs:
     name: Build Python wheel
     strategy:
       matrix:
-        runner: [macos-latest, ubuntu-latest, windows-latest]
+        # runner: [macos-latest, ubuntu-latest, windows-latest]
         python: ["3.8", "3.9", "3.10", "3.11", "3.12"]
-    runs-on: ${{ matrix.runner }}
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Install Xcode Command Line Tools
+        run: |
+          sudo xcode-select --install
+          sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+
+      - name: Set SDK path
+        run: |
+          echo "CGO_CFLAGS=-isysroot $(xcrun --show-sdk-path)" >> $GITHUB_ENV
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
