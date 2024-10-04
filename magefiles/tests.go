@@ -64,6 +64,33 @@ func (Test) Python() error {
 	return nil
 }
 
+// Run specific Python test against the Go backend.
+func (Test) PythonSpecific(testName string) error {
+	libpath, err := os.MkdirTemp("", "")
+	if err != nil {
+		return err
+	}
+
+	defer os.RemoveAll(libpath)
+	defer cleanUpMemoryFile()
+
+	if err := sh.RunV("python", "-m", "mlflow_go.lib", ".", libpath); err != nil {
+		return nil
+	}
+
+	if err := sh.RunWithV(map[string]string{
+		"MLFLOW_GO_LIBRARY_PATH": libpath,
+	}, "pytest",
+		"--confcutdir=.",
+		".mlflow.repo/tests/tracking/test_rest_tracking.py",
+		"-k", testName,
+	); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Run the Go unit tests.
 func (Test) Unit() error {
 	return sh.RunV("go", "test", "./pkg/...")

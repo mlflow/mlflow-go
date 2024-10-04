@@ -37,6 +37,8 @@ type (
 		RestoreRun(ctx context.Context, runID string) *contract.Error
 
 		GetRunTag(ctx context.Context, runID, tagKey string) (*entities.RunTag, *contract.Error)
+		SetTag(ctx context.Context, runID, key string, value string) *contract.Error
+		DeleteTag(ctx context.Context, runID, key string) *contract.Error
 	}
 	MetricTrackingStore interface {
 		LogBatch(
