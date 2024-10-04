@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -76,6 +77,185 @@ func (s TrackingSQLStore) setTagsWithTransaction(
 		UpdateAll: true,
 	}).CreateInBatches(runTags, tagsBatchSize).Error; err != nil {
 		return fmt.Errorf("failed to create tags for run %q: %w", runID, err)
+	}
+
+	return nil
+}
+
+const (
+	maxEntityKeyLength = 250
+	maxTagValueLength  = 8000
+)
+
+// Helper function to validate the tag key and value
+func validateTag(key, value string) *contract.Error {
+	if key == "" {
+		return contract.NewError(
+			protos.ErrorCode_INVALID_PARAMETER_VALUE,
+			"Missing value for required parameter 'key'",
+		)
+	}
+	if len(key) > maxEntityKeyLength {
+		return contract.NewError(
+			protos.ErrorCode_INVALID_PARAMETER_VALUE,
+			fmt.Sprintf("Tag key '%s' had length %d, which exceeded length limit of %d", key, len(key), maxEntityKeyLength),
+		)
+	}
+	if len(value) > maxTagValueLength {
+		return contract.NewError(
+			protos.ErrorCode_INVALID_PARAMETER_VALUE,
+			fmt.Sprintf("Tag value exceeded length limit of %d characters", maxTagValueLength),
+		)
+	}
+	// TODO: Check if this is the correct way to prevent invalid values
+	if _, err := strconv.ParseFloat(value, 64); err == nil {
+		return contract.NewError(
+			protos.ErrorCode_INVALID_PARAMETER_VALUE,
+			fmt.Sprintf("Invalid value %s for parameter 'value' supplied", value),
+		)
+	}
+	return nil
+}
+
+func (s TrackingSQLStore) SetTag(
+	ctx context.Context, runID, key, value string,
+) *contract.Error {
+	if runID == "" {
+		return contract.NewError(
+			protos.ErrorCode_INVALID_PARAMETER_VALUE,
+			"RunID cannot be empty",
+		)
+	}
+
+	// If the runID can be parsed as a number, it should throw an error
+	if _, err := strconv.ParseFloat(runID, 64); err == nil {
+		return contract.NewError(
+			protos.ErrorCode_INVALID_PARAMETER_VALUE,
+			fmt.Sprintf("Invalid value %s for parameter 'run_id' supplied", runID),
+		)
+	}
+
+	if err := validateTag(key, value); err != nil {
+		return err
+	}
+
+	err := s.db.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
+		contractError := checkRunIsActive(transaction, runID)
+		if contractError != nil {
+			return contractError
+		}
+
+		var tag models.Tag
+		result := transaction.Where("run_uuid = ? AND key = ?", runID, key).First(&tag)
+
+		if result.Error != nil && !errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return contract.NewErrorWith(
+				protos.ErrorCode_INTERNAL_ERROR,
+				fmt.Sprintf("Failed to query tag for run_id %q and key %q", runID, key),
+				result.Error,
+			)
+		}
+
+		if result.RowsAffected == 1 {
+			tag.Value = value
+			if err := transaction.Save(&tag).Error; err != nil {
+				return contract.NewErrorWith(
+					protos.ErrorCode_INTERNAL_ERROR,
+					fmt.Sprintf("Failed to update tag for run_id %q and key %q", runID, key),
+					err,
+				)
+			}
+		} else {
+			newTag := models.Tag{
+				RunID: runID,
+				Key:     key,
+				Value:   value,
+			}
+			if err := transaction.Create(&newTag).Error; err != nil {
+				return contract.NewErrorWith(
+					protos.ErrorCode_INTERNAL_ERROR,
+					fmt.Sprintf("Failed to create tag for run_id %q and key %q", runID, key),
+					err,
+				)
+			}
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		var contractError *contract.Error
+		if errors.As(err, &contractError) {
+			return contractError
+		}
+		return contract.NewErrorWith(
+			protos.ErrorCode_INTERNAL_ERROR,
+			fmt.Sprintf("set tag transaction failed for %q", runID),
+			err,
+		)
+	}
+
+	return nil
+}
+
+const badDataMessage = "Bad data in database - tags for a specific run must have\n" +
+	"a single unique value.\n" +
+	"See https://mlflow.org/docs/latest/tracking.html#adding-tags-to-runs"
+
+func (s TrackingSQLStore) DeleteTag(
+	ctx context.Context, runID, key string,
+) *contract.Error {
+	err := s.db.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
+		contractError := checkRunIsActive(transaction, runID)
+		if contractError != nil {
+			return contractError
+		}
+
+		var tags []models.Tag
+
+		transaction.Model(models.Tag{}).Where("run_uuid = ?", runID).Where("key = ?", key).Find(&tags)
+
+		if transaction.Error != nil {
+			return contract.NewErrorWith(
+				protos.ErrorCode_INTERNAL_ERROR,
+				fmt.Sprintf("Failed to query tags for run_id %q and key %q", runID, key),
+				transaction.Error,
+			)
+		}
+
+		switch len(tags) {
+		case 0:
+			return contract.NewError(
+				protos.ErrorCode_RESOURCE_DOES_NOT_EXIST,
+				fmt.Sprintf("No tag with name: %s in run with id %s", key, runID),
+			)
+		case 1:
+			transaction.Delete(tags[0])
+
+			if transaction.Error != nil {
+				return contract.NewErrorWith(
+					protos.ErrorCode_INTERNAL_ERROR,
+					fmt.Sprintf("Failed to query tags for run_id %q and key %q", runID, key),
+					transaction.Error,
+				)
+			}
+
+			return nil
+		default:
+			return contract.NewError(protos.ErrorCode_INVALID_STATE, badDataMessage)
+		}
+	})
+	if err != nil {
+		var contractError *contract.Error
+		if errors.As(err, &contractError) {
+			return contractError
+		}
+
+		return contract.NewErrorWith(
+			protos.ErrorCode_INTERNAL_ERROR,
+			fmt.Sprintf("delete tag transaction failed for %q", runID),
+			err,
+		)
 	}
 
 	return nil
