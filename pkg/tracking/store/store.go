@@ -47,6 +47,7 @@ type (
 			tags []*entities.RunTag) *contract.Error
 
 		LogMetric(ctx context.Context, runID string, metric *entities.Metric) *contract.Error
+		LogParam(ctx context.Context, runID string, metric *entities.Param) *contract.Error
 	}
 )
 
