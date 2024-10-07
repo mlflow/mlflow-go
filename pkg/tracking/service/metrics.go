@@ -18,3 +18,13 @@ func (ts TrackingService) LogMetric(
 
 	return &protos.LogMetric_Response{}, nil
 }
+
+func (ts TrackingService) LogParam(
+	ctx context.Context, input *protos.LogParam,
+) (*protos.LogParam_Response, *contract.Error) {
+	if err := ts.Store.LogParam(ctx, input.GetRunId(), entities.ParamFromLogMetricProtoInput(input)); err != nil {
+		return nil, err
+	}
+
+	return &protos.LogParam_Response{}, nil
+}
