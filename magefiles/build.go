@@ -41,12 +41,18 @@ func getTargetTriple(goos, goarch string) (string, error) {
 
 // TODO: someday add mussle
 
+var errUnsupportedDarwin = errors.New(`unsupported`)
+
 // Build a Python wheel.
 func Build(goos, goarch string) error {
-	// env := os.mkTemp
-	// defer os.RemoveAll(tmp)
+	tmp, err := os.MkdirTemp("", "")
+	if err != nil {
+		return err
+	}
 
-	env, err := filepath.Abs("build/.venv")
+	defer os.RemoveAll(tmp)
+
+	env, err := filepath.Abs(filepath.Join(tmp, ".venv"))
 	if err != nil {
 		return err
 	}
@@ -65,15 +71,15 @@ func Build(goos, goarch string) error {
 	}
 
 	environmentVariables := map[string]string{
-		"GOOS":   goos,   // runtime.GOOS,
-		"GOARCH": goarch, // runtime.GOARCH,
+		"GOOS":   goos,
+		"GOARCH": goarch,
 	}
 
 	// Set Zig as the C compiler for cross-compilation
 	// If we are on Mac and targeting Mac we don't need Zig.
 	if goos == "darwin" {
 		if runtime.GOOS != "darwin" {
-			return errors.New("unsupported")
+			return errUnsupportedDarwin
 		}
 	} else {
 		target, err := getTargetTriple(goos, goarch)
@@ -84,9 +90,6 @@ func Build(goos, goarch string) error {
 		zigCC := python + " -mziglang cc -target " + target
 		environmentVariables["CC"] = zigCC
 	}
-	// runtime.GOOS == "darwin" &&
-
-	// strings.HasSuffix(target, "-macos")) {
 
 	if err := sh.RunWithV(
 		environmentVariables,
