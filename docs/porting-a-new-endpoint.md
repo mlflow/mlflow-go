@@ -15,6 +15,8 @@ The following guide will walk you through the whole process of viewing the missi
 
 As mentioned elsewhere, the Go implementation of the tracking server is currently incomplete. This guide outlines how to implement a missing endpoint.
 
+⚠️ This guide links to local files from the `mlflow` source dependency. We recommend reading this guide locally after running `mage repo:init`. ⚠️
+
 ## View Missing Endpoints
 
 Run `mage endpoints` to view which endpoints are not yet implemented.
@@ -33,13 +35,13 @@ In this guide, we will implement `deleteTag`.
 
 ## Enable the Endpoint
 
-Add the missing endpoint to [endpoints.go](magefiles/generate/endpoints.go) under the correct service. After that, run `mage generate`.
+Add the missing endpoint to [endpoints.go](../magefiles/generate/endpoints.go) under the correct service. After that, run `mage generate`.
 
-This should update the following files:
+⚠️ This should have updated a few files that you are not expected to update yourself! ⚠️
 
-### Add a New Route
+### New fiber route
 
-In [pkg/server/routes/tracking.g.go](pkg/server/routes/tracking.g.go), add the following:
+In [pkg/server/routes/tracking.g.go](../pkg/server/routes/tracking.g.go), a new route was added:
 
 ```go
 	app.Post("/mlflow/runs/delete-tag", func(ctx *fiber.Ctx) error {
@@ -59,7 +61,7 @@ This means that our Go server will now process the API request.
 
 ### New Service Method
 
-In [pkg/contract/service/tracking.g.go](pkg/contract/service/tracking.g.go), the interface has a new function that we need to implement, which is used in the routes file above.
+In [pkg/contract/service/tracking.g.go](../pkg/contract/service/tracking.g.go), the interface has a new function that we need to implement, which is used in the routes file above.
 
 ```go
 type TrackingService interface {
@@ -70,7 +72,7 @@ type TrackingService interface {
 
 ### New FFI Endpoint
 
-In [pkg/lib/tracking.g.go](pkg/lib/tracking.g.go), we need to expose that same service method so it can be called directly from Python via FFI. More on that later.
+In [pkg/lib/tracking.g.go](../pkg/lib/tracking.g.go), a new FFI endpoint was generated.
 
 ```go
 //export TrackingServiceDeleteTag
@@ -83,9 +85,11 @@ func TrackingServiceDeleteTag(serviceID int64, requestData unsafe.Pointer, reque
 }
 ```
 
+We will later create a Python binding to enable us to invoke this generated Go code.
+
 ## Validate Input
 
-A first step to port an endpoint would be to check the request validation happening at the HTTP level. Open [handlers.py](.mlflow.repo/mlflow/server/handlers.py) (from the `.mlflow.repo`) to see which fields are required.
+A first step to port an endpoint would be to check the request validation happening at the HTTP level. Open [handlers.py](../.mlflow.repo/mlflow/server/handlers.py) (from the `.mlflow.repo`) to see which fields are required.
 
 ```python
 @catch_mlflow_exception
@@ -105,7 +109,9 @@ def _delete_tag():
     return response
 ```
 
-We notice that `run_id` and `key` are required. To ensure parity, we need to update the input struct `DeleteTag` from the generated proto code ([pkg/protos/service.pb.go](pkg/protos/service.pb.go)). ⚠️ Since this file was generated, we don't want to modify it directly. Instead, we will configure validations in [validations.go](magefiles/generate/validations.go).
+We notice that `run_id` and `key` are required. Too avoid writing repeatitive code in Go, we make use of [Go validator](https://github.com/go-playground/validator) and use annotations to validate the incoming structs.
+
+To ensure parity, we need to update the input struct `DeleteTag` from the generated proto code ([pkg/protos/service.pb.go](../pkg/protos/service.pb.go)) with annotations. ⚠️ Since this file was generated, we don't want to modify it directly. ⚠️ Instead, we will configure validations in [validations.go](../magefiles/generate/validations.go).
 
 ```go
 var validations = map[string]string{
@@ -117,15 +123,30 @@ var validations = map[string]string{
 
 After that, run `mage generate` again and check if our fields in `DeleteTag` now contain `validate:"required"`.
 
+Note that we do not need to process `_assert_string` because in Go all the structs are already statically typed.
+
+It may happen that the [baked-in validations](https://github.com/go-playground/validator?tab=readme-ov-file#baked-in-validations) of the Go validator are not sufficient. If this occurs, please create a [custom validation rule](https://pkg.go.dev/github.com/go-playground/validator/v10#hdr-Custom_Validation_Functions) in [pkg/validation/validation.go](../pkg/validation/validation.go).
+
 ## Implement the Service Method
 
 We aim to keep the Go implementation as close to the Python code as possible. That's why we have a thin service layer and keep most logic in the (SQL) store instead of the service. This keeps things similar to Python, making it easier to port and compare the code.
 
-In the service, we need to call the store with the same arguments as the Python store would be called. This is typically where we convert proto structs to entities. In the case of `deleteTag`, we can just pass the two arguments to the store.
+In the [pkg/tracking/service/service.go](../pkg/tracking/service/service.go), we need to call the store with the same arguments as the Python store would be called:
+
+```python
+# handlers.py
+_get_tracking_store().delete_tag(request_message.run_id, request_message.key)
+```
+
+We split up the service over multiple files (one Go file per entity), sometimes it might not existing yet.
+This is typically where we convert proto structs to entities. In the case of `deleteTag`, we can just pass the two arguments to the store.
+
+In [tags.go](../pkg/tracking/service/tags.go):
 
 ```go
 func (ts TrackingService) DeleteTag(ctx context.Context, input *protos.DeleteTag) (*protos.DeleteTag_Response, *contract.Error) {
-    // Note that Store.DeleteTag does not exist yet; this just mirrors what happens in _delete_tag() in handlers.py
+    // Note that Store.DeleteTag does not exist yet; this just mirrors what happens in delete_tag() in handlers.py
+	// We do pass in the context, this is a Go specfic detail.
 	if err := ts.Store.DeleteTag(ctx, input.GetRunId(), input.GetKey()); err != nil {
 		return nil, err
 	}
@@ -136,7 +157,7 @@ func (ts TrackingService) DeleteTag(ctx context.Context, input *protos.DeleteTag
 
 ## Expose the Endpoint via FFI
 
-To access our new endpoint in the Python FFI binding, we need to update our Python store as well. Update [mlflow_go/store/tracking.py](mlflow_go/store/tracking.py) and add the method matching our endpoint from [.mlflow.repo/mlflow/store/tracking/sqlalchemy_store.py](.mlflow.repo/mlflow/store/tracking/sqlalchemy_store.py):
+To access our new endpoint in the Python FFI binding, we need to update our Python store as well. Update [mlflow_go/store/tracking.py](../mlflow_go/store/tracking.py) and add the method matching our endpoint from [.mlflow.repo/mlflow/store/tracking/sqlalchemy_store.py](../.mlflow.repo/mlflow/store/tracking/sqlalchemy_store.py):
 
 ```python
 def delete_tag(self, run_id, key):
@@ -144,13 +165,13 @@ def delete_tag(self, run_id, key):
 	self.service.call_endpoint(get_lib().TrackingServiceDeleteTag, request)
 ```
 
-Note that `DeleteTag` and `TrackingServiceDeleteTag` will match our newly generated code in [pkg/lib/tracking.g.go](pkg/lib/tracking.g.go).
+Note that `DeleteTag` and `TrackingServiceDeleteTag` will match our newly generated code in [pkg/lib/tracking.g.go](../pkg/lib/tracking.g.go).
 
 ## Store Implementation
 
 In the future, we hope to implement the file store in Go as well. That’s why we use a store interface to abstract away all SQL details, which also makes testing easier.
 
-Update [store.go](pkg/tracking/store/store.go):
+Update [store.go](../pkg/tracking/store/store.go):
 
 ```go
 	RunTrackingStore interface {
@@ -159,7 +180,7 @@ Update [store.go](pkg/tracking/store/store.go):
 	}
 ```
 
-Then, add an empty implementation in [store/sql/tags.go](pkg/tracking/store/sql/tags.go):
+Then, add an empty implementation in [store/sql/tags.go](../pkg/tracking/store/sql/tags.go):
 
 ```go
 func (s TrackingSQLStore) DeleteTag(
@@ -170,18 +191,21 @@ func (s TrackingSQLStore) DeleteTag(
 ```
 
 Lastly, update the `TrackingStore` interface mock via `go generate ./...`.
+(In Go, `...` means all files recursively)
 
 If everything goes well, you should be able to run `mage test:unit` to execute the Go unit tests. This serves as a sanity check to verify that the Go code is compiling.
 
 ### The Actual Store Implementation
 
-At this point, we need to write the actual implementation. Again, we want to stay true to the Python code, so please refer to [sqlalchemy_store.py](.mlflow.repo/mlflow/store/tracking/sqlalchemy_store.py).
+At this point, we need to write the actual implementation. Again, we want to stay true to the Python code, so please refer to [sqlalchemy_store.py](../.mlflow.repo/mlflow/store/tracking/sqlalchemy_store.py).
 
 It is important that the same data and exceptions are returned to ensure the Go implementation behaves like the Python one, allowing users to seamlessly switch to Go while having the same experience.
 
 Don’t hesitate to challenge the current implementation of the Python code. You might find opportunities to revisit and improve parts of it.
 
+#### Validation in the store
 
+Additional validation may be present in the Python store objects. For example, the `_validate_tag_name` function is used in [mlflow/store/tracking/sqlalchemy_store.py](../.mlflow.repo/mlflow/store/tracking/sqlalchemy_store.py). In Go, we handle this type of validation earlier through [input validation](#validate-input).
 
 ## Write Tests
 
@@ -189,7 +213,7 @@ Depending on the endpoint you are porting, you may want to add Go unit tests or 
 
 As a rule of thumb, add Go unit tests for clear-cut isolated parts, like validation logic, and keep integration tests for the actual database layer. Avoid tests that are too closely coupled to the implementation. It’s sometimes acceptable not to have any Go unit tests if the existing Python tests adequately cover the endpoint.
 
-## Run the Python Integration Test
+## Run Tests
 
 Run `mage test:python` and verify that our Go implementation passes the existing tests.
 
@@ -199,3 +223,7 @@ Some examples include:
 - https://github.com/mlflow/mlflow/pull/13233
 - https://github.com/mlflow/mlflow/pull/13128
 - https://github.com/mlflow/mlflow/issues/12550
+
+## Troubleshooting
+
+If you encounter any difficulties, please feel free to open a draft PR and ask specific questions. Once your questions are answered, kindly update this section if you’ve learned something that should be included in this guide.
