@@ -213,6 +213,10 @@ Depending on the endpoint you are porting, you may want to add Go unit tests or 
 
 As a rule of thumb, add Go unit tests for clear-cut isolated parts, like validation logic, and keep integration tests for the actual database layer. Avoid tests that are too closely coupled to the implementation. It’s sometimes acceptable not to have any Go unit tests if the existing Python tests adequately cover the endpoint.
 
+### Go unit tests
+
+An example use case where unit tests proved to be highly beneficial is the `filter` and `order` parser in the [search-runs](https://mlflow.org/docs/latest/rest-api.html#search-runs) endpoint. The [query_test.go](../pkg/tracking/service/query/query_test.go) file tests the more complex implementation of the endpoint, which has no external dependencies.
+
 ## Run Tests
 
 Run `mage test:python` and verify that our Go implementation passes the existing tests.
