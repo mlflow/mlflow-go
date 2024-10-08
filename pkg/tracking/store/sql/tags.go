@@ -82,41 +82,6 @@ func (s TrackingSQLStore) setTagsWithTransaction(
 	return nil
 }
 
-const (
-	maxEntityKeyLength = 250
-	maxTagValueLength  = 8000
-)
-
-// Helper function to validate the tag key and value
-func validateTag(key, value string) *contract.Error {
-	if key == "" {
-		return contract.NewError(
-			protos.ErrorCode_INVALID_PARAMETER_VALUE,
-			"Missing value for required parameter 'key'",
-		)
-	}
-	if len(key) > maxEntityKeyLength {
-		return contract.NewError(
-			protos.ErrorCode_INVALID_PARAMETER_VALUE,
-			fmt.Sprintf("Tag key '%s' had length %d, which exceeded length limit of %d", key, len(key), maxEntityKeyLength),
-		)
-	}
-	if len(value) > maxTagValueLength {
-		return contract.NewError(
-			protos.ErrorCode_INVALID_PARAMETER_VALUE,
-			fmt.Sprintf("Tag value exceeded length limit of %d characters", maxTagValueLength),
-		)
-	}
-	// TODO: Check if this is the correct way to prevent invalid values
-	if _, err := strconv.ParseFloat(value, 64); err == nil {
-		return contract.NewError(
-			protos.ErrorCode_INVALID_PARAMETER_VALUE,
-			fmt.Sprintf("Invalid value %s for parameter 'value' supplied", value),
-		)
-	}
-	return nil
-}
-
 func (s TrackingSQLStore) SetTag(
 	ctx context.Context, runID, key, value string,
 ) *contract.Error {
@@ -133,10 +98,6 @@ func (s TrackingSQLStore) SetTag(
 			protos.ErrorCode_INVALID_PARAMETER_VALUE,
 			fmt.Sprintf("Invalid value %s for parameter 'run_id' supplied", runID),
 		)
-	}
-
-	if err := validateTag(key, value); err != nil {
-		return err
 	}
 
 	err := s.db.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
@@ -188,6 +149,7 @@ func (s TrackingSQLStore) SetTag(
 		if errors.As(err, &contractError) {
 			return contractError
 		}
+
 		return contract.NewErrorWith(
 			protos.ErrorCode_INTERNAL_ERROR,
 			fmt.Sprintf("set tag transaction failed for %q", runID),
