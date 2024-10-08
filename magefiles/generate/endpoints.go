@@ -27,7 +27,7 @@ var ServiceInfoMap = map[string]ServiceGenerationInfo{
 			"logParam",
 			// "setExperimentTag",
 			// "setTag",
-			// "setTraceTag",
+			"setTraceTag",
 			// "deleteTraceTag",
 			// "deleteTag",
 			"searchRuns",
