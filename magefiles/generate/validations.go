@@ -27,4 +27,6 @@ var validations = map[string]string{
 	"LogMetric_Key":                      "required",
 	"LogMetric_Value":                    "required",
 	"LogMetric_Timestamp":                "required",
+	"DeleteTag_RunId":                    "required",
+	"DeleteTag_Key":                      "required",
 }

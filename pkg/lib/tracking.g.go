@@ -103,6 +103,14 @@ func TrackingServiceLogParam(serviceID int64, requestData unsafe.Pointer, reques
 	}
 	return invokeServiceMethod(service.LogParam, new(protos.LogParam), requestData, requestSize, responseSize)
 }
+//export TrackingServiceDeleteTag
+func TrackingServiceDeleteTag(serviceID int64, requestData unsafe.Pointer, requestSize C.int, responseSize *C.int) unsafe.Pointer {
+	service, err := trackingServices.Get(serviceID)
+	if err != nil {
+		return makePointerFromError(err, responseSize)
+	}
+	return invokeServiceMethod(service.DeleteTag, new(protos.DeleteTag), requestData, requestSize, responseSize)
+}
 //export TrackingServiceGetRun
 func TrackingServiceGetRun(serviceID int64, requestData unsafe.Pointer, requestSize C.int, responseSize *C.int) unsafe.Pointer {
 	service, err := trackingServices.Get(serviceID)
