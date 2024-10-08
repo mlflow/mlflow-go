@@ -4,10 +4,10 @@ package routes
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/mlflow/mlflow-go/pkg/contract/service"
-	"github.com/mlflow/mlflow-go/pkg/protos"
 	"github.com/mlflow/mlflow-go/pkg/server/parser"
+	"github.com/mlflow/mlflow-go/pkg/contract/service"
 	"github.com/mlflow/mlflow-go/pkg/utils"
+	"github.com/mlflow/mlflow-go/pkg/protos"
 )
 
 func RegisterTrackingServiceRoutes(service service.TrackingService, parser *parser.HTTPRequestParser, app *fiber.App) {
@@ -143,20 +143,18 @@ func RegisterTrackingServiceRoutes(service service.TrackingService, parser *pars
 		}
 		return ctx.JSON(output)
 	})
-
-  app.Patch("/mlflow/traces/{request_id}/tags", func(ctx *fiber.Ctx) error {
+	app.Patch("/mlflow/traces/:request_id/tags", func(ctx *fiber.Ctx) error {
 		input := &protos.SetTraceTag{}
 		if err := parser.ParseBody(ctx, input); err != nil {
 			return err
 		}
 		output, err := service.SetTraceTag(utils.NewContextWithLoggerFromFiberContext(ctx), input)
-   	 	if err != nil {
+		if err != nil {
 			return err
 		}
 		return ctx.JSON(output)
-  })
-
-  app.Post("/mlflow/runs/delete-tag", func(ctx *fiber.Ctx) error {
+	})
+	app.Post("/mlflow/runs/delete-tag", func(ctx *fiber.Ctx) error {
 		input := &protos.DeleteTag{}
 		if err := parser.ParseBody(ctx, input); err != nil {
 			return err
@@ -167,7 +165,6 @@ func RegisterTrackingServiceRoutes(service service.TrackingService, parser *pars
 		}
 		return ctx.JSON(output)
 	})
-            
 	app.Get("/mlflow/runs/get", func(ctx *fiber.Ctx) error {
 		input := &protos.GetRun{}
 		if err := parser.ParseQuery(ctx, input); err != nil {

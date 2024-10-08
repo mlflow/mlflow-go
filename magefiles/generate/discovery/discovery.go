@@ -35,12 +35,17 @@ var routeParameterRegex = regexp.MustCompile(`<[^>]+:([^>]+)>`)
 // Get the safe path to use in Fiber registration.
 func (e Endpoint) GetFiberPath() string {
 	// e.Path cannot be trusted, it could be something like /mlflow-artifacts/artifacts/<path:artifact_path>
-	// Which would need to converted to /mlflow-artifacts/artifacts/:path
+	// which would need to be converted to /mlflow-artifacts/artifacts/:path
 	path := routeParameterRegex.ReplaceAllStringFunc(e.Path, func(s string) string {
 		parts := strings.Split(s, ":")
 
 		return ":" + strings.Trim(parts[0], "< ")
 	})
+
+	// or it could be something like /mlflow/traces/{request_id}/tags
+	// which would need to be converted to /mlflow/traces/:request_id/tags
+	path = strings.ReplaceAll(path, "{", ":")
+	path = strings.ReplaceAll(path, "}", "")
 
 	return path
 }
