@@ -150,11 +150,11 @@ func RegisterTrackingServiceRoutes(service service.TrackingService, parser *pars
 			return err
 		}
 		output, err := service.SetTraceTag(utils.NewContextWithLoggerFromFiberContext(ctx), input)
-    if err != nil {
+   	 	if err != nil {
 			return err
 		}
 		return ctx.JSON(output)
-  }
+  })
 
   app.Post("/mlflow/runs/delete-tag", func(ctx *fiber.Ctx) error {
 		input := &protos.DeleteTag{}
