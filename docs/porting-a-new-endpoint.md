@@ -6,7 +6,7 @@ The following guide will walk you through the whole process of viewing the missi
 1. [View Missing Endpoints](#view-missing-endpoints): View the current state of implementated endpoints.
 2. [Enable the Endpoint](#enable-the-endpoint): Enable code generation for a new endpoint.
 3. [Validate Input](#validate-input): Apply validation on the incoming request data.
-4. [Implement the Service Method](#implement-the-service-method): Adding a new method to the TrackingService interface allows handling the logic for the new endpoint
+4. [Implement the Service Method](#implement-the-service-method): Add a new method to the `TrackingService` interface to handle the logic for the new endpoint
 5. [Expose the Endpoint via FFI](#expose-the-endpoint-via-ffi): Update the Foreign Function Interface bindings so that the new endpoint can be accessed from Python
 6. [Implement the Service Logic](#implement-the-service-logic): Convert the coming proto struct and invoke the store.
 7. [Store Implementation](#store-implementation): Add a method to the Store interface to handle the new endpoint's database logic (implementation can be empty for now).
@@ -109,7 +109,7 @@ def _delete_tag():
     return response
 ```
 
-We notice that `run_id` and `key` are required. Too avoid writing repeatitive code in Go, we make use of [Go validator](https://github.com/go-playground/validator) and use annotations to validate the incoming structs.
+We notice that `run_id` and `key` are required. To avoid writing repetitive code in Go, we make use of [Go validator](https://github.com/go-playground/validator) and use annotations to validate the incoming structs.
 
 To ensure parity, we need to update the input struct `DeleteTag` from the generated proto code ([pkg/protos/service.pb.go](../pkg/protos/service.pb.go)) with annotations. ⚠️ Since this file was generated, we don't want to modify it directly. ⚠️ Instead, we will configure validations in [validations.go](../magefiles/generate/validations.go).
 
@@ -123,11 +123,11 @@ var validations = map[string]string{
 
 After that, run `mage generate` again and check if our fields in `DeleteTag` now contain `validate:"required"`.
 
-Note that we do not need to process `_assert_string` because in Go all the structs are already statically typed.
+Note that we do not need to process `_assert_string` because in Go, all structs are already statically typed.
 
 It may happen that the [baked-in validations](https://github.com/go-playground/validator?tab=readme-ov-file#baked-in-validations) of the Go validator are not sufficient. If this occurs, please create a [custom validation rule](https://pkg.go.dev/github.com/go-playground/validator/v10#hdr-Custom_Validation_Functions) in [pkg/validation/validation.go](../pkg/validation/validation.go).
 
-## Implement the Service Method
+## Implement the Service Logic
 
 We aim to keep the Go implementation as close to the Python code as possible. That's why we have a thin service layer and keep most logic in the (SQL) store instead of the service. This keeps things similar to Python, making it easier to port and compare the code.
 
@@ -138,7 +138,7 @@ In the [pkg/tracking/service/service.go](../pkg/tracking/service/service.go), we
 _get_tracking_store().delete_tag(request_message.run_id, request_message.key)
 ```
 
-We split up the service over multiple files (one Go file per entity), sometimes it might not existing yet.
+We split up the service over multiple files (one Go file per entity), sometimes it might not exist yet.
 This is typically where we convert proto structs to entities. In the case of `deleteTag`, we can just pass the two arguments to the store.
 
 In [tags.go](../pkg/tracking/service/tags.go):
@@ -230,4 +230,4 @@ Some examples include:
 
 ## Troubleshooting
 
-If you encounter any difficulties, please feel free to open a draft PR and ask specific questions. Once your questions are answered, kindly update this section if you’ve learned something that should be included in this guide.
+If you encounter any difficulties, please feel free to open a draft PR and ask specific questions. Once your questions are answered, kindly update this section if you’ve learned something that could be valuable for other contributors.
