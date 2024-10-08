@@ -2,15 +2,12 @@ package service
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/mlflow/mlflow-go/pkg/contract"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 )
 
 func (ts TrackingService) SetTag(ctx context.Context, input *protos.SetTag) (*protos.SetTag_Response, *contract.Error) {
-	// Print input
-	fmt.Println(input)
 	if err := ts.Store.SetTag(ctx, input.GetRunId(), input.GetKey(), input.GetValue()); err != nil {
 		return nil, err
 	}
