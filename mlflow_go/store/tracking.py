@@ -15,6 +15,7 @@ from mlflow.protos.service_pb2 import (
     CreateRun,
     DeleteExperiment,
     DeleteRun,
+    DeleteTag,
     GetExperiment,
     GetExperimentByName,
     GetRun,
@@ -186,6 +187,10 @@ class _TrackingStore:
             request_id=request_id,
         )
         self.service.call_endpoint(get_lib().TrackingServiceSetTraceTag, request)
+    
+    def delete_tag(self, run_id, key):
+        request = DeleteTag(run_id=run_id, key=key)
+        self.service.call_endpoint(get_lib().TrackingServiceDeleteTag, request)
 
 
 def TrackingStore(cls):

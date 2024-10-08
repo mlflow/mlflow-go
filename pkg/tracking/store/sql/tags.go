@@ -80,3 +80,66 @@ func (s TrackingSQLStore) setTagsWithTransaction(
 
 	return nil
 }
+
+const badDataMessage = "Bad data in database - tags for a specific run must have\n" +
+	"a single unique value.\n" +
+	"See https://mlflow.org/docs/latest/tracking.html#adding-tags-to-runs"
+
+func (s TrackingSQLStore) DeleteTag(
+	ctx context.Context, runID, key string,
+) *contract.Error {
+	err := s.db.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
+		contractError := checkRunIsActive(transaction, runID)
+		if contractError != nil {
+			return contractError
+		}
+
+		var tags []models.Tag
+
+		transaction.Model(models.Tag{}).Where("run_uuid = ?", runID).Where("key = ?", key).Find(&tags)
+
+		if transaction.Error != nil {
+			return contract.NewErrorWith(
+				protos.ErrorCode_INTERNAL_ERROR,
+				fmt.Sprintf("Failed to query tags for run_id %q and key %q", runID, key),
+				transaction.Error,
+			)
+		}
+
+		switch len(tags) {
+		case 0:
+			return contract.NewError(
+				protos.ErrorCode_RESOURCE_DOES_NOT_EXIST,
+				fmt.Sprintf("No tag with name: %s in run with id %s", key, runID),
+			)
+		case 1:
+			transaction.Delete(tags[0])
+
+			if transaction.Error != nil {
+				return contract.NewErrorWith(
+					protos.ErrorCode_INTERNAL_ERROR,
+					fmt.Sprintf("Failed to query tags for run_id %q and key %q", runID, key),
+					transaction.Error,
+				)
+			}
+
+			return nil
+		default:
+			return contract.NewError(protos.ErrorCode_INVALID_STATE, badDataMessage)
+		}
+	})
+	if err != nil {
+		var contractError *contract.Error
+		if errors.As(err, &contractError) {
+			return contractError
+		}
+
+		return contract.NewErrorWith(
+			protos.ErrorCode_INTERNAL_ERROR,
+			fmt.Sprintf("delete tag transaction failed for %q", runID),
+			err,
+		)
+	}
+
+	return nil
+}

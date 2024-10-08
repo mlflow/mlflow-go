@@ -1,6 +1,6 @@
-## Contributing
+# Contributing
 
-### Installation
+## Installation
 
 to configure all the development environment just run `mage` target:
 
@@ -30,7 +30,7 @@ tar -C .mlflow.repo/mlflow -xzvf ./ui.tgz
 pip install -e .mlflow.repo
 ```
 
-### Run Go Mlflow server
+## Run Go Mlflow server
 
 To start the mlflow-go dev server connecting to postgres just run next `mage` target:
 
@@ -46,8 +46,11 @@ postgresql://postgres:postgres@localhost:5432/postgres
 
 but it could be configured in [mage](./magefiles/run.go)
 
+## Porting an Endpoint
 
-### Run tests
+If you wish to contribute to the porting of an existing Python endpoint, you can read our [dedicated guide](./docs/porting-a-new-endpoint.md).
+
+## Run tests
 
 The Python integration tests have been adapted to also run against the Go implementation.
 Next `mage` targets are available to run different types of tests:
