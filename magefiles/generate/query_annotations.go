@@ -47,11 +47,12 @@ func addQueryAnnotation(generatedGoFile string) error {
 			tagValue := field.Tag.Value
 
 			hasQuery := strings.Contains(tagValue, "query:")
+			hasParams := strings.Contains(tagValue, "params:")
 			hasValidate := strings.Contains(tagValue, "validate:")
 			validationKey := fmt.Sprintf("%s_%s", typeSpec.Name, field.Names[0])
 			validationRule, needsValidation := validations[validationKey]
 
-			if hasQuery && (!needsValidation || needsValidation && hasValidate) {
+			if hasParams && hasQuery && (!needsValidation || needsValidation && hasValidate) {
 				continue
 			}
 
@@ -59,7 +60,7 @@ func addQueryAnnotation(generatedGoFile string) error {
 			newTag := tagValue[0 : len(tagValue)-1]
 
 			matches := jsonFieldTagRegexp.FindStringSubmatch(tagValue)
-			if len(matches) > 0 && !hasQuery {
+			if len(matches) > 0 && !hasQuery && !hasParams {
 				// Modify the tag here
 				// The json annotation could be something like `json:"key,omitempty"`
 				// We only want the key part, the `omitempty` is not relevant for the query annotation
@@ -68,7 +69,7 @@ func addQueryAnnotation(generatedGoFile string) error {
 					key = strings.Split(key, ",")[0]
 				}
 				// Add query annotation
-				newTag += fmt.Sprintf(" query:\"%s\"", key)
+				newTag += fmt.Sprintf(" query:\"%s\" params:\"%s\"", key, key)
 			}
 
 			if needsValidation {
