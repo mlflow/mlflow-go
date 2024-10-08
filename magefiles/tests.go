@@ -28,8 +28,7 @@ func cleanUpMemoryFile() error {
 	return nil
 }
 
-// Run mlflow Python tests against the Go backend.
-func (Test) Python() error {
+func RunPythonTests(testFiles []string, testName string) error {
 	libpath, err := os.MkdirTemp("", "")
 	if err != nil {
 		return err
@@ -45,17 +44,22 @@ func (Test) Python() error {
 		return nil
 	}
 
+	args := []string{
+		"--confcutdir=.",
+	}
+	args = append(args, testFiles...)
+
+	// Add testName filter if provided
+	if testName != "" {
+		args = append(args, "-k", testName)
+	} else {
+		args = append(args, "-k", "not [file")
+	}
+
 	//  Run the tests (currently just the server ones)
 	if err := sh.RunWithV(map[string]string{
 		"MLFLOW_GO_LIBRARY_PATH": libpath,
-	}, "pytest",
-		"--confcutdir=.",
-		".mlflow.repo/tests/tracking/test_rest_tracking.py",
-		".mlflow.repo/tests/tracking/test_model_registry.py",
-		".mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py",
-		".mlflow.repo/tests/store/model_registry/test_sqlalchemy_store.py",
-		"-k",
-		"not [file",
+	}, "pytest", args...,
 		// "-vv",
 	); err != nil {
 		return err
@@ -64,31 +68,21 @@ func (Test) Python() error {
 	return nil
 }
 
+// Run mlflow Python tests against the Go backend.
+func (Test) Python() error {
+	return RunPythonTests([]string{
+		".mlflow.repo/tests/tracking/test_rest_tracking.py",
+		".mlflow.repo/tests/tracking/test_model_registry.py",
+		".mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py",
+		".mlflow.repo/tests/store/model_registry/test_sqlalchemy_store.py",
+	}, "")
+}
+
 // Run specific Python test against the Go backend.
 func (Test) PythonSpecific(testName string) error {
-	libpath, err := os.MkdirTemp("", "")
-	if err != nil {
-		return err
-	}
-
-	defer os.RemoveAll(libpath)
-	defer cleanUpMemoryFile()
-
-	if err := sh.RunV("python", "-m", "mlflow_go.lib", ".", libpath); err != nil {
-		return nil
-	}
-
-	if err := sh.RunWithV(map[string]string{
-		"MLFLOW_GO_LIBRARY_PATH": libpath,
-	}, "pytest",
-		"--confcutdir=.",
+	return RunPythonTests([]string{
 		".mlflow.repo/tests/tracking/test_rest_tracking.py",
-		"-k", testName,
-	); err != nil {
-		return err
-	}
-
-	return nil
+	}, testName)
 }
 
 // Run the Go unit tests.
