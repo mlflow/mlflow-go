@@ -107,6 +107,15 @@ func validateLogBatchLimits(structLevel validator.StructLevel) {
 	}
 }
 
+// SetTag must have either a run_id or a run_uuid present.
+func validateSetTagRunIDExists(structLevel validator.StructLevel) {
+	tag, isTag := structLevel.Current().Interface().(*protos.SetTag)
+
+	if isTag && tag.GetRunId() == "" && tag.GetRunUuid() == "" {
+		structLevel.ReportError(&tag, "run_id", "", "", "")
+	}
+}
+
 func truncateFn(fieldLevel validator.FieldLevel) bool {
 	param := fieldLevel.Param() // Get the parameter from the tag
 
@@ -188,6 +197,7 @@ func NewValidator() (*validator.Validate, error) {
 	}
 
 	validate.RegisterStructValidation(validateLogBatchLimits, &protos.LogBatch{})
+	validate.RegisterStructValidation(validateSetTagRunIDExists, &protos.SetTag{})
 
 	return validate, nil
 }
