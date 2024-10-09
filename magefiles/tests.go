@@ -28,7 +28,7 @@ func cleanUpMemoryFile() error {
 	return nil
 }
 
-func RunPythonTests(testFiles []string, testName string) error {
+func runPythonTests(testFiles []string, testName string) error {
 	libpath, err := os.MkdirTemp("", "")
 	if err != nil {
 		return err
@@ -70,7 +70,7 @@ func RunPythonTests(testFiles []string, testName string) error {
 
 // Run mlflow Python tests against the Go backend.
 func (Test) Python() error {
-	return RunPythonTests([]string{
+	return runPythonTests([]string{
 		".mlflow.repo/tests/tracking/test_rest_tracking.py",
 		".mlflow.repo/tests/tracking/test_model_registry.py",
 		".mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py",
@@ -80,7 +80,7 @@ func (Test) Python() error {
 
 // Run specific Python test against the Go backend.
 func (Test) PythonSpecific(testName string) error {
-	return RunPythonTests([]string{
+	return runPythonTests([]string{
 		".mlflow.repo/tests/tracking/test_rest_tracking.py",
 	}, testName)
 }
