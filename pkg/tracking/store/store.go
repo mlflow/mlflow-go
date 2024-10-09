@@ -77,4 +77,5 @@ type ExperimentTrackingStore interface {
 	) ([]*entities.Run, string, *contract.Error)
 
 	DeleteExperiment(ctx context.Context, id string) *contract.Error
+	SetExperimentTag(ctx context.Context, experimentID, key, value string) *contract.Error
 }

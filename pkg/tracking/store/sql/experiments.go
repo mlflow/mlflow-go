@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"github.com/mlflow/mlflow-go/pkg/contract"
 	"github.com/mlflow/mlflow-go/pkg/entities"
@@ -17,22 +18,47 @@ import (
 	"github.com/mlflow/mlflow-go/pkg/utils"
 )
 
-func (s TrackingSQLStore) GetExperiment(ctx context.Context, id string) (*entities.Experiment, *contract.Error) {
+func convertExperimentIDToInt(id string) (int32, *contract.Error) {
 	idInt, err := strconv.ParseInt(id, 10, 32)
 	if err != nil {
-		return nil, contract.NewErrorWith(
+		return 0, contract.NewErrorWith(
 			protos.ErrorCode_INVALID_PARAMETER_VALUE,
 			fmt.Sprintf("failed to convert experiment id %q to int", id),
 			err,
 		)
 	}
 
-	experiment := models.Experiment{ID: int32(idInt)}
+	return int32(idInt), nil
+}
+
+func checkExperimentIsActive(experiment *entities.Experiment) *contract.Error {
+	if models.LifecycleStage(experiment.LifecycleStage) != models.LifecycleStageActive {
+		return contract.NewError(
+			protos.ErrorCode_INVALID_PARAMETER_VALUE,
+			fmt.Sprintf(
+				"The experiment %q must be in the 'active' state.\n"+
+					"Current state is %q.",
+				experiment.ExperimentID,
+				experiment.LifecycleStage,
+			),
+		)
+	}
+
+	return nil
+}
+
+func (s TrackingSQLStore) GetExperiment(ctx context.Context, id string) (*entities.Experiment, *contract.Error) {
+	experimentID, err := convertExperimentIDToInt(id)
+	if err != nil {
+		return nil, err
+	}
+
+	experiment := models.Experiment{ID: experimentID}
 	if err := s.db.WithContext(ctx).Preload("Tags").First(&experiment).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, contract.NewError(
 				protos.ErrorCode_RESOURCE_DOES_NOT_EXIST,
-				fmt.Sprintf("No Experiment with id=%d exists", idInt),
+				fmt.Sprintf("No Experiment with id=%d exists", experimentID),
 			)
 		}
 
@@ -115,26 +141,22 @@ func (s TrackingSQLStore) RenameExperiment(
 }
 
 func (s TrackingSQLStore) DeleteExperiment(ctx context.Context, id string) *contract.Error {
-	idInt, err := strconv.ParseInt(id, 10, 32)
+	experimentID, err := convertExperimentIDToInt(id)
 	if err != nil {
-		return contract.NewErrorWith(
-			protos.ErrorCode_INVALID_PARAMETER_VALUE,
-			fmt.Sprintf("failed to convert experiment id (%s) to int", id),
-			err,
-		)
+		return err
 	}
 
 	if err := s.db.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
 		// Update experiment
 		uex := transaction.Model(&models.Experiment{}).
-			Where("experiment_id = ?", idInt).
+			Where("experiment_id = ?", experimentID).
 			Updates(&models.Experiment{
 				LifecycleStage: models.LifecycleStageDeleted,
 				LastUpdateTime: time.Now().UnixMilli(),
 			})
 
 		if uex.Error != nil {
-			return fmt.Errorf("failed to update experiment (%d) during delete: %w", idInt, err)
+			return fmt.Errorf("failed to update experiment (%d) during delete: %w", experimentID, err)
 		}
 
 		if uex.RowsAffected != 1 {
@@ -143,7 +165,7 @@ func (s TrackingSQLStore) DeleteExperiment(ctx context.Context, id string) *cont
 
 		// Update runs
 		if err := transaction.Model(&models.Run{}).
-			Where("experiment_id = ?", idInt).
+			Where("experiment_id = ?", experimentID).
 			Updates(&models.Run{
 				LifecycleStage: models.LifecycleStageDeleted,
 				DeletedTime:    sql.NullInt64{Valid: true, Int64: time.Now().UnixMilli()},
@@ -156,7 +178,7 @@ func (s TrackingSQLStore) DeleteExperiment(ctx context.Context, id string) *cont
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return contract.NewError(
 				protos.ErrorCode_RESOURCE_DOES_NOT_EXIST,
-				fmt.Sprintf("No Experiment with id=%d exists", idInt),
+				fmt.Sprintf("No Experiment with id=%d exists", experimentID),
 			)
 		}
 
@@ -171,19 +193,15 @@ func (s TrackingSQLStore) DeleteExperiment(ctx context.Context, id string) *cont
 }
 
 func (s TrackingSQLStore) RestoreExperiment(ctx context.Context, id string) *contract.Error {
-	idInt, err := strconv.ParseInt(id, 10, 32)
+	experimentID, err := convertExperimentIDToInt(id)
 	if err != nil {
-		return contract.NewErrorWith(
-			protos.ErrorCode_INVALID_PARAMETER_VALUE,
-			fmt.Sprintf("failed to convert experiment id (%s) to int", id),
-			err,
-		)
+		return err
 	}
 
 	if err := s.db.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
 		// Update experiment
 		uex := transaction.Model(&models.Experiment{}).
-			Where("experiment_id = ?", idInt).
+			Where("experiment_id = ?", experimentID).
 			Where("lifecycle_stage = ?", models.LifecycleStageDeleted).
 			Updates(&models.Experiment{
 				LifecycleStage: models.LifecycleStageActive,
@@ -191,7 +209,7 @@ func (s TrackingSQLStore) RestoreExperiment(ctx context.Context, id string) *con
 			})
 
 		if uex.Error != nil {
-			return fmt.Errorf("failed to update experiment (%d) during delete: %w", idInt, err)
+			return fmt.Errorf("failed to update experiment (%d) during delete: %w", experimentID, err)
 		}
 
 		if uex.RowsAffected != 1 {
@@ -200,7 +218,7 @@ func (s TrackingSQLStore) RestoreExperiment(ctx context.Context, id string) *con
 
 		// Update runs
 		if err := transaction.Model(&models.Run{}).
-			Where("experiment_id = ?", idInt).
+			Where("experiment_id = ?", experimentID).
 			Select("DeletedTime", "LifecycleStage").
 			Updates(&models.Run{
 				LifecycleStage: models.LifecycleStageActive,
@@ -214,7 +232,7 @@ func (s TrackingSQLStore) RestoreExperiment(ctx context.Context, id string) *con
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return contract.NewError(
 				protos.ErrorCode_RESOURCE_DOES_NOT_EXIST,
-				fmt.Sprintf("No Experiment with id=%d exists", idInt),
+				fmt.Sprintf("No Experiment with id=%d exists", experimentID),
 			)
 		}
 
@@ -251,4 +269,50 @@ func (s TrackingSQLStore) GetExperimentByName(
 	}
 
 	return experiment.ToEntity(), nil
+}
+
+func (s TrackingSQLStore) SetExperimentTag(
+	ctx context.Context, experimentID, key, value string,
+) *contract.Error {
+	experiment, err := s.GetExperiment(ctx, experimentID)
+	if err != nil {
+		return err
+	}
+
+	if err := checkExperimentIsActive(experiment); err != nil {
+		return err
+	}
+
+	idInt, err := convertExperimentIDToInt(experimentID)
+	if err != nil {
+		return err
+	}
+
+	if err := s.db.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
+		experimentTag := models.ExperimentTag{
+			ExperimentID: idInt,
+			Key:          key,
+			Value:        value,
+		}
+
+		if err := transaction.Clauses(clause.OnConflict{
+			UpdateAll: true,
+		}).Create(&experimentTag).Error; err != nil {
+			if errors.Is(err, gorm.ErrDuplicatedKey) {
+				return fmt.Errorf("tag already exists for experiment %s: %w", experimentID, err)
+			}
+
+			return fmt.Errorf("failed to create experiment tag: %w", err)
+		}
+
+		return nil
+	}); err != nil {
+		return contract.NewErrorWith(
+			protos.ErrorCode_INTERNAL_ERROR,
+			"failed to set experiment tag",
+			err,
+		)
+	}
+
+	return nil
 }

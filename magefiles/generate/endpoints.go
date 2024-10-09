@@ -25,7 +25,7 @@ var ServiceInfoMap = map[string]ServiceGenerationInfo{
 			"restoreRun",
 			"logMetric",
 			"logParam",
-			// "setExperimentTag",
+			"setExperimentTag",
 			// "setTag",
 			// "setTraceTag",
 			// "deleteTraceTag",

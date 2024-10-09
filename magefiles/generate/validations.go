@@ -29,4 +29,7 @@ var validations = map[string]string{
 	"LogMetric_Timestamp":                "required",
 	"DeleteTag_RunId":                    "required",
 	"DeleteTag_Key":                      "required",
+	"SetExperimentTag_ExperimentId":      "required",
+	"SetExperimentTag_Key":               "required,max=250,validMetricParamOrTagName",
+	"SetExperimentTag_Value":             "max=5000",
 }
