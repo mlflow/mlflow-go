@@ -2074,7 +2074,7 @@ type SetTag struct {
 	unknownFields protoimpl.UnknownFields
 
 	// ID of the run under which to log the tag. Must be provided.
-	RunId *string `protobuf:"bytes,4,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id" validate:"required"`
+	RunId *string `protobuf:"bytes,4,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id"`
 	// [Deprecated, use run_id instead] ID of the run under which to log the tag. This field will
 	// be removed in a future MLflow version.
 	RunUuid *string `protobuf:"bytes,1,opt,name=run_uuid,json=runUuid" json:"run_uuid,omitempty" query:"run_uuid"`
