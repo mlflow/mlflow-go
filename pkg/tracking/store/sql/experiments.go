@@ -31,6 +31,22 @@ func convertExperimentIDToInt(id string) (int32, *contract.Error) {
 	return int32(idInt), nil
 }
 
+func checkExperimentIsActive(experiment *entities.Experiment) *contract.Error {
+	if models.LifecycleStage(experiment.LifecycleStage) != models.LifecycleStageActive {
+		return contract.NewError(
+			protos.ErrorCode_INVALID_PARAMETER_VALUE,
+			fmt.Sprintf(
+				"The experiment %q must be in the 'active' state.\n"+
+					"Current state is %q.",
+				experiment.ExperimentID,
+				experiment.LifecycleStage,
+			),
+		)
+	}
+
+	return nil
+}
+
 func (s TrackingSQLStore) GetExperiment(ctx context.Context, id string) (*entities.Experiment, *contract.Error) {
 	experimentID, err := convertExperimentIDToInt(id)
 	if err != nil {
@@ -263,17 +279,8 @@ func (s TrackingSQLStore) SetExperimentTag(
 		return err
 	}
 
-	// check experiment is active
-	if models.LifecycleStage(experiment.LifecycleStage) != models.LifecycleStageActive {
-		return contract.NewError(
-			protos.ErrorCode_INVALID_PARAMETER_VALUE,
-			fmt.Sprintf(
-				"The experiment %q must be in the 'active' state.\n"+
-					"Current state is %q.",
-				experiment.ExperimentID,
-				experiment.LifecycleStage,
-			),
-		)
+	if err := checkExperimentIsActive(experiment); err != nil {
+		return err
 	}
 
 	idInt, err := convertExperimentIDToInt(experimentID)

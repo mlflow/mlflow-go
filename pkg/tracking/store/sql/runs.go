@@ -703,16 +703,8 @@ func (s TrackingSQLStore) CreateRun(
 		return nil, err
 	}
 
-	if models.LifecycleStage(experiment.LifecycleStage) != models.LifecycleStageActive {
-		return nil, contract.NewError(
-			protos.ErrorCode_INVALID_PARAMETER_VALUE,
-			fmt.Sprintf(
-				"The experiment %q must be in the 'active' state.\n"+
-					"Current state is %q.",
-				experiment.ExperimentID,
-				experiment.LifecycleStage,
-			),
-		)
+	if err := checkExperimentIsActive(experiment); err != nil {
+		return nil, err
 	}
 
 	runModel := &models.Run{
