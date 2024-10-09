@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"github.com/mlflow/mlflow-go/pkg/contract"
 	"github.com/mlflow/mlflow-go/pkg/entities"
@@ -251,4 +252,64 @@ func (s TrackingSQLStore) GetExperimentByName(
 	}
 
 	return experiment.ToEntity(), nil
+}
+
+func (s TrackingSQLStore) SetExperimentTag(
+	ctx context.Context, experimentID, key, value string,
+) *contract.Error {
+	experiment, err := s.GetExperiment(ctx, experimentID)
+	if err != nil {
+		return err
+	}
+
+	// check experiment is active
+	if models.LifecycleStage(experiment.LifecycleStage) != models.LifecycleStageActive {
+		return contract.NewError(
+			protos.ErrorCode_INVALID_PARAMETER_VALUE,
+			fmt.Sprintf(
+				"The experiment %q must be in the 'active' state.\n"+
+					"Current state is %q.",
+				experiment.ExperimentID,
+				experiment.LifecycleStage,
+			),
+		)
+	}
+
+	idInt, convertErr := strconv.ParseInt(experimentID, 10, 32)
+
+	if convertErr != nil {
+		return contract.NewErrorWith(
+			protos.ErrorCode_INVALID_PARAMETER_VALUE,
+			fmt.Sprintf("failed to convert experiment id %q to int", experimentID),
+			err,
+		)
+	}
+
+	if err := s.db.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
+		experimentTag := models.ExperimentTag{
+			ExperimentID: int32(idInt),
+			Key:          key,
+			Value:        value,
+		}
+
+		if err := transaction.Clauses(clause.OnConflict{
+			UpdateAll: true,
+		}).Create(&experimentTag).Error; err != nil {
+			if errors.Is(err, gorm.ErrDuplicatedKey) {
+				return fmt.Errorf("tag already exists for experiment %s: %w", experimentID, err)
+			}
+
+			return fmt.Errorf("failed to create experiment tag: %w", err)
+		}
+
+		return nil
+	}); err != nil {
+		return contract.NewErrorWith(
+			protos.ErrorCode_INTERNAL_ERROR,
+			"failed to set experiment tag",
+			err,
+		)
+	}
+
+	return nil
 }
