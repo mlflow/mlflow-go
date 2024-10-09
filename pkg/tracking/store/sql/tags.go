@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strconv"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -89,14 +88,6 @@ func (s TrackingSQLStore) SetTag(
 		return contract.NewError(
 			protos.ErrorCode_INVALID_PARAMETER_VALUE,
 			"RunID cannot be empty",
-		)
-	}
-
-	// If the runID can be parsed as a number, it should throw an error
-	if _, err := strconv.ParseFloat(runID, 64); err == nil {
-		return contract.NewError(
-			protos.ErrorCode_INVALID_PARAMETER_VALUE,
-			fmt.Sprintf("Invalid value %s for parameter 'run_id' supplied", runID),
 		)
 	}
 
