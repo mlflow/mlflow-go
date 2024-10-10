@@ -39,3 +39,8 @@ jobs:
       - name: Run build target
         run: mage build ${{ matrix.os }} ${{ matrix.arch }}
 
+      - name: Upload wheels artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mlflow-go-wheels-${{ matrix.os }}-${{ matrix.arch }}
+          path: dist/*.whl
