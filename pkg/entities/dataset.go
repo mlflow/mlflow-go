@@ -33,3 +33,14 @@ func (d *Dataset) ToProto() *protos.Dataset {
 		Profile:    profile,
 	}
 }
+
+func NewDatasetFromProto(proto *protos.Dataset) *Dataset {
+	return &Dataset{
+		Name:       proto.GetName(),
+		Digest:     proto.GetDigest(),
+		SourceType: proto.GetSourceType(),
+		Source:     proto.GetSource(),
+		Schema:     proto.GetSchema(),
+		Profile:    proto.GetProfile(),
+	}
+}
