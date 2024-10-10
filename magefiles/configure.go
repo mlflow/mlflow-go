@@ -21,7 +21,8 @@ func tar(args ...string) error {
 	return sh.RunV("tar", args...)
 }
 
-func Temp() error {
+// Configure development environment.
+func Configure() error {
 	mg.Deps(Repo.Init)
 
 	// Install our Python package and its dependencies

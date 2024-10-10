@@ -35,8 +35,8 @@ type (
 		) *contract.Error
 		DeleteRun(ctx context.Context, runID string) *contract.Error
 		RestoreRun(ctx context.Context, runID string) *contract.Error
-
 		GetRunTag(ctx context.Context, runID, tagKey string) (*entities.RunTag, *contract.Error)
+		DeleteTag(ctx context.Context, runID, key string) *contract.Error
 	}
 	MetricTrackingStore interface {
 		LogBatch(
@@ -47,6 +47,7 @@ type (
 			tags []*entities.RunTag) *contract.Error
 
 		LogMetric(ctx context.Context, runID string, metric *entities.Metric) *contract.Error
+		LogParam(ctx context.Context, runID string, metric *entities.Param) *contract.Error
 	}
 )
 
@@ -76,4 +77,5 @@ type ExperimentTrackingStore interface {
 	) ([]*entities.Run, string, *contract.Error)
 
 	DeleteExperiment(ctx context.Context, id string) *contract.Error
+	SetExperimentTag(ctx context.Context, experimentID, key, value string) *contract.Error
 }
