@@ -1034,9 +1034,9 @@ type InputTag struct {
 	unknownFields protoimpl.UnknownFields
 
 	// The tag key.
-	Key *string `protobuf:"bytes,1,opt,name=key" json:"key,omitempty" query:"key" params:"key"`
+	Key *string `protobuf:"bytes,1,opt,name=key" json:"key,omitempty" query:"key" params:"key" validate:"required,max=255"`
 	// The tag value.
-	Value *string `protobuf:"bytes,2,opt,name=value" json:"value,omitempty" query:"value" params:"value"`
+	Value *string `protobuf:"bytes,2,opt,name=value" json:"value,omitempty" query:"value" params:"value" validate:"required,max=500"`
 }
 
 func (x *InputTag) Reset() {
@@ -1093,22 +1093,22 @@ type Dataset struct {
 	unknownFields protoimpl.UnknownFields
 
 	// The name of the dataset. E.g. “my.uc.table@2” “nyc-taxi-dataset”, “fantastic-elk-3”
-	Name *string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty" query:"name" params:"name"`
+	Name *string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty" query:"name" params:"name" validate:"required,max=500"`
 	// Dataset digest, e.g. an md5 hash of the dataset that uniquely identifies it
 	// within datasets of the same name.
-	Digest *string `protobuf:"bytes,2,opt,name=digest" json:"digest,omitempty" query:"digest" params:"digest"`
+	Digest *string `protobuf:"bytes,2,opt,name=digest" json:"digest,omitempty" query:"digest" params:"digest" validate:"required,max=36"`
 	// Source information for the dataset. Note that the source may not exactly reproduce the
 	// dataset if it was transformed / modified before use with MLflow.
-	SourceType *string `protobuf:"bytes,3,opt,name=source_type,json=sourceType" json:"source_type,omitempty" query:"source_type" params:"source_type"`
+	SourceType *string `protobuf:"bytes,3,opt,name=source_type,json=sourceType" json:"source_type,omitempty" query:"source_type" params:"source_type" validate:"required"`
 	// The type of the dataset source, e.g. ‘databricks-uc-table’, ‘DBFS’, ‘S3’, ...
-	Source *string `protobuf:"bytes,4,opt,name=source" json:"source,omitempty" query:"source" params:"source"`
+	Source *string `protobuf:"bytes,4,opt,name=source" json:"source,omitempty" query:"source" params:"source" validate:"required,max=65535"`
 	// The schema of the dataset. E.g., MLflow ColSpec JSON for a dataframe, MLflow TensorSpec JSON
 	// for an ndarray, or another schema format.
-	Schema *string `protobuf:"bytes,5,opt,name=schema" json:"schema,omitempty" query:"schema" params:"schema"`
+	Schema *string `protobuf:"bytes,5,opt,name=schema" json:"schema,omitempty" query:"schema" params:"schema" validate:"max:1048575"`
 	// The profile of the dataset. Summary statistics for the dataset, such as the number of rows
 	// in a table, the mean / std / mode of each column in a table, or the number of elements
 	// in an array.
-	Profile *string `protobuf:"bytes,6,opt,name=profile" json:"profile,omitempty" query:"profile" params:"profile"`
+	Profile *string `protobuf:"bytes,6,opt,name=profile" json:"profile,omitempty" query:"profile" params:"profile" validate:"max:16777215"`
 }
 
 func (x *Dataset) Reset() {
@@ -2925,9 +2925,9 @@ type LogInputs struct {
 	unknownFields protoimpl.UnknownFields
 
 	// ID of the run to log under
-	RunId *string `protobuf:"bytes,1,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id" params:"run_id"`
+	RunId *string `protobuf:"bytes,1,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id" params:"run_id" validate:"required"`
 	// Dataset inputs
-	Datasets []*DatasetInput `protobuf:"bytes,2,rep,name=datasets" json:"datasets,omitempty" query:"datasets" params:"datasets"`
+	Datasets []*DatasetInput `protobuf:"bytes,2,rep,name=datasets" json:"datasets,omitempty" query:"datasets" params:"datasets" validate:"required"`
 }
 
 func (x *LogInputs) Reset() {
