@@ -39,8 +39,6 @@ func getTargetTriple(goos, goarch string) (string, error) {
 	return "", fmt.Errorf("%w: %s/%s", errUnknownTarget, goos, goarch)
 }
 
-// TODO: someday add mussle
-
 var errUnsupportedDarwin = errors.New(`unsupported`)
 
 // Build a Python wheel.
