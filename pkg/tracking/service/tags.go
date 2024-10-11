@@ -23,7 +23,7 @@ func (ts TrackingService) SetTag(ctx context.Context, input *protos.SetTag) (*pr
 	if runID == "" {
 		runID = input.GetRunUuid()
 	}
-	
+
 	if err := ts.Store.SetTag(ctx, runID, input.GetKey(), input.GetValue()); err != nil {
 		return nil, err
 	}

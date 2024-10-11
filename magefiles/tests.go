@@ -51,16 +51,16 @@ func runPythonTests(testFiles []string, testName string) error {
 
 	// Add testName filter if provided
 	if testName != "" {
-		args = append(args, "-k", testName, "-v")
+		args = append(args, "-k", testName, "-vv")
 	} else {
-		args = append(args, "-k", "not [file", "-v")
+		args = append(args, "-k", "not [file")
 	}
 
 	//  Run the tests (currently just the server ones)
 	if err := sh.RunWithV(map[string]string{
 		"MLFLOW_GO_LIBRARY_PATH": libpath,
 	}, "pytest", args...,
-		// "-vv",
+	// "-vv",
 	); err != nil {
 		return err
 	}
