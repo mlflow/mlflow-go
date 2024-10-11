@@ -11,6 +11,7 @@ import (
 //go:generate mockery
 type TrackingStore interface {
 	RunTrackingStore
+	TraceTrackingStore
 	MetricTrackingStore
 	ExperimentTrackingStore
 }
@@ -37,6 +38,10 @@ type (
 		RestoreRun(ctx context.Context, runID string) *contract.Error
 		GetRunTag(ctx context.Context, runID, tagKey string) (*entities.RunTag, *contract.Error)
 		DeleteTag(ctx context.Context, runID, key string) *contract.Error
+	}
+	TraceTrackingStore interface {
+		GetTraceTag(ctx context.Context, requestID, key string) (*entities.TraceTag, *contract.Error)
+		DeleteTraceTag(ctx context.Context, tag *entities.TraceTag) *contract.Error
 	}
 	MetricTrackingStore interface {
 		LogBatch(

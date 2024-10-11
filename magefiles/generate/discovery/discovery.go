@@ -42,6 +42,11 @@ func (e Endpoint) GetFiberPath() string {
 		return ":" + strings.Trim(parts[0], "< ")
 	})
 
+	// or it could be something like /mlflow/traces/{request_id}/tags
+	// which would need to be converted to /mlflow/traces/:request_id/tags
+	path = strings.ReplaceAll(path, "{", ":")
+	path = strings.ReplaceAll(path, "}", "")
+
 	return path
 }
 
