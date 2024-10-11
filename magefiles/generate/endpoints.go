@@ -28,7 +28,7 @@ var ServiceInfoMap = map[string]ServiceGenerationInfo{
 			"setExperimentTag",
 			// "setTag",
 			// "setTraceTag",
-			// "deleteTraceTag",
+			"deleteTraceTag",
 			"deleteTag",
 			"searchRuns",
 			// "listArtifacts",

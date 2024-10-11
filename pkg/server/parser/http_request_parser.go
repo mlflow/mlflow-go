@@ -52,6 +52,11 @@ func (p *HTTPRequestParser) ParseBody(ctx *fiber.Ctx, input proto.Message) *cont
 		return contract.NewError(protos.ErrorCode_BAD_REQUEST, protojsonErr.Error())
 	}
 
+	// try to parse all the parameters from query url to an internal proto object.
+	if err := ctx.ParamsParser(input); err != nil {
+		return contract.NewError(protos.ErrorCode_BAD_REQUEST, err.Error())
+	}
+
 	if err := p.validator.Struct(input); err != nil {
 		return validation.NewErrorFromValidationError(err)
 	}
