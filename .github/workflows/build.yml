@@ -1,0 +1,40 @@
+name: Build
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  wheel:
+    name: Build Python wheel
+    strategy:
+      matrix:
+        os: ["darwin","linux", "windows"]
+        arch: ["amd64", "arm64"]
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+          check-latest: true
+          cache: false
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+
+      - name: Install mage
+        run: go install github.com/magefile/mage@v1.15.0
+
+      - name: Run build target
+        run: mage build ${{ matrix.os }} ${{ matrix.arch }}
+
+      - name: Upload wheels artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mlflow-go-wheels-${{ matrix.os }}-${{ matrix.arch }}
+          path: dist/*.whl
