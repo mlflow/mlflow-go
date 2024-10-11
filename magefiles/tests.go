@@ -51,9 +51,9 @@ func runPythonTests(testFiles []string, testName string) error {
 
 	// Add testName filter if provided
 	if testName != "" {
-		args = append(args, "-k", testName)
+		args = append(args, "-k", testName, "-v")
 	} else {
-		args = append(args, "-k", "not [file")
+		args = append(args, "-k", "not [file", "-v")
 	}
 
 	//  Run the tests (currently just the server ones)
@@ -82,6 +82,9 @@ func (Test) Python() error {
 func (Test) PythonSpecific(testName string) error {
 	return runPythonTests([]string{
 		".mlflow.repo/tests/tracking/test_rest_tracking.py",
+		".mlflow.repo/tests/tracking/test_model_registry.py",
+		".mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py",
+		".mlflow.repo/tests/store/model_registry/test_sqlalchemy_store.py",
 	}, testName)
 }
 
