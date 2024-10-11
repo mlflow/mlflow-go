@@ -4,19 +4,26 @@ import "github.com/mlflow/mlflow-go/pkg/protos"
 
 type Param struct {
 	Key   string
-	Value string
+	Value *string
 }
 
 func (p Param) ToProto() *protos.Param {
 	return &protos.Param{
 		Key:   &p.Key,
-		Value: &p.Value,
+		Value: p.Value,
 	}
 }
 
 func ParamFromProto(proto *protos.Param) *Param {
 	return &Param{
 		Key:   *proto.Key,
-		Value: *proto.Value,
+		Value: proto.Value,
+	}
+}
+
+func ParamFromLogMetricProtoInput(input *protos.LogParam) *Param {
+	return &Param{
+		Key:   input.GetKey(),
+		Value: input.Value,
 	}
 }

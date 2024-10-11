@@ -8,8 +8,10 @@ import (
 	"github.com/magefile/mage/sh"
 )
 
+type Run mg.Namespace
+
 // Start the mlflow-go dev server connecting to postgres.
-func Dev() error {
+func (Run) Dev() error {
 	mg.Deps(Generate)
 
 	envs := make(map[string]string)

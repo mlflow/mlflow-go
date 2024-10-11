@@ -132,3 +132,13 @@ func (ts TrackingService) GetExperimentByName(
 		Experiment: experiment.ToProto(),
 	}, nil
 }
+
+func (ts TrackingService) SetExperimentTag(
+	ctx context.Context, input *protos.SetExperimentTag,
+) (*protos.SetExperimentTag_Response, *contract.Error) {
+	if err := ts.Store.SetExperimentTag(ctx, input.GetExperimentId(), input.GetKey(), input.GetValue()); err != nil {
+		return nil, err
+	}
+
+	return &protos.SetExperimentTag_Response{}, nil
+}

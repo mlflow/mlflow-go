@@ -1935,9 +1935,9 @@ type LogParam struct {
 	// be removed in a future MLflow version.
 	RunUuid *string `protobuf:"bytes,1,opt,name=run_uuid,json=runUuid" json:"run_uuid,omitempty" query:"run_uuid"`
 	// Name of the param. Maximum size is 255 bytes.
-	Key *string `protobuf:"bytes,2,opt,name=key" json:"key,omitempty" query:"key"`
+	Key *string `protobuf:"bytes,2,opt,name=key" json:"key,omitempty" query:"key" validate:"required,max=250,validMetricParamOrTagName,pathIsUnique"`
 	// String value of the param being logged. Maximum size is 6000 bytes.
-	Value *string `protobuf:"bytes,3,opt,name=value" json:"value,omitempty" query:"value"`
+	Value *string `protobuf:"bytes,3,opt,name=value" json:"value,omitempty" query:"value" validate:"omitempty,truncate=6000"`
 }
 
 func (x *LogParam) Reset() {
@@ -2006,13 +2006,13 @@ type SetExperimentTag struct {
 	unknownFields protoimpl.UnknownFields
 
 	// ID of the experiment under which to log the tag. Must be provided.
-	ExperimentId *string `protobuf:"bytes,1,opt,name=experiment_id,json=experimentId" json:"experiment_id,omitempty" query:"experiment_id"`
+	ExperimentId *string `protobuf:"bytes,1,opt,name=experiment_id,json=experimentId" json:"experiment_id,omitempty" query:"experiment_id" validate:"required"`
 	// Name of the tag. Maximum size depends on storage backend.
 	// All storage backends are guaranteed to support key values up to 250 bytes in size.
-	Key *string `protobuf:"bytes,2,opt,name=key" json:"key,omitempty" query:"key"`
+	Key *string `protobuf:"bytes,2,opt,name=key" json:"key,omitempty" query:"key" validate:"required,max=250,validMetricParamOrTagName"`
 	// String value of the tag being logged. Maximum size depends on storage backend.
 	// All storage backends are guaranteed to support key values up to 5000 bytes in size.
-	Value *string `protobuf:"bytes,3,opt,name=value" json:"value,omitempty" query:"value"`
+	Value *string `protobuf:"bytes,3,opt,name=value" json:"value,omitempty" query:"value" validate:"max=5000"`
 }
 
 func (x *SetExperimentTag) Reset() {

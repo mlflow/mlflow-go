@@ -132,6 +132,28 @@ func RegisterTrackingServiceRoutes(service service.TrackingService, parser *pars
 		}
 		return ctx.JSON(output)
 	})
+	app.Post("/mlflow/runs/log-parameter", func(ctx *fiber.Ctx) error {
+		input := &protos.LogParam{}
+		if err := parser.ParseBody(ctx, input); err != nil {
+			return err
+		}
+		output, err := service.LogParam(utils.NewContextWithLoggerFromFiberContext(ctx), input)
+		if err != nil {
+			return err
+		}
+		return ctx.JSON(output)
+	})
+	app.Post("/mlflow/experiments/set-experiment-tag", func(ctx *fiber.Ctx) error {
+		input := &protos.SetExperimentTag{}
+		if err := parser.ParseBody(ctx, input); err != nil {
+			return err
+		}
+		output, err := service.SetExperimentTag(utils.NewContextWithLoggerFromFiberContext(ctx), input)
+		if err != nil {
+			return err
+		}
+		return ctx.JSON(output)
+	})
 	app.Post("/mlflow/runs/set-tag", func(ctx *fiber.Ctx) error {
 		input := &protos.SetTag{}
 		if err := parser.ParseBody(ctx, input); err != nil {
