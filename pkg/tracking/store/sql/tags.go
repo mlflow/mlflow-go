@@ -147,65 +147,34 @@ func (s TrackingSQLStore) DeleteTag(
 func (s TrackingSQLStore) SetTag(
 	ctx context.Context, runID, key, value string,
 ) *contract.Error {
-	// Retrieve the logger from the context
-	logger := utils.GetLoggerFromContext(ctx)
-
 	if runID == "" {
-		logger.Infof("RunID cannot be empty")
 		return contract.NewError(
 			protos.ErrorCode_INVALID_PARAMETER_VALUE,
 			"RunID cannot be empty",
 		)
 	}
 
-	err := s.db.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
+	var run models.Run
+	err := s.db.Where("run_uuid = ?", runID).First(&run).Error
+
+	if err != nil {
+		return contract.NewErrorWith(
+			protos.ErrorCode_INTERNAL_ERROR,
+			fmt.Sprintf("Failed to query run for run_id %q", runID),
+			err,
+		)
+	}
+
+	err = s.db.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
 		contractError := checkRunIsActive(transaction, runID)
 		if contractError != nil {
-			logger.Infof("Run is not active")
 			return contractError
 		}
-
-		if key == utils.TagRunName {
-			var run models.Run
-			result := transaction.Where("run_uuid = ?", runID).First(&run)
-
-			if result.Error != nil {
-				logger.Infof("Failed to query run for run_id %q", runID)
-				return contract.NewErrorWith(
-					protos.ErrorCode_INTERNAL_ERROR,
-					fmt.Sprintf("Failed to query run for run_id %q", runID),
-					result.Error,
-				)
-			}
-
-			runStatus := run.Status.String()
-
-			var endTimePtr *int64
-			if run.EndTime.Valid {
-				endTimePtr = &run.EndTime.Int64
-			}
-
-			logger.Infof("Updating run info for run_id %q", runID)
-			if err := s.UpdateRun(ctx, runID, runStatus, endTimePtr, value); err != nil {
-				logger.Printf("Failed to update run info for run_id %q", runID)
-				return contract.NewErrorWith(
-					protos.ErrorCode_INTERNAL_ERROR,
-					fmt.Sprintf("Failed to update run info for run_id %q", runID),
-					err,
-				)
-			}
-
-			return nil
-		}
-
-		// Logging tag update
-		logger.Infof("Setting tag for run_id %q", runID)
 
 		var tag models.Tag
 		result := transaction.Where("run_uuid = ? AND key = ?", runID, key).First(&tag)
 
 		if result.Error != nil && !errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			logger.Infof("Failed to query tag for run_id %q and key %q", runID, key)
 			return contract.NewErrorWith(
 				protos.ErrorCode_INTERNAL_ERROR,
 				fmt.Sprintf("Failed to query tag for run_id %q and key %q", runID, key),
@@ -216,7 +185,6 @@ func (s TrackingSQLStore) SetTag(
 		if result.RowsAffected == 1 {
 			tag.Value = value
 			if err := transaction.Save(&tag).Error; err != nil {
-				logger.Infof("Failed to update tag for run_id %q and key %q", runID, key)
 				return contract.NewErrorWith(
 					protos.ErrorCode_INTERNAL_ERROR,
 					fmt.Sprintf("Failed to update tag for run_id %q and key %q", runID, key),
@@ -230,7 +198,6 @@ func (s TrackingSQLStore) SetTag(
 				Value: value,
 			}
 			if err := transaction.Create(&newTag).Error; err != nil {
-				logger.Infof("Failed to create tag for run_id %q and key %q", runID, key)
 				return contract.NewErrorWith(
 					protos.ErrorCode_INTERNAL_ERROR,
 					fmt.Sprintf("Failed to create tag for run_id %q and key %q", runID, key),
@@ -241,8 +208,27 @@ func (s TrackingSQLStore) SetTag(
 
 		return nil
 	})
+
+	if key == utils.TagRunName {
+		runStatus := run.Status.String()
+
+		var endTimePtr *int64
+		if run.EndTime.Valid {
+			endTimePtr = &run.EndTime.Int64
+		}
+
+		if err := s.UpdateRun(ctx, runID, runStatus, endTimePtr, value); err != nil {
+			return contract.NewErrorWith(
+				protos.ErrorCode_INTERNAL_ERROR,
+				fmt.Sprintf("Failed to update run info for run_id %q", runID),
+				err,
+			)
+		}
+
+		return nil
+	}
+
 	if err != nil {
-		logger.Infof("SetTag transaction failed for run_id %q", runID)
 		var contractError *contract.Error
 		if errors.As(err, &contractError) {
 			return contractError
@@ -250,7 +236,7 @@ func (s TrackingSQLStore) SetTag(
 
 		return contract.NewErrorWith(
 			protos.ErrorCode_INTERNAL_ERROR,
-			fmt.Sprintf("set tag transaction failed for %q", runID),
+			fmt.Sprintf("Set tag transaction failed for run_id %q", runID),
 			err,
 		)
 	}

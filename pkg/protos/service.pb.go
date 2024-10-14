@@ -2083,7 +2083,7 @@ type SetTag struct {
 	Key *string `protobuf:"bytes,2,opt,name=key" json:"key,omitempty" query:"key" validate:"required,max=1000,validMetricParamOrTagName,pathIsUnique"`
 	// String value of the tag being logged. Maximum size depends on storage backend.
 	// All storage backends are guaranteed to support key values up to 5000 bytes in size.
-	Value *string `protobuf:"bytes,3,opt,name=value" json:"value,omitempty" query:"value" validate:"required,truncate=8000"`
+	Value *string `protobuf:"bytes,3,opt,name=value" json:"value,omitempty" query:"value" validate:"omitempty,truncate=8001"`
 }
 
 func (x *SetTag) Reset() {
