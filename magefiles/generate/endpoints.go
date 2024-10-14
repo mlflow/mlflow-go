@@ -13,7 +13,7 @@ var ServiceInfoMap = map[string]ServiceGenerationInfo{
 		ImplementedEndpoints: []string{
 			"getExperimentByName",
 			"createExperiment",
-			// "searchExperiments",
+			"searchExperiments",
 			"getExperiment",
 			"deleteExperiment",
 			"restoreExperiment",

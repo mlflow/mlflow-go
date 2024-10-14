@@ -142,3 +142,9 @@ func (ts TrackingService) SetExperimentTag(
 
 	return &protos.SetExperimentTag_Response{}, nil
 }
+
+func (ts TrackingService) SearchExperiments(
+	_ context.Context, _ *protos.SearchExperiments,
+) (*protos.SearchExperiments_Response, *contract.Error) {
+	return nil, nil
+}

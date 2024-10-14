@@ -24,10 +24,12 @@ from mlflow.protos.service_pb2 import (
     LogParam,
     RestoreExperiment,
     RestoreRun,
+    SearchExperiments,
     SearchRuns,
     UpdateExperiment,
     UpdateRun,
 )
+from mlflow.store.tracking import SEARCH_MAX_RESULTS_DEFAULT
 from mlflow.utils.uri import resolve_uri_if_local
 
 from mlflow_go import is_go_enabled
@@ -186,6 +188,23 @@ class _TrackingStore:
             key=key,
         )
         self.service.call_endpoint(get_lib().TrackingServiceDeleteTraceTag, request)
+
+    def search_experiments(
+        self,
+        view_type=ViewType.ACTIVE_ONLY,
+        max_results=SEARCH_MAX_RESULTS_DEFAULT,
+        filter_string=None,
+        order_by=None,
+        page_token=None,
+    ):
+        request = SearchExperiments(
+            view_type=view_type,
+            max_results=max_results,
+            filter_string=filter_string,
+            order_by=order_by,
+            page_token=page_token,
+        )
+        self.service.call_endpoint(get_lib().TrackingServiceSearchExperiments, request)
 
 
 def TrackingStore(cls):
