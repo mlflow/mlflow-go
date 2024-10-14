@@ -2006,13 +2006,13 @@ type SetExperimentTag struct {
 	unknownFields protoimpl.UnknownFields
 
 	// ID of the experiment under which to log the tag. Must be provided.
-	ExperimentId *string `protobuf:"bytes,1,opt,name=experiment_id,json=experimentId" json:"experiment_id,omitempty" query:"experiment_id" params:"experiment_id"`
+	ExperimentId *string `protobuf:"bytes,1,opt,name=experiment_id,json=experimentId" json:"experiment_id,omitempty" query:"experiment_id" params:"experiment_id" validate:"required"`
 	// Name of the tag. Maximum size depends on storage backend.
 	// All storage backends are guaranteed to support key values up to 250 bytes in size.
-	Key *string `protobuf:"bytes,2,opt,name=key" json:"key,omitempty" query:"key" params:"key"`
+	Key *string `protobuf:"bytes,2,opt,name=key" json:"key,omitempty" query:"key" params:"key" validate:"required,max=250,validMetricParamOrTagName"`
 	// String value of the tag being logged. Maximum size depends on storage backend.
 	// All storage backends are guaranteed to support key values up to 5000 bytes in size.
-	Value *string `protobuf:"bytes,3,opt,name=value" json:"value,omitempty" query:"value" params:"value"`
+	Value *string `protobuf:"bytes,3,opt,name=value" json:"value,omitempty" query:"value" params:"value" validate:"max=5000"`
 }
 
 func (x *SetExperimentTag) Reset() {

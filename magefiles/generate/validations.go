@@ -31,4 +31,7 @@ var validations = map[string]string{
 	"SetTraceTag_Value":                  "omitempty,truncate=8000",
 	"DeleteTag_RunId":                    "required",
 	"DeleteTag_Key":                      "required",
+	"SetExperimentTag_ExperimentId":      "required",
+	"SetExperimentTag_Key":               "required,max=250,validMetricParamOrTagName",
+	"SetExperimentTag_Value":             "max=5000",
 }

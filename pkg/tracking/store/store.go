@@ -41,6 +41,8 @@ type (
 	}
 	TraceTrackingStore interface {
 		SetTraceTag(ctx context.Context, requestID, key, value string) error
+		GetTraceTag(ctx context.Context, requestID, key string) (*entities.TraceTag, *contract.Error)
+		DeleteTraceTag(ctx context.Context, tag *entities.TraceTag) *contract.Error
 	}
 	MetricTrackingStore interface {
 		LogBatch(
@@ -81,4 +83,5 @@ type ExperimentTrackingStore interface {
 	) ([]*entities.Run, string, *contract.Error)
 
 	DeleteExperiment(ctx context.Context, id string) *contract.Error
+	SetExperimentTag(ctx context.Context, experimentID, key, value string) *contract.Error
 }

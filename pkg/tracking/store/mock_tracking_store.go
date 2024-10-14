@@ -300,6 +300,55 @@ func (_c *MockTrackingStore_DeleteTag_Call) RunAndReturn(run func(context.Contex
 	return _c
 }
 
+// DeleteTraceTag provides a mock function with given fields: ctx, tag
+func (_m *MockTrackingStore) DeleteTraceTag(ctx context.Context, tag *entities.TraceTag) *contract.Error {
+	ret := _m.Called(ctx, tag)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteTraceTag")
+	}
+
+	var r0 *contract.Error
+	if rf, ok := ret.Get(0).(func(context.Context, *entities.TraceTag) *contract.Error); ok {
+		r0 = rf(ctx, tag)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*contract.Error)
+		}
+	}
+
+	return r0
+}
+
+// MockTrackingStore_DeleteTraceTag_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteTraceTag'
+type MockTrackingStore_DeleteTraceTag_Call struct {
+	*mock.Call
+}
+
+// DeleteTraceTag is a helper method to define mock.On call
+//   - ctx context.Context
+//   - tag *entities.TraceTag
+func (_e *MockTrackingStore_Expecter) DeleteTraceTag(ctx interface{}, tag interface{}) *MockTrackingStore_DeleteTraceTag_Call {
+	return &MockTrackingStore_DeleteTraceTag_Call{Call: _e.mock.On("DeleteTraceTag", ctx, tag)}
+}
+
+func (_c *MockTrackingStore_DeleteTraceTag_Call) Run(run func(ctx context.Context, tag *entities.TraceTag)) *MockTrackingStore_DeleteTraceTag_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*entities.TraceTag))
+	})
+	return _c
+}
+
+func (_c *MockTrackingStore_DeleteTraceTag_Call) Return(_a0 *contract.Error) *MockTrackingStore_DeleteTraceTag_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockTrackingStore_DeleteTraceTag_Call) RunAndReturn(run func(context.Context, *entities.TraceTag) *contract.Error) *MockTrackingStore_DeleteTraceTag_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetExperiment provides a mock function with given fields: ctx, id
 func (_m *MockTrackingStore) GetExperiment(ctx context.Context, id string) (*entities.Experiment, *contract.Error) {
 	ret := _m.Called(ctx, id)
@@ -541,6 +590,68 @@ func (_c *MockTrackingStore_GetRunTag_Call) Return(_a0 *entities.RunTag, _a1 *co
 }
 
 func (_c *MockTrackingStore_GetRunTag_Call) RunAndReturn(run func(context.Context, string, string) (*entities.RunTag, *contract.Error)) *MockTrackingStore_GetRunTag_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetTraceTag provides a mock function with given fields: ctx, requestID, key
+func (_m *MockTrackingStore) GetTraceTag(ctx context.Context, requestID string, key string) (*entities.TraceTag, *contract.Error) {
+	ret := _m.Called(ctx, requestID, key)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetTraceTag")
+	}
+
+	var r0 *entities.TraceTag
+	var r1 *contract.Error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) (*entities.TraceTag, *contract.Error)); ok {
+		return rf(ctx, requestID, key)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) *entities.TraceTag); ok {
+		r0 = rf(ctx, requestID, key)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*entities.TraceTag)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, string) *contract.Error); ok {
+		r1 = rf(ctx, requestID, key)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(*contract.Error)
+		}
+	}
+
+	return r0, r1
+}
+
+// MockTrackingStore_GetTraceTag_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTraceTag'
+type MockTrackingStore_GetTraceTag_Call struct {
+	*mock.Call
+}
+
+// GetTraceTag is a helper method to define mock.On call
+//   - ctx context.Context
+//   - requestID string
+//   - key string
+func (_e *MockTrackingStore_Expecter) GetTraceTag(ctx interface{}, requestID interface{}, key interface{}) *MockTrackingStore_GetTraceTag_Call {
+	return &MockTrackingStore_GetTraceTag_Call{Call: _e.mock.On("GetTraceTag", ctx, requestID, key)}
+}
+
+func (_c *MockTrackingStore_GetTraceTag_Call) Run(run func(ctx context.Context, requestID string, key string)) *MockTrackingStore_GetTraceTag_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(string))
+	})
+	return _c
+}
+
+func (_c *MockTrackingStore_GetTraceTag_Call) Return(_a0 *entities.TraceTag, _a1 *contract.Error) *MockTrackingStore_GetTraceTag_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockTrackingStore_GetTraceTag_Call) RunAndReturn(run func(context.Context, string, string) (*entities.TraceTag, *contract.Error)) *MockTrackingStore_GetTraceTag_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -914,6 +1025,57 @@ func (_c *MockTrackingStore_SearchRuns_Call) Return(_a0 []*entities.Run, _a1 str
 }
 
 func (_c *MockTrackingStore_SearchRuns_Call) RunAndReturn(run func(context.Context, []string, string, protos.ViewType, int, []string, string) ([]*entities.Run, string, *contract.Error)) *MockTrackingStore_SearchRuns_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SetExperimentTag provides a mock function with given fields: ctx, experimentID, key, value
+func (_m *MockTrackingStore) SetExperimentTag(ctx context.Context, experimentID string, key string, value string) *contract.Error {
+	ret := _m.Called(ctx, experimentID, key, value)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SetExperimentTag")
+	}
+
+	var r0 *contract.Error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) *contract.Error); ok {
+		r0 = rf(ctx, experimentID, key, value)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*contract.Error)
+		}
+	}
+
+	return r0
+}
+
+// MockTrackingStore_SetExperimentTag_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetExperimentTag'
+type MockTrackingStore_SetExperimentTag_Call struct {
+	*mock.Call
+}
+
+// SetExperimentTag is a helper method to define mock.On call
+//   - ctx context.Context
+//   - experimentID string
+//   - key string
+//   - value string
+func (_e *MockTrackingStore_Expecter) SetExperimentTag(ctx interface{}, experimentID interface{}, key interface{}, value interface{}) *MockTrackingStore_SetExperimentTag_Call {
+	return &MockTrackingStore_SetExperimentTag_Call{Call: _e.mock.On("SetExperimentTag", ctx, experimentID, key, value)}
+}
+
+func (_c *MockTrackingStore_SetExperimentTag_Call) Run(run func(ctx context.Context, experimentID string, key string, value string)) *MockTrackingStore_SetExperimentTag_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(string))
+	})
+	return _c
+}
+
+func (_c *MockTrackingStore_SetExperimentTag_Call) Return(_a0 *contract.Error) *MockTrackingStore_SetExperimentTag_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockTrackingStore_SetExperimentTag_Call) RunAndReturn(run func(context.Context, string, string, string) *contract.Error) *MockTrackingStore_SetExperimentTag_Call {
 	_c.Call.Return(run)
 	return _c
 }

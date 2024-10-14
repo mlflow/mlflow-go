@@ -103,6 +103,14 @@ func TrackingServiceLogParam(serviceID int64, requestData unsafe.Pointer, reques
 	}
 	return invokeServiceMethod(service.LogParam, new(protos.LogParam), requestData, requestSize, responseSize)
 }
+//export TrackingServiceSetExperimentTag
+func TrackingServiceSetExperimentTag(serviceID int64, requestData unsafe.Pointer, requestSize C.int, responseSize *C.int) unsafe.Pointer {
+	service, err := trackingServices.Get(serviceID)
+	if err != nil {
+		return makePointerFromError(err, responseSize)
+	}
+	return invokeServiceMethod(service.SetExperimentTag, new(protos.SetExperimentTag), requestData, requestSize, responseSize)
+}
 //export TrackingServiceSetTraceTag
 func TrackingServiceSetTraceTag(serviceID int64, requestData unsafe.Pointer, requestSize C.int, responseSize *C.int) unsafe.Pointer {
 	service, err := trackingServices.Get(serviceID)
@@ -110,6 +118,14 @@ func TrackingServiceSetTraceTag(serviceID int64, requestData unsafe.Pointer, req
 		return makePointerFromError(err, responseSize)
 	}
 	return invokeServiceMethod(service.SetTraceTag, new(protos.SetTraceTag), requestData, requestSize, responseSize)
+}
+//export TrackingServiceDeleteTraceTag
+func TrackingServiceDeleteTraceTag(serviceID int64, requestData unsafe.Pointer, requestSize C.int, responseSize *C.int) unsafe.Pointer {
+	service, err := trackingServices.Get(serviceID)
+	if err != nil {
+		return makePointerFromError(err, responseSize)
+	}
+	return invokeServiceMethod(service.DeleteTraceTag, new(protos.DeleteTraceTag), requestData, requestSize, responseSize)
 }
 //export TrackingServiceDeleteTag
 func TrackingServiceDeleteTag(serviceID int64, requestData unsafe.Pointer, requestSize C.int, responseSize *C.int) unsafe.Pointer {
