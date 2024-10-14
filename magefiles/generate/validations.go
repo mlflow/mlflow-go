@@ -27,6 +27,8 @@ var validations = map[string]string{
 	"LogMetric_Key":                      "required",
 	"LogMetric_Value":                    "required",
 	"LogMetric_Timestamp":                "required",
+	"SetTraceTag_Key":                    "required,max=250,validMetricParamOrTagName,pathIsUnique",
+	"SetTraceTag_Value":                  "omitempty,truncate=8000",
 	"DeleteTag_RunId":                    "required",
 	"DeleteTag_Key":                      "required",
 	"SetExperimentTag_ExperimentId":      "required",
