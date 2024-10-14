@@ -168,10 +168,10 @@ func mkInputTag(inputID string, tag *entities.InputTag) *models.InputTag {
 }
 
 //nolint:funlen,cyclop
-func (store TrackingSQLStore) LogInputs(
+func (s TrackingSQLStore) LogInputs(
 	ctx context.Context, runID string, datasets []*entities.DatasetInput,
 ) *contract.Error {
-	err := store.db.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
+	err := s.db.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
 		contractError := checkRunIsActive(transaction, runID)
 		if contractError != nil {
 			return contractError
