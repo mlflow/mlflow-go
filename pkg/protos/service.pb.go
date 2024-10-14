@@ -978,7 +978,7 @@ type DatasetInput struct {
 	// A list of tags for the dataset input, e.g. a “context” tag with value “training”
 	Tags []*InputTag `protobuf:"bytes,1,rep,name=tags" json:"tags,omitempty" query:"tags" params:"tags"`
 	// The dataset being used as a Run input.
-	Dataset *Dataset `protobuf:"bytes,2,opt,name=dataset" json:"dataset,omitempty" query:"dataset" params:"dataset"`
+	Dataset *Dataset `protobuf:"bytes,2,opt,name=dataset" json:"dataset,omitempty" query:"dataset" params:"dataset" validate:"required"`
 }
 
 func (x *DatasetInput) Reset() {
@@ -2925,7 +2925,7 @@ type LogInputs struct {
 	unknownFields protoimpl.UnknownFields
 
 	// ID of the run to log under
-	RunId *string `protobuf:"bytes,1,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id" params:"run_id" validate:"required"`
+	RunId *string `protobuf:"bytes,1,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id" params:"run_id" validate:"required,runId"`
 	// Dataset inputs
 	Datasets []*DatasetInput `protobuf:"bytes,2,rep,name=datasets" json:"datasets,omitempty" query:"datasets" params:"datasets" validate:"required"`
 }
