@@ -111,6 +111,14 @@ func TrackingServiceSetExperimentTag(serviceID int64, requestData unsafe.Pointer
 	}
 	return invokeServiceMethod(service.SetExperimentTag, new(protos.SetExperimentTag), requestData, requestSize, responseSize)
 }
+//export TrackingServiceSetTraceTag
+func TrackingServiceSetTraceTag(serviceID int64, requestData unsafe.Pointer, requestSize C.int, responseSize *C.int) unsafe.Pointer {
+	service, err := trackingServices.Get(serviceID)
+	if err != nil {
+		return makePointerFromError(err, responseSize)
+	}
+	return invokeServiceMethod(service.SetTraceTag, new(protos.SetTraceTag), requestData, requestSize, responseSize)
+}
 //export TrackingServiceDeleteTraceTag
 func TrackingServiceDeleteTraceTag(serviceID int64, requestData unsafe.Pointer, requestSize C.int, responseSize *C.int) unsafe.Pointer {
 	service, err := trackingServices.Get(serviceID)

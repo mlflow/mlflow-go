@@ -40,6 +40,7 @@ type (
 		DeleteTag(ctx context.Context, runID, key string) *contract.Error
 	}
 	TraceTrackingStore interface {
+		SetTraceTag(ctx context.Context, requestID, key, value string) error
 		GetTraceTag(ctx context.Context, requestID, key string) (*entities.TraceTag, *contract.Error)
 		DeleteTraceTag(ctx context.Context, tag *entities.TraceTag) *contract.Error
 	}
