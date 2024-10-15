@@ -1,6 +1,7 @@
 import logging
 import os
 import pathlib
+import platform
 import re
 import subprocess
 import sys
@@ -16,6 +17,38 @@ def _get_lib_name() -> str:
     return "libmlflow-go" + ext
 
 
+def get_goarch():
+    machine = platform.machine().lower()
+
+    if machine in ["x86_64", "amd64"]:
+        return "amd64"
+    elif machine in ["aarch64", "arm64"]:
+        return "arm64"
+    elif machine in ["armv7l", "arm"]:
+        return "arm"
+    else:
+        return "unknown"
+
+
+def get_target_triple(goos, goarch):
+    if goos == "linux":
+        if goarch == "amd64":
+            return "x86_64-linux-gnu"
+        elif goarch == "arm64":
+            return "aarch64-linux-gnu"
+        else:
+            raise (f"Could not deterime target triple for {goos}, {goarch}")
+    elif goos == "windows":
+        if goarch == "amd64":
+            return "x86_64-windows-gnu"
+        elif goarch == "arm64":
+            return "aarch64-windows-gnu"
+        else:
+            raise (f"Could not deterime target triple for {goos}, {goarch}")
+    else:
+        raise (f"Could not deterime target triple for {goos}, {goarch}")
+
+
 def build_lib(src_dir: pathlib.Path, out_dir: pathlib.Path) -> pathlib.Path:
     out_path = out_dir.joinpath(_get_lib_name()).absolute()
     env = os.environ.copy()
@@ -24,6 +57,22 @@ def build_lib(src_dir: pathlib.Path, out_dir: pathlib.Path) -> pathlib.Path:
             "CGO_ENABLED": "1",
         }
     )
+
+    current_goos = platform.system().lower()
+    current_goarch = get_goarch()
+
+    target_goos = os.getenv("TARGET_GOOS", current_goos)
+    target_goarch = os.getenv("TARGET_GOARCH", current_goarch)
+    env.update({"GOOS": target_goos, "GOARCH": target_goarch})
+
+    if target_goos == "darwin" and current_goos != "darwin":
+        raise "it is unsupported to build a Python wheel on Mac on a non-Mac platform"
+
+    if target_goos != "darwin":
+        triple = get_target_triple(target_goos, target_goarch)
+        logging.getLogger(__name__).info(f"CC={sys.executable} -mziglang cc -target {triple}")
+        env.update({"CC": f"{sys.executable} -mziglang cc -target {triple}"})
+
     subprocess.check_call(
         [
             "go",
