@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"runtime"
 	"strings"
 
 	"gorm.io/driver/mysql"
@@ -16,7 +17,10 @@ import (
 	"github.com/mlflow/mlflow-go/pkg/utils"
 )
 
-var errSqliteMemory = errors.New("go implementation does not support :memory: for sqlite")
+var (
+	errSqliteMemory             = errors.New("go implementation does not support :memory: for sqlite")
+	errSqliteQueryParamsWindows = errors.New("query parameters are not supported on Windows")
+)
 
 //nolint:ireturn
 func getDialector(uri *url.URL) (gorm.Dialector, error) {
@@ -34,12 +38,21 @@ func getDialector(uri *url.URL) (gorm.Dialector, error) {
 	case "sqlite":
 		uri.Scheme = ""
 		uri.Path = uri.Path[1:]
+		dsn := uri.String()
 
 		if uri.Path == ":memory:" {
 			return nil, errSqliteMemory
 		}
 
-		return sqlite.Open(uri.String()), nil
+		if runtime.GOOS == "windows" {
+			if uri.RawQuery != "" {
+				return nil, errSqliteQueryParamsWindows
+			}
+
+			dsn = strings.ReplaceAll(uri.Path, "/", "\\")
+		}
+
+		return sqlite.Open(dsn), nil
 	default:
 		return nil, fmt.Errorf("unsupported store URL scheme %q", uri.Scheme) //nolint:err113
 	}
