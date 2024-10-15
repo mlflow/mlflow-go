@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - 'v*.*.*'  # This will trigger for tags that match this pattern
   pull_request:
   schedule:
     # Run daily at 01:34 so we get notified if CI is broken before a pull request
@@ -19,3 +21,18 @@ jobs:
 
   build:
     uses: ./.github/workflows/build.yml
+
+  release:
+    name: Release
+    needs:
+      - lint
+      - test
+      - build
+    if: ${{ !github.event.repository.fork && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
+    permissions:
+      actions: write
+      contents: write
+      pages: write
+      id-token: write
+    secrets: inherit
+    uses: ./.github/workflows/release.yml
