@@ -44,6 +44,11 @@ def pytest_configure(config):
             "tests.store.tracking.test_sqlalchemy_store.test_log_param_max_length_value",
             "tests/override_test_sqlalchemy_store.py",
         ),
+        # This test uses monkeypatch.setenv which does not flow through to the Go side.
+        (
+            "tests.store.tracking.test_sqlalchemy_store.test_set_tag",
+            "tests/override_test_sqlalchemy_store.py",
+        ),
         # This tests calls the store using invalid metric entity that cannot be converted
         # to its proto counterpart.
         # Example: entities.Metric("invalid_metric", None, (int(time.time() * 1000)), 0).to_proto()

@@ -219,7 +219,7 @@ An example use case where unit tests proved to be highly beneficial is the `filt
 
 ## Run Tests
 
-Run `mage test:python` and verify that our Go implementation passes the existing tests.
+Run `mage test:python` and verify that our Go implementation passes the existing tests. You can also use `mage test:pythonSpecific <testname>` to run a specific set of tests.
 
 There is one caveat to these tests; occasionally, they may have a Python bias, meaning that the tests pass due to Python's dynamic nature, while our Go tests might fail because they are strongly typed. Another issue may arise if the Python implementation does not consistently return the same error messages. Therefore, it may be necessary to submit a PR to [mlflow](https://github.com/mlflow/mlflow) to adjust the existing tests.
 

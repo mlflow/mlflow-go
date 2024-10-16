@@ -35,7 +35,7 @@ func Configure() error {
 		return err
 	}
 
-	// Archive the MLFlow pre-built UI
+	// Archive the MLflow pre-built UI
 	if err := tar(
 		"-C", "/usr/local/python/current/lib/python3.8/site-packages/mlflow",
 		"-czvf",
