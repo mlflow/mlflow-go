@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"os"
 	"sync"
 
 	"github.com/sirupsen/logrus"
@@ -46,6 +48,14 @@ func (s *instanceMap[T]) Create(
 		logrus.Error("Failed to read config: ", err)
 
 		return -1
+	}
+
+	for key, value := range cfg.PythonTestsENV {
+		if err := os.Setenv(key, fmt.Sprintf("%v", value)); err != nil {
+			logrus.Error("Failed to set env: ", err)
+
+			return -1
+		}
 	}
 
 	logger := utils.NewLoggerFromConfig(cfg)

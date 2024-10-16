@@ -27,15 +27,15 @@ type ScalaPbOptions struct {
 	unknownFields protoimpl.UnknownFields
 
 	// If set then it overrides the java_package and package.
-	PackageName *string `protobuf:"bytes,1,opt,name=package_name,json=packageName" json:"package_name,omitempty" query:"package_name"`
+	PackageName *string `protobuf:"bytes,1,opt,name=package_name,json=packageName" json:"package_name,omitempty" query:"package_name" params:"package_name"`
 	// If true, the compiler does not append the proto base file name
 	// into the generated package name. If false (the default), the
 	// generated scala package name is the package_name.basename where
 	// basename is the proto file name without the .proto extension.
-	FlatPackage *bool `protobuf:"varint,2,opt,name=flat_package,json=flatPackage" json:"flat_package,omitempty" query:"flat_package"`
+	FlatPackage *bool `protobuf:"varint,2,opt,name=flat_package,json=flatPackage" json:"flat_package,omitempty" query:"flat_package" params:"flat_package"`
 	// Adds the following imports at the top of the file (this is meant
 	// to provide implicit TypeMappers)
-	Import []string `protobuf:"bytes,3,rep,name=import" json:"import,omitempty" query:"import"`
+	Import []string `protobuf:"bytes,3,rep,name=import" json:"import,omitempty" query:"import" params:"import"`
 }
 
 func (x *ScalaPbOptions) Reset() {
@@ -97,7 +97,7 @@ type MessageOptions struct {
 	unknownFields protoimpl.UnknownFields
 
 	// additional classes and traits to mix in to the case class.
-	Extends []string `protobuf:"bytes,1,rep,name=extends" json:"extends,omitempty" query:"extends"`
+	Extends []string `protobuf:"bytes,1,rep,name=extends" json:"extends,omitempty" query:"extends" params:"extends"`
 }
 
 func (x *MessageOptions) Reset() {
@@ -144,7 +144,7 @@ type FieldOptions struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Type *string `protobuf:"bytes,1,opt,name=type" json:"type,omitempty" query:"type"`
+	Type *string `protobuf:"bytes,1,opt,name=type" json:"type,omitempty" query:"type" params:"type"`
 }
 
 func (x *FieldOptions) Reset() {

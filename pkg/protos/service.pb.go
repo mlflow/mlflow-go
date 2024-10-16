@@ -298,13 +298,13 @@ type Metric struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Key identifying this metric.
-	Key *string `protobuf:"bytes,1,opt,name=key" json:"key,omitempty" query:"key" validate:"required,max=250,validMetricParamOrTagName,pathIsUnique"`
+	Key *string `protobuf:"bytes,1,opt,name=key" json:"key,omitempty" query:"key" params:"key" validate:"required,max=250,validMetricParamOrTagName,pathIsUnique"`
 	// Value associated with this metric.
-	Value *float64 `protobuf:"fixed64,2,opt,name=value" json:"value,omitempty" query:"value" validate:"required"`
+	Value *float64 `protobuf:"fixed64,2,opt,name=value" json:"value,omitempty" query:"value" params:"value" validate:"required"`
 	// The timestamp at which this metric was recorded.
-	Timestamp *int64 `protobuf:"varint,3,opt,name=timestamp" json:"timestamp,omitempty" query:"timestamp" validate:"required"`
+	Timestamp *int64 `protobuf:"varint,3,opt,name=timestamp" json:"timestamp,omitempty" query:"timestamp" params:"timestamp" validate:"required"`
 	// Step at which to log the metric.
-	Step *int64 `protobuf:"varint,4,opt,name=step,def=0" json:"step,omitempty" query:"step"`
+	Step *int64 `protobuf:"varint,4,opt,name=step,def=0" json:"step,omitempty" query:"step" params:"step"`
 }
 
 // Default values for Metric fields.
@@ -379,9 +379,9 @@ type Param struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Key identifying this param.
-	Key *string `protobuf:"bytes,1,opt,name=key" json:"key,omitempty" query:"key" validate:"required,max=250,validMetricParamOrTagName,pathIsUnique"`
+	Key *string `protobuf:"bytes,1,opt,name=key" json:"key,omitempty" query:"key" params:"key" validate:"required,max=250,validMetricParamOrTagName,pathIsUnique"`
 	// Value associated with this param.
-	Value *string `protobuf:"bytes,2,opt,name=value" json:"value,omitempty" query:"value" validate:"omitempty,truncate=6000"`
+	Value *string `protobuf:"bytes,2,opt,name=value" json:"value,omitempty" query:"value" params:"value" validate:"omitempty,truncate=6000"`
 }
 
 func (x *Param) Reset() {
@@ -437,11 +437,11 @@ type Run struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Run metadata.
-	Info *RunInfo `protobuf:"bytes,1,opt,name=info" json:"info,omitempty" query:"info"`
+	Info *RunInfo `protobuf:"bytes,1,opt,name=info" json:"info,omitempty" query:"info" params:"info"`
 	// Run data.
-	Data *RunData `protobuf:"bytes,2,opt,name=data" json:"data,omitempty" query:"data"`
+	Data *RunData `protobuf:"bytes,2,opt,name=data" json:"data,omitempty" query:"data" params:"data"`
 	// Run inputs.
-	Inputs *RunInputs `protobuf:"bytes,3,opt,name=inputs" json:"inputs,omitempty" query:"inputs"`
+	Inputs *RunInputs `protobuf:"bytes,3,opt,name=inputs" json:"inputs,omitempty" query:"inputs" params:"inputs"`
 }
 
 func (x *Run) Reset() {
@@ -504,11 +504,11 @@ type RunData struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Run metrics.
-	Metrics []*Metric `protobuf:"bytes,1,rep,name=metrics" json:"metrics,omitempty" query:"metrics"`
+	Metrics []*Metric `protobuf:"bytes,1,rep,name=metrics" json:"metrics,omitempty" query:"metrics" params:"metrics"`
 	// Run parameters.
-	Params []*Param `protobuf:"bytes,2,rep,name=params" json:"params,omitempty" query:"params"`
+	Params []*Param `protobuf:"bytes,2,rep,name=params" json:"params,omitempty" query:"params" params:"params"`
 	// Additional metadata key-value pairs.
-	Tags []*RunTag `protobuf:"bytes,3,rep,name=tags" json:"tags,omitempty" query:"tags"`
+	Tags []*RunTag `protobuf:"bytes,3,rep,name=tags" json:"tags,omitempty" query:"tags" params:"tags"`
 }
 
 func (x *RunData) Reset() {
@@ -571,7 +571,7 @@ type RunInputs struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Dataset inputs to the Run.
-	DatasetInputs []*DatasetInput `protobuf:"bytes,1,rep,name=dataset_inputs,json=datasetInputs" json:"dataset_inputs,omitempty" query:"dataset_inputs"`
+	DatasetInputs []*DatasetInput `protobuf:"bytes,1,rep,name=dataset_inputs,json=datasetInputs" json:"dataset_inputs,omitempty" query:"dataset_inputs" params:"dataset_inputs"`
 }
 
 func (x *RunInputs) Reset() {
@@ -620,9 +620,9 @@ type RunTag struct {
 	unknownFields protoimpl.UnknownFields
 
 	// The tag key.
-	Key *string `protobuf:"bytes,1,opt,name=key" json:"key,omitempty" query:"key" validate:"required,max=250,validMetricParamOrTagName,pathIsUnique"`
+	Key *string `protobuf:"bytes,1,opt,name=key" json:"key,omitempty" query:"key" params:"key" validate:"required,max=250,validMetricParamOrTagName,pathIsUnique"`
 	// The tag value.
-	Value *string `protobuf:"bytes,2,opt,name=value" json:"value,omitempty" query:"value" validate:"omitempty,max=5000"`
+	Value *string `protobuf:"bytes,2,opt,name=value" json:"value,omitempty" query:"value" params:"value" validate:"omitempty,max=5000"`
 }
 
 func (x *RunTag) Reset() {
@@ -678,9 +678,9 @@ type ExperimentTag struct {
 	unknownFields protoimpl.UnknownFields
 
 	// The tag key.
-	Key *string `protobuf:"bytes,1,opt,name=key" json:"key,omitempty" query:"key"`
+	Key *string `protobuf:"bytes,1,opt,name=key" json:"key,omitempty" query:"key" params:"key"`
 	// The tag value.
-	Value *string `protobuf:"bytes,2,opt,name=value" json:"value,omitempty" query:"value"`
+	Value *string `protobuf:"bytes,2,opt,name=value" json:"value,omitempty" query:"value" params:"value"`
 }
 
 func (x *ExperimentTag) Reset() {
@@ -736,31 +736,31 @@ type RunInfo struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Unique identifier for the run.
-	RunId *string `protobuf:"bytes,15,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id"`
+	RunId *string `protobuf:"bytes,15,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id" params:"run_id"`
 	// [Deprecated, use run_id instead] Unique identifier for the run. This field will
 	// be removed in a future MLflow version.
-	RunUuid *string `protobuf:"bytes,1,opt,name=run_uuid,json=runUuid" json:"run_uuid,omitempty" query:"run_uuid"`
+	RunUuid *string `protobuf:"bytes,1,opt,name=run_uuid,json=runUuid" json:"run_uuid,omitempty" query:"run_uuid" params:"run_uuid"`
 	// The name of the run.
-	RunName *string `protobuf:"bytes,3,opt,name=run_name,json=runName" json:"run_name,omitempty" query:"run_name"`
+	RunName *string `protobuf:"bytes,3,opt,name=run_name,json=runName" json:"run_name,omitempty" query:"run_name" params:"run_name"`
 	// The experiment ID.
-	ExperimentId *string `protobuf:"bytes,2,opt,name=experiment_id,json=experimentId" json:"experiment_id,omitempty" query:"experiment_id"`
+	ExperimentId *string `protobuf:"bytes,2,opt,name=experiment_id,json=experimentId" json:"experiment_id,omitempty" query:"experiment_id" params:"experiment_id"`
 	// User who initiated the run.
 	// This field is deprecated as of MLflow 1.0, and will be removed in a future
 	// MLflow release. Use 'mlflow.user' tag instead.
-	UserId *string `protobuf:"bytes,6,opt,name=user_id,json=userId" json:"user_id,omitempty" query:"user_id"`
+	UserId *string `protobuf:"bytes,6,opt,name=user_id,json=userId" json:"user_id,omitempty" query:"user_id" params:"user_id"`
 	// Current status of the run.
-	Status *RunStatus `protobuf:"varint,7,opt,name=status,enum=mlflow.RunStatus" json:"status,omitempty" query:"status"`
+	Status *RunStatus `protobuf:"varint,7,opt,name=status,enum=mlflow.RunStatus" json:"status,omitempty" query:"status" params:"status"`
 	// Unix timestamp of when the run started in milliseconds.
-	StartTime *int64 `protobuf:"varint,8,opt,name=start_time,json=startTime" json:"start_time,omitempty" query:"start_time"`
+	StartTime *int64 `protobuf:"varint,8,opt,name=start_time,json=startTime" json:"start_time,omitempty" query:"start_time" params:"start_time"`
 	// Unix timestamp of when the run ended in milliseconds.
-	EndTime *int64 `protobuf:"varint,9,opt,name=end_time,json=endTime" json:"end_time,omitempty" query:"end_time"`
+	EndTime *int64 `protobuf:"varint,9,opt,name=end_time,json=endTime" json:"end_time,omitempty" query:"end_time" params:"end_time"`
 	// URI of the directory where artifacts should be uploaded.
 	// This can be a local path (starting with "/"), or a distributed file system (DFS)
 	// path, like “s3://bucket/directory“ or “dbfs:/my/directory“.
 	// If not set, the local “./mlruns“ directory is  chosen.
-	ArtifactUri *string `protobuf:"bytes,13,opt,name=artifact_uri,json=artifactUri" json:"artifact_uri,omitempty" query:"artifact_uri"`
+	ArtifactUri *string `protobuf:"bytes,13,opt,name=artifact_uri,json=artifactUri" json:"artifact_uri,omitempty" query:"artifact_uri" params:"artifact_uri"`
 	// Current life cycle stage of the experiment : OneOf("active", "deleted")
-	LifecycleStage *string `protobuf:"bytes,14,opt,name=lifecycle_stage,json=lifecycleStage" json:"lifecycle_stage,omitempty" query:"lifecycle_stage"`
+	LifecycleStage *string `protobuf:"bytes,14,opt,name=lifecycle_stage,json=lifecycleStage" json:"lifecycle_stage,omitempty" query:"lifecycle_stage" params:"lifecycle_stage"`
 }
 
 func (x *RunInfo) Reset() {
@@ -872,20 +872,20 @@ type Experiment struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Unique identifier for the experiment.
-	ExperimentId *string `protobuf:"bytes,1,opt,name=experiment_id,json=experimentId" json:"experiment_id,omitempty" query:"experiment_id"`
+	ExperimentId *string `protobuf:"bytes,1,opt,name=experiment_id,json=experimentId" json:"experiment_id,omitempty" query:"experiment_id" params:"experiment_id"`
 	// Human readable name that identifies the experiment.
-	Name *string `protobuf:"bytes,2,opt,name=name" json:"name,omitempty" query:"name"`
+	Name *string `protobuf:"bytes,2,opt,name=name" json:"name,omitempty" query:"name" params:"name"`
 	// Location where artifacts for the experiment are stored.
-	ArtifactLocation *string `protobuf:"bytes,3,opt,name=artifact_location,json=artifactLocation" json:"artifact_location,omitempty" query:"artifact_location"`
+	ArtifactLocation *string `protobuf:"bytes,3,opt,name=artifact_location,json=artifactLocation" json:"artifact_location,omitempty" query:"artifact_location" params:"artifact_location"`
 	// Current life cycle stage of the experiment: "active" or "deleted".
 	// Deleted experiments are not returned by APIs.
-	LifecycleStage *string `protobuf:"bytes,4,opt,name=lifecycle_stage,json=lifecycleStage" json:"lifecycle_stage,omitempty" query:"lifecycle_stage"`
+	LifecycleStage *string `protobuf:"bytes,4,opt,name=lifecycle_stage,json=lifecycleStage" json:"lifecycle_stage,omitempty" query:"lifecycle_stage" params:"lifecycle_stage"`
 	// Last update time
-	LastUpdateTime *int64 `protobuf:"varint,5,opt,name=last_update_time,json=lastUpdateTime" json:"last_update_time,omitempty" query:"last_update_time"`
+	LastUpdateTime *int64 `protobuf:"varint,5,opt,name=last_update_time,json=lastUpdateTime" json:"last_update_time,omitempty" query:"last_update_time" params:"last_update_time"`
 	// Creation time
-	CreationTime *int64 `protobuf:"varint,6,opt,name=creation_time,json=creationTime" json:"creation_time,omitempty" query:"creation_time"`
+	CreationTime *int64 `protobuf:"varint,6,opt,name=creation_time,json=creationTime" json:"creation_time,omitempty" query:"creation_time" params:"creation_time"`
 	// Tags: Additional metadata key-value pairs.
-	Tags []*ExperimentTag `protobuf:"bytes,7,rep,name=tags" json:"tags,omitempty" query:"tags"`
+	Tags []*ExperimentTag `protobuf:"bytes,7,rep,name=tags" json:"tags,omitempty" query:"tags" params:"tags"`
 }
 
 func (x *Experiment) Reset() {
@@ -976,9 +976,9 @@ type DatasetInput struct {
 	unknownFields protoimpl.UnknownFields
 
 	// A list of tags for the dataset input, e.g. a “context” tag with value “training”
-	Tags []*InputTag `protobuf:"bytes,1,rep,name=tags" json:"tags,omitempty" query:"tags"`
+	Tags []*InputTag `protobuf:"bytes,1,rep,name=tags" json:"tags,omitempty" query:"tags" params:"tags"`
 	// The dataset being used as a Run input.
-	Dataset *Dataset `protobuf:"bytes,2,opt,name=dataset" json:"dataset,omitempty" query:"dataset"`
+	Dataset *Dataset `protobuf:"bytes,2,opt,name=dataset" json:"dataset,omitempty" query:"dataset" params:"dataset"`
 }
 
 func (x *DatasetInput) Reset() {
@@ -1034,9 +1034,9 @@ type InputTag struct {
 	unknownFields protoimpl.UnknownFields
 
 	// The tag key.
-	Key *string `protobuf:"bytes,1,opt,name=key" json:"key,omitempty" query:"key"`
+	Key *string `protobuf:"bytes,1,opt,name=key" json:"key,omitempty" query:"key" params:"key"`
 	// The tag value.
-	Value *string `protobuf:"bytes,2,opt,name=value" json:"value,omitempty" query:"value"`
+	Value *string `protobuf:"bytes,2,opt,name=value" json:"value,omitempty" query:"value" params:"value"`
 }
 
 func (x *InputTag) Reset() {
@@ -1093,22 +1093,22 @@ type Dataset struct {
 	unknownFields protoimpl.UnknownFields
 
 	// The name of the dataset. E.g. “my.uc.table@2” “nyc-taxi-dataset”, “fantastic-elk-3”
-	Name *string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty" query:"name"`
+	Name *string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty" query:"name" params:"name"`
 	// Dataset digest, e.g. an md5 hash of the dataset that uniquely identifies it
 	// within datasets of the same name.
-	Digest *string `protobuf:"bytes,2,opt,name=digest" json:"digest,omitempty" query:"digest"`
+	Digest *string `protobuf:"bytes,2,opt,name=digest" json:"digest,omitempty" query:"digest" params:"digest"`
 	// Source information for the dataset. Note that the source may not exactly reproduce the
 	// dataset if it was transformed / modified before use with MLflow.
-	SourceType *string `protobuf:"bytes,3,opt,name=source_type,json=sourceType" json:"source_type,omitempty" query:"source_type"`
+	SourceType *string `protobuf:"bytes,3,opt,name=source_type,json=sourceType" json:"source_type,omitempty" query:"source_type" params:"source_type"`
 	// The type of the dataset source, e.g. ‘databricks-uc-table’, ‘DBFS’, ‘S3’, ...
-	Source *string `protobuf:"bytes,4,opt,name=source" json:"source,omitempty" query:"source"`
+	Source *string `protobuf:"bytes,4,opt,name=source" json:"source,omitempty" query:"source" params:"source"`
 	// The schema of the dataset. E.g., MLflow ColSpec JSON for a dataframe, MLflow TensorSpec JSON
 	// for an ndarray, or another schema format.
-	Schema *string `protobuf:"bytes,5,opt,name=schema" json:"schema,omitempty" query:"schema"`
+	Schema *string `protobuf:"bytes,5,opt,name=schema" json:"schema,omitempty" query:"schema" params:"schema"`
 	// The profile of the dataset. Summary statistics for the dataset, such as the number of rows
 	// in a table, the mean / std / mode of each column in a table, or the number of elements
 	// in an array.
-	Profile *string `protobuf:"bytes,6,opt,name=profile" json:"profile,omitempty" query:"profile"`
+	Profile *string `protobuf:"bytes,6,opt,name=profile" json:"profile,omitempty" query:"profile" params:"profile"`
 }
 
 func (x *Dataset) Reset() {
@@ -1191,15 +1191,15 @@ type CreateExperiment struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Experiment name.
-	Name *string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty" query:"name" validate:"required,max=500"`
+	Name *string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty" query:"name" params:"name" validate:"required,max=500"`
 	// Location where all artifacts for the experiment are stored.
 	// If not provided, the remote server will select an appropriate default.
-	ArtifactLocation *string `protobuf:"bytes,2,opt,name=artifact_location,json=artifactLocation" json:"artifact_location,omitempty" query:"artifact_location" validate:"omitempty,uriWithoutFragmentsOrParamsOrDotDotInQuery"`
+	ArtifactLocation *string `protobuf:"bytes,2,opt,name=artifact_location,json=artifactLocation" json:"artifact_location,omitempty" query:"artifact_location" params:"artifact_location" validate:"omitempty,uriWithoutFragmentsOrParamsOrDotDotInQuery"`
 	// A collection of tags to set on the experiment. Maximum tag size and number of tags per request
 	// depends on the storage backend. All storage backends are guaranteed to support tag keys up
 	// to 250 bytes in size and tag values up to 5000 bytes in size. All storage backends are also
 	// guaranteed to support up to 20 tags per request.
-	Tags []*ExperimentTag `protobuf:"bytes,3,rep,name=tags" json:"tags,omitempty" query:"tags"`
+	Tags []*ExperimentTag `protobuf:"bytes,3,rep,name=tags" json:"tags,omitempty" query:"tags" params:"tags"`
 }
 
 func (x *CreateExperiment) Reset() {
@@ -1265,9 +1265,9 @@ type SearchExperiments struct {
 	// guaranteed to support a `max_results` threshold of at least 1,000 but may
 	// support more. Callers of this endpoint are encouraged to pass max_results
 	// explicitly and leverage page_token to iterate through experiments.
-	MaxResults *int64 `protobuf:"varint,1,opt,name=max_results,json=maxResults" json:"max_results,omitempty" query:"max_results"`
+	MaxResults *int64 `protobuf:"varint,1,opt,name=max_results,json=maxResults" json:"max_results,omitempty" query:"max_results" params:"max_results"`
 	// Token indicating the page of experiments to fetch
-	PageToken *string `protobuf:"bytes,2,opt,name=page_token,json=pageToken" json:"page_token,omitempty" query:"page_token"`
+	PageToken *string `protobuf:"bytes,2,opt,name=page_token,json=pageToken" json:"page_token,omitempty" query:"page_token" params:"page_token"`
 	// A filter expression over experiment attributes and tags that allows returning a subset of
 	// experiments. The syntax is a subset of SQL that supports ANDing together binary operations
 	// between an attribute or tag, and a constant.
@@ -1280,14 +1280,14 @@ type SearchExperiments struct {
 	// Example: “tags."extra-key" = 'value'“ or “tags.`extra-key` = 'value'“
 	//
 	// Supported operators are “=“, “!=“, “LIKE“, and “ILIKE“.
-	Filter *string `protobuf:"bytes,3,opt,name=filter" json:"filter,omitempty" query:"filter"`
+	Filter *string `protobuf:"bytes,3,opt,name=filter" json:"filter,omitempty" query:"filter" params:"filter"`
 	// List of columns for ordering search results, which can include experiment name and id
 	// with an optional "DESC" or "ASC" annotation, where "ASC" is the default.
 	// Tiebreaks are done by experiment id DESC.
-	OrderBy []string `protobuf:"bytes,4,rep,name=order_by,json=orderBy" json:"order_by,omitempty" query:"order_by"`
+	OrderBy []string `protobuf:"bytes,4,rep,name=order_by,json=orderBy" json:"order_by,omitempty" query:"order_by" params:"order_by"`
 	// Qualifier for type of experiments to be returned.
 	// If unspecified, return only active experiments.
-	ViewType *ViewType `protobuf:"varint,5,opt,name=view_type,json=viewType,enum=mlflow.ViewType" json:"view_type,omitempty" query:"view_type"`
+	ViewType *ViewType `protobuf:"varint,5,opt,name=view_type,json=viewType,enum=mlflow.ViewType" json:"view_type,omitempty" query:"view_type" params:"view_type"`
 }
 
 func (x *SearchExperiments) Reset() {
@@ -1363,7 +1363,7 @@ type GetExperiment struct {
 	unknownFields protoimpl.UnknownFields
 
 	// ID of the associated experiment.
-	ExperimentId *string `protobuf:"bytes,1,opt,name=experiment_id,json=experimentId" json:"experiment_id,omitempty" query:"experiment_id" validate:"required,stringAsPositiveInteger"`
+	ExperimentId *string `protobuf:"bytes,1,opt,name=experiment_id,json=experimentId" json:"experiment_id,omitempty" query:"experiment_id" params:"experiment_id" validate:"required,stringAsPositiveInteger"`
 }
 
 func (x *GetExperiment) Reset() {
@@ -1411,7 +1411,7 @@ type DeleteExperiment struct {
 	unknownFields protoimpl.UnknownFields
 
 	// ID of the associated experiment.
-	ExperimentId *string `protobuf:"bytes,1,opt,name=experiment_id,json=experimentId" json:"experiment_id,omitempty" query:"experiment_id" validate:"required,stringAsPositiveInteger"`
+	ExperimentId *string `protobuf:"bytes,1,opt,name=experiment_id,json=experimentId" json:"experiment_id,omitempty" query:"experiment_id" params:"experiment_id" validate:"required,stringAsPositiveInteger"`
 }
 
 func (x *DeleteExperiment) Reset() {
@@ -1459,7 +1459,7 @@ type RestoreExperiment struct {
 	unknownFields protoimpl.UnknownFields
 
 	// ID of the associated experiment.
-	ExperimentId *string `protobuf:"bytes,1,opt,name=experiment_id,json=experimentId" json:"experiment_id,omitempty" query:"experiment_id"`
+	ExperimentId *string `protobuf:"bytes,1,opt,name=experiment_id,json=experimentId" json:"experiment_id,omitempty" query:"experiment_id" params:"experiment_id"`
 }
 
 func (x *RestoreExperiment) Reset() {
@@ -1507,9 +1507,9 @@ type UpdateExperiment struct {
 	unknownFields protoimpl.UnknownFields
 
 	// ID of the associated experiment.
-	ExperimentId *string `protobuf:"bytes,1,opt,name=experiment_id,json=experimentId" json:"experiment_id,omitempty" query:"experiment_id"`
+	ExperimentId *string `protobuf:"bytes,1,opt,name=experiment_id,json=experimentId" json:"experiment_id,omitempty" query:"experiment_id" params:"experiment_id"`
 	// If provided, the experiment's name is changed to the new name. The new name must be unique.
-	NewName *string `protobuf:"bytes,2,opt,name=new_name,json=newName" json:"new_name,omitempty" query:"new_name"`
+	NewName *string `protobuf:"bytes,2,opt,name=new_name,json=newName" json:"new_name,omitempty" query:"new_name" params:"new_name"`
 }
 
 func (x *UpdateExperiment) Reset() {
@@ -1564,17 +1564,17 @@ type CreateRun struct {
 	unknownFields protoimpl.UnknownFields
 
 	// ID of the associated experiment.
-	ExperimentId *string `protobuf:"bytes,1,opt,name=experiment_id,json=experimentId" json:"experiment_id,omitempty" query:"experiment_id" validate:"required,stringAsPositiveInteger"`
+	ExperimentId *string `protobuf:"bytes,1,opt,name=experiment_id,json=experimentId" json:"experiment_id,omitempty" query:"experiment_id" params:"experiment_id" validate:"required,stringAsPositiveInteger"`
 	// ID of the user executing the run.
 	// This field is deprecated as of MLflow 1.0, and will be removed in a future
 	// MLflow release. Use 'mlflow.user' tag instead.
-	UserId *string `protobuf:"bytes,2,opt,name=user_id,json=userId" json:"user_id,omitempty" query:"user_id"`
+	UserId *string `protobuf:"bytes,2,opt,name=user_id,json=userId" json:"user_id,omitempty" query:"user_id" params:"user_id"`
 	// Name of the run.
-	RunName *string `protobuf:"bytes,3,opt,name=run_name,json=runName" json:"run_name,omitempty" query:"run_name"`
+	RunName *string `protobuf:"bytes,3,opt,name=run_name,json=runName" json:"run_name,omitempty" query:"run_name" params:"run_name"`
 	// Unix timestamp in milliseconds of when the run started.
-	StartTime *int64 `protobuf:"varint,7,opt,name=start_time,json=startTime" json:"start_time,omitempty" query:"start_time"`
+	StartTime *int64 `protobuf:"varint,7,opt,name=start_time,json=startTime" json:"start_time,omitempty" query:"start_time" params:"start_time"`
 	// Additional metadata for run.
-	Tags []*RunTag `protobuf:"bytes,9,rep,name=tags" json:"tags,omitempty" query:"tags"`
+	Tags []*RunTag `protobuf:"bytes,9,rep,name=tags" json:"tags,omitempty" query:"tags" params:"tags"`
 }
 
 func (x *CreateRun) Reset() {
@@ -1650,16 +1650,16 @@ type UpdateRun struct {
 	unknownFields protoimpl.UnknownFields
 
 	// ID of the run to update. Must be provided.
-	RunId *string `protobuf:"bytes,4,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id"`
+	RunId *string `protobuf:"bytes,4,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id" params:"run_id"`
 	// [Deprecated, use run_id instead] ID of the run to update.. This field will
 	// be removed in a future MLflow version.
-	RunUuid *string `protobuf:"bytes,1,opt,name=run_uuid,json=runUuid" json:"run_uuid,omitempty" query:"run_uuid"`
+	RunUuid *string `protobuf:"bytes,1,opt,name=run_uuid,json=runUuid" json:"run_uuid,omitempty" query:"run_uuid" params:"run_uuid"`
 	// Updated status of the run.
-	Status *RunStatus `protobuf:"varint,2,opt,name=status,enum=mlflow.RunStatus" json:"status,omitempty" query:"status"`
+	Status *RunStatus `protobuf:"varint,2,opt,name=status,enum=mlflow.RunStatus" json:"status,omitempty" query:"status" params:"status"`
 	// Unix timestamp in milliseconds of when the run ended.
-	EndTime *int64 `protobuf:"varint,3,opt,name=end_time,json=endTime" json:"end_time,omitempty" query:"end_time"`
+	EndTime *int64 `protobuf:"varint,3,opt,name=end_time,json=endTime" json:"end_time,omitempty" query:"end_time" params:"end_time"`
 	// Updated name of the run.
-	RunName *string `protobuf:"bytes,5,opt,name=run_name,json=runName" json:"run_name,omitempty" query:"run_name"`
+	RunName *string `protobuf:"bytes,5,opt,name=run_name,json=runName" json:"run_name,omitempty" query:"run_name" params:"run_name"`
 }
 
 func (x *UpdateRun) Reset() {
@@ -1735,7 +1735,7 @@ type DeleteRun struct {
 	unknownFields protoimpl.UnknownFields
 
 	// ID of the run to delete.
-	RunId *string `protobuf:"bytes,1,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id"`
+	RunId *string `protobuf:"bytes,1,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id" params:"run_id"`
 }
 
 func (x *DeleteRun) Reset() {
@@ -1783,7 +1783,7 @@ type RestoreRun struct {
 	unknownFields protoimpl.UnknownFields
 
 	// ID of the run to restore.
-	RunId *string `protobuf:"bytes,1,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id"`
+	RunId *string `protobuf:"bytes,1,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id" params:"run_id"`
 }
 
 func (x *RestoreRun) Reset() {
@@ -1831,18 +1831,18 @@ type LogMetric struct {
 	unknownFields protoimpl.UnknownFields
 
 	// ID of the run under which to log the metric. Must be provided.
-	RunId *string `protobuf:"bytes,6,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id" validate:"required"`
+	RunId *string `protobuf:"bytes,6,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id" params:"run_id" validate:"required"`
 	// [Deprecated, use run_id instead] ID of the run under which to log the metric. This field will
 	// be removed in a future MLflow version.
-	RunUuid *string `protobuf:"bytes,1,opt,name=run_uuid,json=runUuid" json:"run_uuid,omitempty" query:"run_uuid"`
+	RunUuid *string `protobuf:"bytes,1,opt,name=run_uuid,json=runUuid" json:"run_uuid,omitempty" query:"run_uuid" params:"run_uuid"`
 	// Name of the metric.
-	Key *string `protobuf:"bytes,2,opt,name=key" json:"key,omitempty" query:"key" validate:"required"`
+	Key *string `protobuf:"bytes,2,opt,name=key" json:"key,omitempty" query:"key" params:"key" validate:"required"`
 	// Double value of the metric being logged.
-	Value *float64 `protobuf:"fixed64,3,opt,name=value" json:"value,omitempty" query:"value" validate:"required"`
+	Value *float64 `protobuf:"fixed64,3,opt,name=value" json:"value,omitempty" query:"value" params:"value" validate:"required"`
 	// Unix timestamp in milliseconds at the time metric was logged.
-	Timestamp *int64 `protobuf:"varint,4,opt,name=timestamp" json:"timestamp,omitempty" query:"timestamp" validate:"required"`
+	Timestamp *int64 `protobuf:"varint,4,opt,name=timestamp" json:"timestamp,omitempty" query:"timestamp" params:"timestamp" validate:"required"`
 	// Step at which to log the metric
-	Step *int64 `protobuf:"varint,5,opt,name=step,def=0" json:"step,omitempty" query:"step"`
+	Step *int64 `protobuf:"varint,5,opt,name=step,def=0" json:"step,omitempty" query:"step" params:"step"`
 }
 
 // Default values for LogMetric fields.
@@ -1930,14 +1930,14 @@ type LogParam struct {
 	unknownFields protoimpl.UnknownFields
 
 	// ID of the run under which to log the param. Must be provided.
-	RunId *string `protobuf:"bytes,4,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id"`
+	RunId *string `protobuf:"bytes,4,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id" params:"run_id"`
 	// [Deprecated, use run_id instead] ID of the run under which to log the param. This field will
 	// be removed in a future MLflow version.
-	RunUuid *string `protobuf:"bytes,1,opt,name=run_uuid,json=runUuid" json:"run_uuid,omitempty" query:"run_uuid"`
+	RunUuid *string `protobuf:"bytes,1,opt,name=run_uuid,json=runUuid" json:"run_uuid,omitempty" query:"run_uuid" params:"run_uuid"`
 	// Name of the param. Maximum size is 255 bytes.
-	Key *string `protobuf:"bytes,2,opt,name=key" json:"key,omitempty" query:"key" validate:"required,max=250,validMetricParamOrTagName,pathIsUnique"`
+	Key *string `protobuf:"bytes,2,opt,name=key" json:"key,omitempty" query:"key" params:"key" validate:"required,max=250,validMetricParamOrTagName,pathIsUnique"`
 	// String value of the param being logged. Maximum size is 6000 bytes.
-	Value *string `protobuf:"bytes,3,opt,name=value" json:"value,omitempty" query:"value" validate:"omitempty,truncate=6000"`
+	Value *string `protobuf:"bytes,3,opt,name=value" json:"value,omitempty" query:"value" params:"value" validate:"omitempty,truncate=6000"`
 }
 
 func (x *LogParam) Reset() {
@@ -2006,13 +2006,13 @@ type SetExperimentTag struct {
 	unknownFields protoimpl.UnknownFields
 
 	// ID of the experiment under which to log the tag. Must be provided.
-	ExperimentId *string `protobuf:"bytes,1,opt,name=experiment_id,json=experimentId" json:"experiment_id,omitempty" query:"experiment_id" validate:"required"`
+	ExperimentId *string `protobuf:"bytes,1,opt,name=experiment_id,json=experimentId" json:"experiment_id,omitempty" query:"experiment_id" params:"experiment_id" validate:"required"`
 	// Name of the tag. Maximum size depends on storage backend.
 	// All storage backends are guaranteed to support key values up to 250 bytes in size.
-	Key *string `protobuf:"bytes,2,opt,name=key" json:"key,omitempty" query:"key" validate:"required,max=250,validMetricParamOrTagName"`
+	Key *string `protobuf:"bytes,2,opt,name=key" json:"key,omitempty" query:"key" params:"key" validate:"required,max=250,validMetricParamOrTagName"`
 	// String value of the tag being logged. Maximum size depends on storage backend.
 	// All storage backends are guaranteed to support key values up to 5000 bytes in size.
-	Value *string `protobuf:"bytes,3,opt,name=value" json:"value,omitempty" query:"value" validate:"max=5000"`
+	Value *string `protobuf:"bytes,3,opt,name=value" json:"value,omitempty" query:"value" params:"value" validate:"max=5000"`
 }
 
 func (x *SetExperimentTag) Reset() {
@@ -2074,16 +2074,16 @@ type SetTag struct {
 	unknownFields protoimpl.UnknownFields
 
 	// ID of the run under which to log the tag. Must be provided.
-	RunId *string `protobuf:"bytes,4,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id"`
+	RunId *string `protobuf:"bytes,4,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id" params:"run_id"`
 	// [Deprecated, use run_id instead] ID of the run under which to log the tag. This field will
 	// be removed in a future MLflow version.
-	RunUuid *string `protobuf:"bytes,1,opt,name=run_uuid,json=runUuid" json:"run_uuid,omitempty" query:"run_uuid"`
+	RunUuid *string `protobuf:"bytes,1,opt,name=run_uuid,json=runUuid" json:"run_uuid,omitempty" query:"run_uuid" params:"run_uuid"`
 	// Name of the tag. Maximum size depends on storage backend.
 	// All storage backends are guaranteed to support key values up to 250 bytes in size.
-	Key *string `protobuf:"bytes,2,opt,name=key" json:"key,omitempty" query:"key" validate:"required,max=1000,validMetricParamOrTagName,pathIsUnique"`
+	Key *string `protobuf:"bytes,2,opt,name=key" json:"key,omitempty" query:"key" params:"key" validate:"required,max=1000,validMetricParamOrTagName,pathIsUnique"`
 	// String value of the tag being logged. Maximum size depends on storage backend.
 	// All storage backends are guaranteed to support key values up to 5000 bytes in size.
-	Value *string `protobuf:"bytes,3,opt,name=value" json:"value,omitempty" query:"value" validate:"omitempty,truncate=8001"`
+	Value *string `protobuf:"bytes,3,opt,name=value" json:"value,omitempty" query:"value" params:"value" validate:"omitempty,truncate=8000"`
 }
 
 func (x *SetTag) Reset() {
@@ -2152,9 +2152,9 @@ type DeleteTag struct {
 	unknownFields protoimpl.UnknownFields
 
 	// ID of the run that the tag was logged under. Must be provided.
-	RunId *string `protobuf:"bytes,1,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id" validate:"required"`
+	RunId *string `protobuf:"bytes,1,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id" params:"run_id" validate:"required"`
 	// Name of the tag. Maximum size is 255 bytes. Must be provided.
-	Key *string `protobuf:"bytes,2,opt,name=key" json:"key,omitempty" query:"key" validate:"required"`
+	Key *string `protobuf:"bytes,2,opt,name=key" json:"key,omitempty" query:"key" params:"key" validate:"required"`
 }
 
 func (x *DeleteTag) Reset() {
@@ -2209,10 +2209,10 @@ type GetRun struct {
 	unknownFields protoimpl.UnknownFields
 
 	// ID of the run to fetch. Must be provided.
-	RunId *string `protobuf:"bytes,2,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id"`
+	RunId *string `protobuf:"bytes,2,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id" params:"run_id"`
 	// [Deprecated, use run_id instead] ID of the run to fetch. This field will
 	// be removed in a future MLflow version.
-	RunUuid *string `protobuf:"bytes,1,opt,name=run_uuid,json=runUuid" json:"run_uuid,omitempty" query:"run_uuid"`
+	RunUuid *string `protobuf:"bytes,1,opt,name=run_uuid,json=runUuid" json:"run_uuid,omitempty" query:"run_uuid" params:"run_uuid"`
 }
 
 func (x *GetRun) Reset() {
@@ -2267,7 +2267,7 @@ type SearchRuns struct {
 	unknownFields protoimpl.UnknownFields
 
 	// List of experiment IDs to search over.
-	ExperimentIds []string `protobuf:"bytes,1,rep,name=experiment_ids,json=experimentIds" json:"experiment_ids,omitempty" query:"experiment_ids"`
+	ExperimentIds []string `protobuf:"bytes,1,rep,name=experiment_ids,json=experimentIds" json:"experiment_ids,omitempty" query:"experiment_ids" params:"experiment_ids"`
 	// A filter expression over params, metrics, and tags, that allows returning a subset of
 	// runs. The syntax is a subset of SQL that supports ANDing together binary operations
 	// between a param, metric, or tag and a constant.
@@ -2278,22 +2278,22 @@ type SearchRuns struct {
 	// “metrics."model class" = 'LinearRegression' and tags."user-name" = 'Tomas'“
 	//
 	// Supported operators are “=“, “!=“, “>“, “>=“, “<“, and “<=“.
-	Filter *string `protobuf:"bytes,4,opt,name=filter" json:"filter,omitempty" query:"filter"`
+	Filter *string `protobuf:"bytes,4,opt,name=filter" json:"filter,omitempty" query:"filter" params:"filter"`
 	// Whether to display only active, only deleted, or all runs.
 	// Defaults to only active runs.
-	RunViewType *ViewType `protobuf:"varint,3,opt,name=run_view_type,json=runViewType,enum=mlflow.ViewType,def=1" json:"run_view_type,omitempty" query:"run_view_type" validate:"omitempty"`
+	RunViewType *ViewType `protobuf:"varint,3,opt,name=run_view_type,json=runViewType,enum=mlflow.ViewType,def=1" json:"run_view_type,omitempty" query:"run_view_type" params:"run_view_type" validate:"omitempty"`
 	// Maximum number of runs desired. If unspecified, defaults to 1000.
 	// All servers are guaranteed to support a `max_results` threshold of at least 50,000
 	// but may support more. Callers of this endpoint are encouraged to pass max_results
 	// explicitly and leverage page_token to iterate through experiments.
-	MaxResults *int32 `protobuf:"varint,5,opt,name=max_results,json=maxResults,def=1000" json:"max_results,omitempty" query:"max_results" validate:"gt=0,max=50000"`
+	MaxResults *int32 `protobuf:"varint,5,opt,name=max_results,json=maxResults,def=1000" json:"max_results,omitempty" query:"max_results" params:"max_results" validate:"gt=0,max=50000"`
 	// List of columns to be ordered by, including attributes, params, metrics, and tags with an
 	// optional "DESC" or "ASC" annotation, where "ASC" is the default.
 	// Example: ["params.input DESC", "metrics.alpha ASC", "metrics.rmse"]
 	// Tiebreaks are done by start_time DESC followed by run_id for runs with the same start time
 	// (and this is the default ordering criterion if order_by is not provided).
-	OrderBy   []string `protobuf:"bytes,6,rep,name=order_by,json=orderBy" json:"order_by,omitempty" query:"order_by"`
-	PageToken *string  `protobuf:"bytes,7,opt,name=page_token,json=pageToken" json:"page_token,omitempty" query:"page_token"`
+	OrderBy   []string `protobuf:"bytes,6,rep,name=order_by,json=orderBy" json:"order_by,omitempty" query:"order_by" params:"order_by"`
+	PageToken *string  `protobuf:"bytes,7,opt,name=page_token,json=pageToken" json:"page_token,omitempty" query:"page_token" params:"page_token"`
 }
 
 // Default values for SearchRuns fields.
@@ -2382,14 +2382,14 @@ type ListArtifacts struct {
 	unknownFields protoimpl.UnknownFields
 
 	// ID of the run whose artifacts to list. Must be provided.
-	RunId *string `protobuf:"bytes,3,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id"`
+	RunId *string `protobuf:"bytes,3,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id" params:"run_id"`
 	// [Deprecated, use run_id instead] ID of the run whose artifacts to list. This field will
 	// be removed in a future MLflow version.
-	RunUuid *string `protobuf:"bytes,1,opt,name=run_uuid,json=runUuid" json:"run_uuid,omitempty" query:"run_uuid"`
+	RunUuid *string `protobuf:"bytes,1,opt,name=run_uuid,json=runUuid" json:"run_uuid,omitempty" query:"run_uuid" params:"run_uuid"`
 	// Filter artifacts matching this path (a relative path from the root artifact directory).
-	Path *string `protobuf:"bytes,2,opt,name=path" json:"path,omitempty" query:"path"`
+	Path *string `protobuf:"bytes,2,opt,name=path" json:"path,omitempty" query:"path" params:"path"`
 	// Token indicating the page of artifact results to fetch
-	PageToken *string `protobuf:"bytes,4,opt,name=page_token,json=pageToken" json:"page_token,omitempty" query:"page_token"`
+	PageToken *string `protobuf:"bytes,4,opt,name=page_token,json=pageToken" json:"page_token,omitempty" query:"page_token" params:"page_token"`
 }
 
 func (x *ListArtifacts) Reset() {
@@ -2459,11 +2459,11 @@ type FileInfo struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Path relative to the root artifact directory run.
-	Path *string `protobuf:"bytes,1,opt,name=path" json:"path,omitempty" query:"path"`
+	Path *string `protobuf:"bytes,1,opt,name=path" json:"path,omitempty" query:"path" params:"path"`
 	// Whether the path is a directory.
-	IsDir *bool `protobuf:"varint,2,opt,name=is_dir,json=isDir" json:"is_dir,omitempty" query:"is_dir"`
+	IsDir *bool `protobuf:"varint,2,opt,name=is_dir,json=isDir" json:"is_dir,omitempty" query:"is_dir" params:"is_dir"`
 	// Size in bytes. Unset for directories.
-	FileSize *int64 `protobuf:"varint,3,opt,name=file_size,json=fileSize" json:"file_size,omitempty" query:"file_size"`
+	FileSize *int64 `protobuf:"varint,3,opt,name=file_size,json=fileSize" json:"file_size,omitempty" query:"file_size" params:"file_size"`
 }
 
 func (x *FileInfo) Reset() {
@@ -2525,19 +2525,19 @@ type GetMetricHistory struct {
 	unknownFields protoimpl.UnknownFields
 
 	// ID of the run from which to fetch metric values. Must be provided.
-	RunId *string `protobuf:"bytes,3,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id"`
+	RunId *string `protobuf:"bytes,3,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id" params:"run_id"`
 	// [Deprecated, use run_id instead] ID of the run from which to fetch metric values. This field
 	// will be removed in a future MLflow version.
-	RunUuid *string `protobuf:"bytes,1,opt,name=run_uuid,json=runUuid" json:"run_uuid,omitempty" query:"run_uuid"`
+	RunUuid *string `protobuf:"bytes,1,opt,name=run_uuid,json=runUuid" json:"run_uuid,omitempty" query:"run_uuid" params:"run_uuid"`
 	// Name of the metric.
-	MetricKey *string `protobuf:"bytes,2,opt,name=metric_key,json=metricKey" json:"metric_key,omitempty" query:"metric_key"`
+	MetricKey *string `protobuf:"bytes,2,opt,name=metric_key,json=metricKey" json:"metric_key,omitempty" query:"metric_key" params:"metric_key"`
 	// Token indicating the page of metric history to fetch
-	PageToken *string `protobuf:"bytes,4,opt,name=page_token,json=pageToken" json:"page_token,omitempty" query:"page_token"`
+	PageToken *string `protobuf:"bytes,4,opt,name=page_token,json=pageToken" json:"page_token,omitempty" query:"page_token" params:"page_token"`
 	// Maximum number of logged instances of a metric for a run to return per call.
 	// Backend servers may restrict the value of `max_results` depending on performance requirements.
 	// Requests that do not specify this value will behave as non-paginated queries where all
 	// metric history values for a given metric within a run are returned in a single response.
-	MaxResults *int32 `protobuf:"varint,5,opt,name=max_results,json=maxResults" json:"max_results,omitempty" query:"max_results"`
+	MaxResults *int32 `protobuf:"varint,5,opt,name=max_results,json=maxResults" json:"max_results,omitempty" query:"max_results" params:"max_results"`
 }
 
 func (x *GetMetricHistory) Reset() {
@@ -2613,15 +2613,15 @@ type MetricWithRunId struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Key identifying this metric.
-	Key *string `protobuf:"bytes,1,opt,name=key" json:"key,omitempty" query:"key"`
+	Key *string `protobuf:"bytes,1,opt,name=key" json:"key,omitempty" query:"key" params:"key"`
 	// Value associated with this metric.
-	Value *float64 `protobuf:"fixed64,2,opt,name=value" json:"value,omitempty" query:"value"`
+	Value *float64 `protobuf:"fixed64,2,opt,name=value" json:"value,omitempty" query:"value" params:"value"`
 	// The timestamp at which this metric was recorded.
-	Timestamp *int64 `protobuf:"varint,3,opt,name=timestamp" json:"timestamp,omitempty" query:"timestamp"`
+	Timestamp *int64 `protobuf:"varint,3,opt,name=timestamp" json:"timestamp,omitempty" query:"timestamp" params:"timestamp"`
 	// Step at which to log the metric.
-	Step *int64 `protobuf:"varint,4,opt,name=step,def=0" json:"step,omitempty" query:"step"`
+	Step *int64 `protobuf:"varint,4,opt,name=step,def=0" json:"step,omitempty" query:"step" params:"step"`
 	// The ID of the run containing the metric
-	RunId *string `protobuf:"bytes,5,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id"`
+	RunId *string `protobuf:"bytes,5,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id" params:"run_id"`
 }
 
 // Default values for MetricWithRunId fields.
@@ -2702,19 +2702,19 @@ type GetMetricHistoryBulkInterval struct {
 	unknownFields protoimpl.UnknownFields
 
 	// ID(s) of the run(s) from which to fetch metric values. Must be provided.
-	RunIds []string `protobuf:"bytes,1,rep,name=run_ids,json=runIds" json:"run_ids,omitempty" query:"run_ids"`
+	RunIds []string `protobuf:"bytes,1,rep,name=run_ids,json=runIds" json:"run_ids,omitempty" query:"run_ids" params:"run_ids"`
 	// Name of the metric.
-	MetricKey *string `protobuf:"bytes,2,opt,name=metric_key,json=metricKey" json:"metric_key,omitempty" query:"metric_key"`
+	MetricKey *string `protobuf:"bytes,2,opt,name=metric_key,json=metricKey" json:"metric_key,omitempty" query:"metric_key" params:"metric_key"`
 	// Optional start step to only fetch metrics after the specified step. Must be defined if
 	// end_step is defined.
-	StartStep *int32 `protobuf:"varint,3,opt,name=start_step,json=startStep" json:"start_step,omitempty" query:"start_step"`
+	StartStep *int32 `protobuf:"varint,3,opt,name=start_step,json=startStep" json:"start_step,omitempty" query:"start_step" params:"start_step"`
 	// Optional end step to only fetch metrics before the specified step. Must be defined if
 	// start_step is defined.
-	EndStep *int32 `protobuf:"varint,4,opt,name=end_step,json=endStep" json:"end_step,omitempty" query:"end_step"`
+	EndStep *int32 `protobuf:"varint,4,opt,name=end_step,json=endStep" json:"end_step,omitempty" query:"end_step" params:"end_step"`
 	// Maximum number of results to fetch per run specified. Must be set to a positive number.
 	// Note, in reality, the API returns at most (max_results + # of run IDs) x (# run IDs) metric
 	// data points.
-	MaxResults *int32 `protobuf:"varint,5,opt,name=max_results,json=maxResults" json:"max_results,omitempty" query:"max_results"`
+	MaxResults *int32 `protobuf:"varint,5,opt,name=max_results,json=maxResults" json:"max_results,omitempty" query:"max_results" params:"max_results"`
 }
 
 func (x *GetMetricHistoryBulkInterval) Reset() {
@@ -2790,16 +2790,16 @@ type LogBatch struct {
 	unknownFields protoimpl.UnknownFields
 
 	// ID of the run to log under
-	RunId *string `protobuf:"bytes,1,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id" validate:"required,runId"`
+	RunId *string `protobuf:"bytes,1,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id" params:"run_id" validate:"required,runId"`
 	// Metrics to log. A single request can contain up to 1000 metrics, and up to 1000
 	// metrics, params, and tags in total.
-	Metrics []*Metric `protobuf:"bytes,2,rep,name=metrics" json:"metrics,omitempty" query:"metrics" validate:"max=1000,dive"`
+	Metrics []*Metric `protobuf:"bytes,2,rep,name=metrics" json:"metrics,omitempty" query:"metrics" params:"metrics" validate:"max=1000,dive"`
 	// Params to log. A single request can contain up to 100 params, and up to 1000
 	// metrics, params, and tags in total.
-	Params []*Param `protobuf:"bytes,3,rep,name=params" json:"params,omitempty" query:"params" validate:"omitempty,uniqueParams,max=100,dive"`
+	Params []*Param `protobuf:"bytes,3,rep,name=params" json:"params,omitempty" query:"params" params:"params" validate:"omitempty,uniqueParams,max=100,dive"`
 	// Tags to log. A single request can contain up to 100 tags, and up to 1000
 	// metrics, params, and tags in total.
-	Tags []*RunTag `protobuf:"bytes,4,rep,name=tags" json:"tags,omitempty" query:"tags" validate:"max=100"`
+	Tags []*RunTag `protobuf:"bytes,4,rep,name=tags" json:"tags,omitempty" query:"tags" params:"tags" validate:"max=100"`
 }
 
 func (x *LogBatch) Reset() {
@@ -2868,9 +2868,9 @@ type LogModel struct {
 	unknownFields protoimpl.UnknownFields
 
 	// ID of the run to log under
-	RunId *string `protobuf:"bytes,1,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id"`
+	RunId *string `protobuf:"bytes,1,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id" params:"run_id"`
 	// MLmodel file in json format.
-	ModelJson *string `protobuf:"bytes,2,opt,name=model_json,json=modelJson" json:"model_json,omitempty" query:"model_json"`
+	ModelJson *string `protobuf:"bytes,2,opt,name=model_json,json=modelJson" json:"model_json,omitempty" query:"model_json" params:"model_json"`
 }
 
 func (x *LogModel) Reset() {
@@ -2925,9 +2925,9 @@ type LogInputs struct {
 	unknownFields protoimpl.UnknownFields
 
 	// ID of the run to log under
-	RunId *string `protobuf:"bytes,1,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id"`
+	RunId *string `protobuf:"bytes,1,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id" params:"run_id"`
 	// Dataset inputs
-	Datasets []*DatasetInput `protobuf:"bytes,2,rep,name=datasets" json:"datasets,omitempty" query:"datasets"`
+	Datasets []*DatasetInput `protobuf:"bytes,2,rep,name=datasets" json:"datasets,omitempty" query:"datasets" params:"datasets"`
 }
 
 func (x *LogInputs) Reset() {
@@ -2982,7 +2982,7 @@ type GetExperimentByName struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Name of the associated experiment.
-	ExperimentName *string `protobuf:"bytes,1,opt,name=experiment_name,json=experimentName" json:"experiment_name,omitempty" query:"experiment_name" validate:"required"`
+	ExperimentName *string `protobuf:"bytes,1,opt,name=experiment_name,json=experimentName" json:"experiment_name,omitempty" query:"experiment_name" params:"experiment_name" validate:"required"`
 }
 
 func (x *GetExperimentByName) Reset() {
@@ -3031,19 +3031,19 @@ type TraceInfo struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Unique identifier for the trace.
-	RequestId *string `protobuf:"bytes,1,opt,name=request_id,json=requestId" json:"request_id,omitempty" query:"request_id"`
+	RequestId *string `protobuf:"bytes,1,opt,name=request_id,json=requestId" json:"request_id,omitempty" query:"request_id" params:"request_id"`
 	// The ID of the experiment that contains the trace.
-	ExperimentId *string `protobuf:"bytes,2,opt,name=experiment_id,json=experimentId" json:"experiment_id,omitempty" query:"experiment_id"`
+	ExperimentId *string `protobuf:"bytes,2,opt,name=experiment_id,json=experimentId" json:"experiment_id,omitempty" query:"experiment_id" params:"experiment_id"`
 	// Unix timestamp of when the trace started in milliseconds.
-	TimestampMs *int64 `protobuf:"varint,3,opt,name=timestamp_ms,json=timestampMs" json:"timestamp_ms,omitempty" query:"timestamp_ms"`
+	TimestampMs *int64 `protobuf:"varint,3,opt,name=timestamp_ms,json=timestampMs" json:"timestamp_ms,omitempty" query:"timestamp_ms" params:"timestamp_ms"`
 	// Unix timestamp of the duration of the trace in milliseconds.
-	ExecutionTimeMs *int64 `protobuf:"varint,4,opt,name=execution_time_ms,json=executionTimeMs" json:"execution_time_ms,omitempty" query:"execution_time_ms"`
+	ExecutionTimeMs *int64 `protobuf:"varint,4,opt,name=execution_time_ms,json=executionTimeMs" json:"execution_time_ms,omitempty" query:"execution_time_ms" params:"execution_time_ms"`
 	// Overall status of the operation being traced (OK, error, etc.).
-	Status *TraceStatus `protobuf:"varint,5,opt,name=status,enum=mlflow.TraceStatus" json:"status,omitempty" query:"status"`
+	Status *TraceStatus `protobuf:"varint,5,opt,name=status,enum=mlflow.TraceStatus" json:"status,omitempty" query:"status" params:"status"`
 	// Other trace metadata.
-	RequestMetadata []*TraceRequestMetadata `protobuf:"bytes,6,rep,name=request_metadata,json=requestMetadata" json:"request_metadata,omitempty" query:"request_metadata"`
+	RequestMetadata []*TraceRequestMetadata `protobuf:"bytes,6,rep,name=request_metadata,json=requestMetadata" json:"request_metadata,omitempty" query:"request_metadata" params:"request_metadata"`
 	// Tags for the trace.
-	Tags []*TraceTag `protobuf:"bytes,7,rep,name=tags" json:"tags,omitempty" query:"tags"`
+	Tags []*TraceTag `protobuf:"bytes,7,rep,name=tags" json:"tags,omitempty" query:"tags" params:"tags"`
 }
 
 func (x *TraceInfo) Reset() {
@@ -3133,9 +3133,9 @@ type TraceRequestMetadata struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Key identifying this metadata.
-	Key *string `protobuf:"bytes,1,opt,name=key" json:"key,omitempty" query:"key"`
+	Key *string `protobuf:"bytes,1,opt,name=key" json:"key,omitempty" query:"key" params:"key"`
 	// Value identifying this metadata.
-	Value *string `protobuf:"bytes,2,opt,name=value" json:"value,omitempty" query:"value"`
+	Value *string `protobuf:"bytes,2,opt,name=value" json:"value,omitempty" query:"value" params:"value"`
 }
 
 func (x *TraceRequestMetadata) Reset() {
@@ -3190,9 +3190,9 @@ type TraceTag struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Key identifying this trace tag.
-	Key *string `protobuf:"bytes,1,opt,name=key" json:"key,omitempty" query:"key"`
+	Key *string `protobuf:"bytes,1,opt,name=key" json:"key,omitempty" query:"key" params:"key"`
 	// Value associated with this trace tag.
-	Value *string `protobuf:"bytes,2,opt,name=value" json:"value,omitempty" query:"value"`
+	Value *string `protobuf:"bytes,2,opt,name=value" json:"value,omitempty" query:"value" params:"value"`
 }
 
 func (x *TraceTag) Reset() {
@@ -3247,13 +3247,13 @@ type StartTrace struct {
 	unknownFields protoimpl.UnknownFields
 
 	// ID of the associated experiment.
-	ExperimentId *string `protobuf:"bytes,1,opt,name=experiment_id,json=experimentId" json:"experiment_id,omitempty" query:"experiment_id"`
+	ExperimentId *string `protobuf:"bytes,1,opt,name=experiment_id,json=experimentId" json:"experiment_id,omitempty" query:"experiment_id" params:"experiment_id"`
 	// Unix timestamp of when the trace started in milliseconds.
-	TimestampMs *int64 `protobuf:"varint,2,opt,name=timestamp_ms,json=timestampMs" json:"timestamp_ms,omitempty" query:"timestamp_ms"`
+	TimestampMs *int64 `protobuf:"varint,2,opt,name=timestamp_ms,json=timestampMs" json:"timestamp_ms,omitempty" query:"timestamp_ms" params:"timestamp_ms"`
 	// Metadata about the request that initiated the trace.
-	RequestMetadata []*TraceRequestMetadata `protobuf:"bytes,3,rep,name=request_metadata,json=requestMetadata" json:"request_metadata,omitempty" query:"request_metadata"`
+	RequestMetadata []*TraceRequestMetadata `protobuf:"bytes,3,rep,name=request_metadata,json=requestMetadata" json:"request_metadata,omitempty" query:"request_metadata" params:"request_metadata"`
 	// Tags for the trace.
-	Tags []*TraceTag `protobuf:"bytes,4,rep,name=tags" json:"tags,omitempty" query:"tags"`
+	Tags []*TraceTag `protobuf:"bytes,4,rep,name=tags" json:"tags,omitempty" query:"tags" params:"tags"`
 }
 
 func (x *StartTrace) Reset() {
@@ -3322,15 +3322,15 @@ type EndTrace struct {
 	unknownFields protoimpl.UnknownFields
 
 	// ID of the trace to end.
-	RequestId *string `protobuf:"bytes,1,opt,name=request_id,json=requestId" json:"request_id,omitempty" query:"request_id"`
+	RequestId *string `protobuf:"bytes,1,opt,name=request_id,json=requestId" json:"request_id,omitempty" query:"request_id" params:"request_id"`
 	// Unix timestamp of when the trace ended in milliseconds.
-	TimestampMs *int64 `protobuf:"varint,2,opt,name=timestamp_ms,json=timestampMs" json:"timestamp_ms,omitempty" query:"timestamp_ms"`
+	TimestampMs *int64 `protobuf:"varint,2,opt,name=timestamp_ms,json=timestampMs" json:"timestamp_ms,omitempty" query:"timestamp_ms" params:"timestamp_ms"`
 	// Overall status of the operation being traced (OK, error, etc).
-	Status *TraceStatus `protobuf:"varint,3,opt,name=status,enum=mlflow.TraceStatus" json:"status,omitempty" query:"status"`
+	Status *TraceStatus `protobuf:"varint,3,opt,name=status,enum=mlflow.TraceStatus" json:"status,omitempty" query:"status" params:"status"`
 	// Additional metadata about the operation being traced.
-	RequestMetadata []*TraceRequestMetadata `protobuf:"bytes,4,rep,name=request_metadata,json=requestMetadata" json:"request_metadata,omitempty" query:"request_metadata"`
+	RequestMetadata []*TraceRequestMetadata `protobuf:"bytes,4,rep,name=request_metadata,json=requestMetadata" json:"request_metadata,omitempty" query:"request_metadata" params:"request_metadata"`
 	// Additional tags to add to the trace.
-	Tags []*TraceTag `protobuf:"bytes,5,rep,name=tags" json:"tags,omitempty" query:"tags"`
+	Tags []*TraceTag `protobuf:"bytes,5,rep,name=tags" json:"tags,omitempty" query:"tags" params:"tags"`
 }
 
 func (x *EndTrace) Reset() {
@@ -3406,7 +3406,7 @@ type GetTraceInfo struct {
 	unknownFields protoimpl.UnknownFields
 
 	// ID of the trace to fetch. Must be provided.
-	RequestId *string `protobuf:"bytes,1,opt,name=request_id,json=requestId" json:"request_id,omitempty" query:"request_id"`
+	RequestId *string `protobuf:"bytes,1,opt,name=request_id,json=requestId" json:"request_id,omitempty" query:"request_id" params:"request_id"`
 }
 
 func (x *GetTraceInfo) Reset() {
@@ -3454,17 +3454,17 @@ type SearchTraces struct {
 	unknownFields protoimpl.UnknownFields
 
 	// List of experiment IDs to search over.
-	ExperimentIds []string `protobuf:"bytes,1,rep,name=experiment_ids,json=experimentIds" json:"experiment_ids,omitempty" query:"experiment_ids"`
+	ExperimentIds []string `protobuf:"bytes,1,rep,name=experiment_ids,json=experimentIds" json:"experiment_ids,omitempty" query:"experiment_ids" params:"experiment_ids"`
 	// A filter expression over trace attributes and tags that allows returning a subset of
 	// traces. The syntax is a subset of SQL that supports ANDing together binary operations
 	// Example: “trace.status = 'OK' and trace.timestamp_ms > 1711089570679“.
-	Filter *string `protobuf:"bytes,2,opt,name=filter" json:"filter,omitempty" query:"filter"`
+	Filter *string `protobuf:"bytes,2,opt,name=filter" json:"filter,omitempty" query:"filter" params:"filter"`
 	// Maximum number of traces desired. Max threshold is 500.
-	MaxResults *int32 `protobuf:"varint,3,opt,name=max_results,json=maxResults,def=100" json:"max_results,omitempty" query:"max_results"`
+	MaxResults *int32 `protobuf:"varint,3,opt,name=max_results,json=maxResults,def=100" json:"max_results,omitempty" query:"max_results" params:"max_results"`
 	// List of columns for ordering the results, e.g. “["timestamp_ms DESC"]“.
-	OrderBy []string `protobuf:"bytes,4,rep,name=order_by,json=orderBy" json:"order_by,omitempty" query:"order_by"`
+	OrderBy []string `protobuf:"bytes,4,rep,name=order_by,json=orderBy" json:"order_by,omitempty" query:"order_by" params:"order_by"`
 	// Token indicating the page of traces to fetch.
-	PageToken *string `protobuf:"bytes,5,opt,name=page_token,json=pageToken" json:"page_token,omitempty" query:"page_token"`
+	PageToken *string `protobuf:"bytes,5,opt,name=page_token,json=pageToken" json:"page_token,omitempty" query:"page_token" params:"page_token"`
 }
 
 // Default values for SearchTraces fields.
@@ -3545,15 +3545,15 @@ type DeleteTraces struct {
 	unknownFields protoimpl.UnknownFields
 
 	// ID of the associated experiment.
-	ExperimentId *string `protobuf:"bytes,1,opt,name=experiment_id,json=experimentId" json:"experiment_id,omitempty" query:"experiment_id"`
+	ExperimentId *string `protobuf:"bytes,1,opt,name=experiment_id,json=experimentId" json:"experiment_id,omitempty" query:"experiment_id" params:"experiment_id"`
 	// Case 1: max_timestamp_millis and max_traces must be specified for time-based deletion
 	// The maximum timestamp in milliseconds since the UNIX epoch for deleting traces.
-	MaxTimestampMillis *int64 `protobuf:"varint,2,opt,name=max_timestamp_millis,json=maxTimestampMillis" json:"max_timestamp_millis,omitempty" query:"max_timestamp_millis"`
+	MaxTimestampMillis *int64 `protobuf:"varint,2,opt,name=max_timestamp_millis,json=maxTimestampMillis" json:"max_timestamp_millis,omitempty" query:"max_timestamp_millis" params:"max_timestamp_millis"`
 	// The maximum number of traces to delete.
-	MaxTraces *int32 `protobuf:"varint,3,opt,name=max_traces,json=maxTraces" json:"max_traces,omitempty" query:"max_traces"`
+	MaxTraces *int32 `protobuf:"varint,3,opt,name=max_traces,json=maxTraces" json:"max_traces,omitempty" query:"max_traces" params:"max_traces"`
 	// Case 2: request_ids must be specified for ID-based deletion
 	// A set of request IDs to delete
-	RequestIds []string `protobuf:"bytes,4,rep,name=request_ids,json=requestIds" json:"request_ids,omitempty" query:"request_ids"`
+	RequestIds []string `protobuf:"bytes,4,rep,name=request_ids,json=requestIds" json:"request_ids,omitempty" query:"request_ids" params:"request_ids"`
 }
 
 func (x *DeleteTraces) Reset() {
@@ -3622,13 +3622,13 @@ type SetTraceTag struct {
 	unknownFields protoimpl.UnknownFields
 
 	// ID of the trace on which to set a tag.
-	RequestId *string `protobuf:"bytes,1,opt,name=request_id,json=requestId" json:"request_id,omitempty" query:"request_id"`
+	RequestId *string `protobuf:"bytes,1,opt,name=request_id,json=requestId" json:"request_id,omitempty" query:"request_id" params:"request_id"`
 	// Name of the tag. Maximum size depends on storage backend.
 	// All storage backends are guaranteed to support key values up to 250 bytes in size.
-	Key *string `protobuf:"bytes,2,opt,name=key" json:"key,omitempty" query:"key"`
+	Key *string `protobuf:"bytes,2,opt,name=key" json:"key,omitempty" query:"key" params:"key" validate:"required,max=250,validMetricParamOrTagName,pathIsUnique"`
 	// String value of the tag being logged. Maximum size depends on storage backend.
 	// All storage backends are guaranteed to support key values up to 250 bytes in size.
-	Value *string `protobuf:"bytes,3,opt,name=value" json:"value,omitempty" query:"value"`
+	Value *string `protobuf:"bytes,3,opt,name=value" json:"value,omitempty" query:"value" params:"value" validate:"omitempty,truncate=8000"`
 }
 
 func (x *SetTraceTag) Reset() {
@@ -3690,9 +3690,9 @@ type DeleteTraceTag struct {
 	unknownFields protoimpl.UnknownFields
 
 	// ID of the trace from which to delete the tag.
-	RequestId *string `protobuf:"bytes,1,opt,name=request_id,json=requestId" json:"request_id,omitempty" query:"request_id"`
+	RequestId *string `protobuf:"bytes,1,opt,name=request_id,json=requestId" json:"request_id,omitempty" query:"request_id" params:"request_id"`
 	// Name of the tag to delete.
-	Key *string `protobuf:"bytes,2,opt,name=key" json:"key,omitempty" query:"key"`
+	Key *string `protobuf:"bytes,2,opt,name=key" json:"key,omitempty" query:"key" params:"key"`
 }
 
 func (x *DeleteTraceTag) Reset() {
@@ -3748,14 +3748,14 @@ type DatasetSummary struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Unique identifier for the experiment.
-	ExperimentId *string `protobuf:"bytes,1,opt,name=experiment_id,json=experimentId" json:"experiment_id,omitempty" query:"experiment_id"`
+	ExperimentId *string `protobuf:"bytes,1,opt,name=experiment_id,json=experimentId" json:"experiment_id,omitempty" query:"experiment_id" params:"experiment_id"`
 	// The name of the dataset. E.g. “my.uc.table@2” “nyc-taxi-dataset”, “fantastic-elk-3”
-	Name *string `protobuf:"bytes,2,opt,name=name" json:"name,omitempty" query:"name"`
+	Name *string `protobuf:"bytes,2,opt,name=name" json:"name,omitempty" query:"name" params:"name"`
 	// Dataset digest, e.g. an md5 hash of the dataset that uniquely identifies it
 	// within datasets of the same name.
-	Digest *string `protobuf:"bytes,3,opt,name=digest" json:"digest,omitempty" query:"digest"`
+	Digest *string `protobuf:"bytes,3,opt,name=digest" json:"digest,omitempty" query:"digest" params:"digest"`
 	// Value of "context" tag if set for the given dataset.
-	Context *string `protobuf:"bytes,4,opt,name=context" json:"context,omitempty" query:"context"`
+	Context *string `protobuf:"bytes,4,opt,name=context" json:"context,omitempty" query:"context" params:"context"`
 }
 
 func (x *DatasetSummary) Reset() {
@@ -3824,7 +3824,7 @@ type SearchDatasets struct {
 	unknownFields protoimpl.UnknownFields
 
 	// List of experiment IDs to search over.
-	ExperimentIds []string `protobuf:"bytes,1,rep,name=experiment_ids,json=experimentIds" json:"experiment_ids,omitempty" query:"experiment_ids"`
+	ExperimentIds []string `protobuf:"bytes,1,rep,name=experiment_ids,json=experimentIds" json:"experiment_ids,omitempty" query:"experiment_ids" params:"experiment_ids"`
 }
 
 func (x *SearchDatasets) Reset() {
@@ -3872,7 +3872,7 @@ type CreateExperiment_Response struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Unique identifier for the experiment.
-	ExperimentId *string `protobuf:"bytes,1,opt,name=experiment_id,json=experimentId" json:"experiment_id,omitempty" query:"experiment_id"`
+	ExperimentId *string `protobuf:"bytes,1,opt,name=experiment_id,json=experimentId" json:"experiment_id,omitempty" query:"experiment_id" params:"experiment_id"`
 }
 
 func (x *CreateExperiment_Response) Reset() {
@@ -3920,10 +3920,10 @@ type SearchExperiments_Response struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Experiments that match the search criteria
-	Experiments []*Experiment `protobuf:"bytes,1,rep,name=experiments" json:"experiments,omitempty" query:"experiments"`
+	Experiments []*Experiment `protobuf:"bytes,1,rep,name=experiments" json:"experiments,omitempty" query:"experiments" params:"experiments"`
 	// Token that can be used to retrieve the next page of experiments.
 	// An empty token means that no more experiments are available for retrieval.
-	NextPageToken *string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken" json:"next_page_token,omitempty" query:"next_page_token"`
+	NextPageToken *string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken" json:"next_page_token,omitempty" query:"next_page_token" params:"next_page_token"`
 }
 
 func (x *SearchExperiments_Response) Reset() {
@@ -3978,7 +3978,7 @@ type GetExperiment_Response struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Experiment details.
-	Experiment *Experiment `protobuf:"bytes,1,opt,name=experiment" json:"experiment,omitempty" query:"experiment"`
+	Experiment *Experiment `protobuf:"bytes,1,opt,name=experiment" json:"experiment,omitempty" query:"experiment" params:"experiment"`
 }
 
 func (x *GetExperiment_Response) Reset() {
@@ -4140,7 +4140,7 @@ type CreateRun_Response struct {
 	unknownFields protoimpl.UnknownFields
 
 	// The newly created run.
-	Run *Run `protobuf:"bytes,1,opt,name=run" json:"run,omitempty" query:"run"`
+	Run *Run `protobuf:"bytes,1,opt,name=run" json:"run,omitempty" query:"run" params:"run"`
 }
 
 func (x *CreateRun_Response) Reset() {
@@ -4188,7 +4188,7 @@ type UpdateRun_Response struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Updated metadata of the run.
-	RunInfo *RunInfo `protobuf:"bytes,1,opt,name=run_info,json=runInfo" json:"run_info,omitempty" query:"run_info"`
+	RunInfo *RunInfo `protobuf:"bytes,1,opt,name=run_info,json=runInfo" json:"run_info,omitempty" query:"run_info" params:"run_info"`
 }
 
 func (x *UpdateRun_Response) Reset() {
@@ -4502,7 +4502,7 @@ type GetRun_Response struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Run metadata (name, start time, etc) and data (metrics, params, and tags).
-	Run *Run `protobuf:"bytes,1,opt,name=run" json:"run,omitempty" query:"run"`
+	Run *Run `protobuf:"bytes,1,opt,name=run" json:"run,omitempty" query:"run" params:"run"`
 }
 
 func (x *GetRun_Response) Reset() {
@@ -4550,8 +4550,8 @@ type SearchRuns_Response struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Runs that match the search criteria.
-	Runs          []*Run  `protobuf:"bytes,1,rep,name=runs" json:"runs,omitempty" query:"runs"`
-	NextPageToken *string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken" json:"next_page_token,omitempty" query:"next_page_token"`
+	Runs          []*Run  `protobuf:"bytes,1,rep,name=runs" json:"runs,omitempty" query:"runs" params:"runs"`
+	NextPageToken *string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken" json:"next_page_token,omitempty" query:"next_page_token" params:"next_page_token"`
 }
 
 func (x *SearchRuns_Response) Reset() {
@@ -4606,11 +4606,11 @@ type ListArtifacts_Response struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Root artifact directory for the run.
-	RootUri *string `protobuf:"bytes,1,opt,name=root_uri,json=rootUri" json:"root_uri,omitempty" query:"root_uri"`
+	RootUri *string `protobuf:"bytes,1,opt,name=root_uri,json=rootUri" json:"root_uri,omitempty" query:"root_uri" params:"root_uri"`
 	// File location and metadata for artifacts.
-	Files []*FileInfo `protobuf:"bytes,2,rep,name=files" json:"files,omitempty" query:"files"`
+	Files []*FileInfo `protobuf:"bytes,2,rep,name=files" json:"files,omitempty" query:"files" params:"files"`
 	// Token that can be used to retrieve the next page of artifact results
-	NextPageToken *string `protobuf:"bytes,3,opt,name=next_page_token,json=nextPageToken" json:"next_page_token,omitempty" query:"next_page_token"`
+	NextPageToken *string `protobuf:"bytes,3,opt,name=next_page_token,json=nextPageToken" json:"next_page_token,omitempty" query:"next_page_token" params:"next_page_token"`
 }
 
 func (x *ListArtifacts_Response) Reset() {
@@ -4672,10 +4672,10 @@ type GetMetricHistory_Response struct {
 	unknownFields protoimpl.UnknownFields
 
 	// All logged values for this metric.
-	Metrics []*Metric `protobuf:"bytes,1,rep,name=metrics" json:"metrics,omitempty" query:"metrics"`
+	Metrics []*Metric `protobuf:"bytes,1,rep,name=metrics" json:"metrics,omitempty" query:"metrics" params:"metrics"`
 	// Token that can be used to issue a query for the next page of metric history values.
 	// A missing token indicates that no additional metrics are available to fetch.
-	NextPageToken *string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken" json:"next_page_token,omitempty" query:"next_page_token"`
+	NextPageToken *string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken" json:"next_page_token,omitempty" query:"next_page_token" params:"next_page_token"`
 }
 
 func (x *GetMetricHistory_Response) Reset() {
@@ -4730,7 +4730,7 @@ type GetMetricHistoryBulkInterval_Response struct {
 	unknownFields protoimpl.UnknownFields
 
 	// List of metrics representing history of values and metadata.
-	Metrics []*MetricWithRunId `protobuf:"bytes,1,rep,name=metrics" json:"metrics,omitempty" query:"metrics"`
+	Metrics []*MetricWithRunId `protobuf:"bytes,1,rep,name=metrics" json:"metrics,omitempty" query:"metrics" params:"metrics"`
 }
 
 func (x *GetMetricHistoryBulkInterval_Response) Reset() {
@@ -4892,7 +4892,7 @@ type GetExperimentByName_Response struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Experiment details.
-	Experiment *Experiment `protobuf:"bytes,1,opt,name=experiment" json:"experiment,omitempty" query:"experiment"`
+	Experiment *Experiment `protobuf:"bytes,1,opt,name=experiment" json:"experiment,omitempty" query:"experiment" params:"experiment"`
 }
 
 func (x *GetExperimentByName_Response) Reset() {
@@ -4940,7 +4940,7 @@ type StartTrace_Response struct {
 	unknownFields protoimpl.UnknownFields
 
 	// The newly created trace.
-	TraceInfo *TraceInfo `protobuf:"bytes,1,opt,name=trace_info,json=traceInfo" json:"trace_info,omitempty" query:"trace_info"`
+	TraceInfo *TraceInfo `protobuf:"bytes,1,opt,name=trace_info,json=traceInfo" json:"trace_info,omitempty" query:"trace_info" params:"trace_info"`
 }
 
 func (x *StartTrace_Response) Reset() {
@@ -4988,7 +4988,7 @@ type EndTrace_Response struct {
 	unknownFields protoimpl.UnknownFields
 
 	// The updated trace.
-	TraceInfo *TraceInfo `protobuf:"bytes,1,opt,name=trace_info,json=traceInfo" json:"trace_info,omitempty" query:"trace_info"`
+	TraceInfo *TraceInfo `protobuf:"bytes,1,opt,name=trace_info,json=traceInfo" json:"trace_info,omitempty" query:"trace_info" params:"trace_info"`
 }
 
 func (x *EndTrace_Response) Reset() {
@@ -5036,7 +5036,7 @@ type GetTraceInfo_Response struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Metadata of the requested trace.
-	TraceInfo *TraceInfo `protobuf:"bytes,1,opt,name=trace_info,json=traceInfo" json:"trace_info,omitempty" query:"trace_info"`
+	TraceInfo *TraceInfo `protobuf:"bytes,1,opt,name=trace_info,json=traceInfo" json:"trace_info,omitempty" query:"trace_info" params:"trace_info"`
 }
 
 func (x *GetTraceInfo_Response) Reset() {
@@ -5084,8 +5084,8 @@ type SearchTraces_Response struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Information about traces that match the search criteria.
-	Traces        []*TraceInfo `protobuf:"bytes,1,rep,name=traces" json:"traces,omitempty" query:"traces"`
-	NextPageToken *string      `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken" json:"next_page_token,omitempty" query:"next_page_token"`
+	Traces        []*TraceInfo `protobuf:"bytes,1,rep,name=traces" json:"traces,omitempty" query:"traces" params:"traces"`
+	NextPageToken *string      `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken" json:"next_page_token,omitempty" query:"next_page_token" params:"next_page_token"`
 }
 
 func (x *SearchTraces_Response) Reset() {
@@ -5139,7 +5139,7 @@ type DeleteTraces_Response struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	TracesDeleted *int32 `protobuf:"varint,1,opt,name=traces_deleted,json=tracesDeleted" json:"traces_deleted,omitempty" query:"traces_deleted"`
+	TracesDeleted *int32 `protobuf:"varint,1,opt,name=traces_deleted,json=tracesDeleted" json:"traces_deleted,omitempty" query:"traces_deleted" params:"traces_deleted"`
 }
 
 func (x *DeleteTraces_Response) Reset() {
@@ -5263,7 +5263,7 @@ type SearchDatasets_Response struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Return the summary for most recently created N datasets, as configured in backend
-	DatasetSummaries []*DatasetSummary `protobuf:"bytes,1,rep,name=dataset_summaries,json=datasetSummaries" json:"dataset_summaries,omitempty" query:"dataset_summaries"`
+	DatasetSummaries []*DatasetSummary `protobuf:"bytes,1,rep,name=dataset_summaries,json=datasetSummaries" json:"dataset_summaries,omitempty" query:"dataset_summaries" params:"dataset_summaries"`
 }
 
 func (x *SearchDatasets_Response) Reset() {

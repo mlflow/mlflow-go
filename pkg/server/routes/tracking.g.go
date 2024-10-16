@@ -165,6 +165,28 @@ func RegisterTrackingServiceRoutes(service service.TrackingService, parser *pars
 		}
 		return ctx.JSON(output)
 	})
+	app.Patch("/mlflow/traces/:request_id/tags", func(ctx *fiber.Ctx) error {
+		input := &protos.SetTraceTag{}
+		if err := parser.ParseBody(ctx, input); err != nil {
+			return err
+		}
+		output, err := service.SetTraceTag(utils.NewContextWithLoggerFromFiberContext(ctx), input)
+		if err != nil {
+			return err
+		}
+		return ctx.JSON(output)
+	})
+	app.Delete("/mlflow/traces/:request_id/tags", func(ctx *fiber.Ctx) error {
+		input := &protos.DeleteTraceTag{}
+		if err := parser.ParseBody(ctx, input); err != nil {
+			return err
+		}
+		output, err := service.DeleteTraceTag(utils.NewContextWithLoggerFromFiberContext(ctx), input)
+		if err != nil {
+			return err
+		}
+		return ctx.JSON(output)
+	})
 	app.Post("/mlflow/runs/delete-tag", func(ctx *fiber.Ctx) error {
 		input := &protos.DeleteTag{}
 		if err := parser.ParseBody(ctx, input); err != nil {

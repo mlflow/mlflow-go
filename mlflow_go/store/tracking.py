@@ -7,6 +7,7 @@ from mlflow.entities import (
     RunInfo,
     ViewType,
 )
+from mlflow.environment_variables import MLFLOW_TRUNCATE_LONG_VALUES
 from mlflow.exceptions import MlflowException
 from mlflow.protos import databricks_pb2
 from mlflow.protos.service_pb2 import (
@@ -15,6 +16,7 @@ from mlflow.protos.service_pb2 import (
     DeleteExperiment,
     DeleteRun,
     DeleteTag,
+    DeleteTraceTag,
     GetExperiment,
     GetExperimentByName,
     GetRun,
@@ -25,6 +27,7 @@ from mlflow.protos.service_pb2 import (
     RestoreRun,
     SearchRuns,
     SetTag,
+    SetTraceTag,
     UpdateExperiment,
     UpdateRun,
 )
@@ -47,9 +50,12 @@ class _TrackingStore:
         )
         config = json.dumps(
             {
-                "default_artifact_root": resolve_uri_if_local(default_artifact_root),
-                "tracking_store_uri": store_uri,
                 "log_level": logging.getLevelName(_logger.getEffectiveLevel()),
+                "python_tests_env": {
+                    "MLFLOW_TRUNCATE_LONG_VALUES": MLFLOW_TRUNCATE_LONG_VALUES.get()
+                },
+                "tracking_store_uri": store_uri,
+                "default_artifact_root": resolve_uri_if_local(default_artifact_root),
             }
         ).encode("utf-8")
         self.service = _ServiceProxy(get_lib().CreateTrackingService(config, len(config)))
@@ -176,9 +182,24 @@ class _TrackingStore:
         )
         self.service.call_endpoint(get_lib().TrackingServiceLogParam, request)
 
+    def set_trace_tag(self, request_id: str, key: str, value: str):
+        request = SetTraceTag(
+            key=key,
+            value=value,
+            request_id=request_id,
+        )
+        self.service.call_endpoint(get_lib().TrackingServiceSetTraceTag, request)
+
     def delete_tag(self, run_id, key):
         request = DeleteTag(run_id=run_id, key=key)
         self.service.call_endpoint(get_lib().TrackingServiceDeleteTag, request)
+
+    def delete_trace_tag(self, request_id: str, key: str):
+        request = DeleteTraceTag(
+            request_id=request_id,
+            key=key,
+        )
+        self.service.call_endpoint(get_lib().TrackingServiceDeleteTraceTag, request)
 
     def set_tag(self, run_id, tag):
         request = SetTag(run_id=run_id, key=tag.key, value=tag.value)

@@ -102,18 +102,18 @@ type ArtifactCredentialInfo struct {
 
 	// The ID of the MLflow Run containing the artifact that can be accessed
 	// with the credential
-	RunId *string `protobuf:"bytes,1,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id"`
+	RunId *string `protobuf:"bytes,1,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id" params:"run_id"`
 	// The path, relative to the Run's artifact root location, of the artifact
 	// that can be accessed with the credential
-	Path *string `protobuf:"bytes,2,opt,name=path" json:"path,omitempty" query:"path"`
+	Path *string `protobuf:"bytes,2,opt,name=path" json:"path,omitempty" query:"path" params:"path"`
 	// The signed URI credential that provides access to the artifact
-	SignedUri *string `protobuf:"bytes,3,opt,name=signed_uri,json=signedUri" json:"signed_uri,omitempty" query:"signed_uri"`
+	SignedUri *string `protobuf:"bytes,3,opt,name=signed_uri,json=signedUri" json:"signed_uri,omitempty" query:"signed_uri" params:"signed_uri"`
 	// A collection of HTTP headers that should be specified when uploading to
 	// or downloading from the specified `signed_uri`
-	Headers []*ArtifactCredentialInfo_HttpHeader `protobuf:"bytes,4,rep,name=headers" json:"headers,omitempty" query:"headers"`
+	Headers []*ArtifactCredentialInfo_HttpHeader `protobuf:"bytes,4,rep,name=headers" json:"headers,omitempty" query:"headers" params:"headers"`
 	// The type of the signed credential URI (e.g., an AWS presigned URL
 	// or an Azure Shared Access Signature URI)
-	Type *ArtifactCredentialType `protobuf:"varint,5,opt,name=type,enum=mlflow.ArtifactCredentialType" json:"type,omitempty" query:"type"`
+	Type *ArtifactCredentialType `protobuf:"varint,5,opt,name=type,enum=mlflow.ArtifactCredentialType" json:"type,omitempty" query:"type" params:"type"`
 }
 
 func (x *ArtifactCredentialInfo) Reset() {
@@ -189,12 +189,12 @@ type GetCredentialsForRead struct {
 	unknownFields protoimpl.UnknownFields
 
 	// The ID of the MLflow Run for which to fetch artifact read credentials
-	RunId *string `protobuf:"bytes,1,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id"`
+	RunId *string `protobuf:"bytes,1,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id" params:"run_id"`
 	// The artifact paths, relative to the Run's artifact root location, for which to
 	// fetch artifact read credentials. Must not be empty.
-	Path []string `protobuf:"bytes,2,rep,name=path" json:"path,omitempty" query:"path"`
+	Path []string `protobuf:"bytes,2,rep,name=path" json:"path,omitempty" query:"path" params:"path"`
 	// Token specifying the page of credentials to fetch for large requests that require pagination
-	PageToken *string `protobuf:"bytes,3,opt,name=page_token,json=pageToken" json:"page_token,omitempty" query:"page_token"`
+	PageToken *string `protobuf:"bytes,3,opt,name=page_token,json=pageToken" json:"page_token,omitempty" query:"page_token" params:"page_token"`
 }
 
 func (x *GetCredentialsForRead) Reset() {
@@ -256,12 +256,12 @@ type GetCredentialsForWrite struct {
 	unknownFields protoimpl.UnknownFields
 
 	// The ID of the MLflow Run for which to fetch artifact write credentials
-	RunId *string `protobuf:"bytes,1,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id"`
+	RunId *string `protobuf:"bytes,1,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id" params:"run_id"`
 	// The artifact paths, relative to the Run's artifact root location, for which to
 	// fetch artifact write credentials. Must not be empty.
-	Path []string `protobuf:"bytes,2,rep,name=path" json:"path,omitempty" query:"path"`
+	Path []string `protobuf:"bytes,2,rep,name=path" json:"path,omitempty" query:"path" params:"path"`
 	// Token specifying the page of credentials to fetch for large requests that require pagination
-	PageToken *string `protobuf:"bytes,3,opt,name=page_token,json=pageToken" json:"page_token,omitempty" query:"page_token"`
+	PageToken *string `protobuf:"bytes,3,opt,name=page_token,json=pageToken" json:"page_token,omitempty" query:"page_token" params:"page_token"`
 }
 
 func (x *GetCredentialsForWrite) Reset() {
@@ -323,11 +323,11 @@ type CreateMultipartUpload struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Run ID
-	RunId *string `protobuf:"bytes,1,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id"`
+	RunId *string `protobuf:"bytes,1,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id" params:"run_id"`
 	// Artifact path, relative to the Run's artifact root location (e.g. "path/to/file")
-	Path *string `protobuf:"bytes,2,opt,name=path" json:"path,omitempty" query:"path"`
+	Path *string `protobuf:"bytes,2,opt,name=path" json:"path,omitempty" query:"path" params:"path"`
 	// Number of file parts (chunks of data) to upload in the initiated multipart upload
-	NumParts *int64 `protobuf:"varint,3,opt,name=num_parts,json=numParts" json:"num_parts,omitempty" query:"num_parts"`
+	NumParts *int64 `protobuf:"varint,3,opt,name=num_parts,json=numParts" json:"num_parts,omitempty" query:"num_parts" params:"num_parts"`
 }
 
 func (x *CreateMultipartUpload) Reset() {
@@ -388,8 +388,8 @@ type PartEtag struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	PartNumber *int64  `protobuf:"varint,1,opt,name=part_number,json=partNumber" json:"part_number,omitempty" query:"part_number"`
-	Etag       *string `protobuf:"bytes,2,opt,name=etag" json:"etag,omitempty" query:"etag"`
+	PartNumber *int64  `protobuf:"varint,1,opt,name=part_number,json=partNumber" json:"part_number,omitempty" query:"part_number" params:"part_number"`
+	Etag       *string `protobuf:"bytes,2,opt,name=etag" json:"etag,omitempty" query:"etag" params:"etag"`
 }
 
 func (x *PartEtag) Reset() {
@@ -444,13 +444,13 @@ type CompleteMultipartUpload struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Run ID
-	RunId *string `protobuf:"bytes,1,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id"`
+	RunId *string `protobuf:"bytes,1,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id" params:"run_id"`
 	// Artifact path, relative to the Run's artifact root location (e.g. "path/to/file")
-	Path *string `protobuf:"bytes,2,opt,name=path" json:"path,omitempty" query:"path"`
+	Path *string `protobuf:"bytes,2,opt,name=path" json:"path,omitempty" query:"path" params:"path"`
 	// ID identifying the multipart upload to complete
-	UploadId *string `protobuf:"bytes,3,opt,name=upload_id,json=uploadId" json:"upload_id,omitempty" query:"upload_id"`
+	UploadId *string `protobuf:"bytes,3,opt,name=upload_id,json=uploadId" json:"upload_id,omitempty" query:"upload_id" params:"upload_id"`
 	// A list of file parts uploaded in the multipart upload to complete
-	PartEtags []*PartEtag `protobuf:"bytes,4,rep,name=part_etags,json=partEtags" json:"part_etags,omitempty" query:"part_etags"`
+	PartEtags []*PartEtag `protobuf:"bytes,4,rep,name=part_etags,json=partEtags" json:"part_etags,omitempty" query:"part_etags" params:"part_etags"`
 }
 
 func (x *CompleteMultipartUpload) Reset() {
@@ -519,13 +519,13 @@ type GetPresignedUploadPartUrl struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Run ID
-	RunId *string `protobuf:"bytes,1,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id"`
+	RunId *string `protobuf:"bytes,1,opt,name=run_id,json=runId" json:"run_id,omitempty" query:"run_id" params:"run_id"`
 	// Atifact path, relative to the Run's artifact root location (e.g. "path/to/file")
-	Path *string `protobuf:"bytes,2,opt,name=path" json:"path,omitempty" query:"path"`
+	Path *string `protobuf:"bytes,2,opt,name=path" json:"path,omitempty" query:"path" params:"path"`
 	// ID identifying the multipart upload in which the part is uploaded
-	UploadId *string `protobuf:"bytes,3,opt,name=upload_id,json=uploadId" json:"upload_id,omitempty" query:"upload_id"`
+	UploadId *string `protobuf:"bytes,3,opt,name=upload_id,json=uploadId" json:"upload_id,omitempty" query:"upload_id" params:"upload_id"`
 	// Part number
-	PartNumber *int64 `protobuf:"varint,4,opt,name=part_number,json=partNumber" json:"part_number,omitempty" query:"part_number"`
+	PartNumber *int64 `protobuf:"varint,4,opt,name=part_number,json=partNumber" json:"part_number,omitempty" query:"part_number" params:"part_number"`
 }
 
 func (x *GetPresignedUploadPartUrl) Reset() {
@@ -593,7 +593,7 @@ type GetCredentialsForTraceDataDownload struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	RequestId *string `protobuf:"bytes,1,opt,name=request_id,json=requestId" json:"request_id,omitempty" query:"request_id"`
+	RequestId *string `protobuf:"bytes,1,opt,name=request_id,json=requestId" json:"request_id,omitempty" query:"request_id" params:"request_id"`
 }
 
 func (x *GetCredentialsForTraceDataDownload) Reset() {
@@ -640,7 +640,7 @@ type GetCredentialsForTraceDataUpload struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	RequestId *string `protobuf:"bytes,1,opt,name=request_id,json=requestId" json:"request_id,omitempty" query:"request_id"`
+	RequestId *string `protobuf:"bytes,1,opt,name=request_id,json=requestId" json:"request_id,omitempty" query:"request_id" params:"request_id"`
 }
 
 func (x *GetCredentialsForTraceDataUpload) Reset() {
@@ -688,9 +688,9 @@ type ArtifactCredentialInfo_HttpHeader struct {
 	unknownFields protoimpl.UnknownFields
 
 	// The HTTP header name
-	Name *string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty" query:"name"`
+	Name *string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty" query:"name" params:"name"`
 	// The HTTP header value
-	Value *string `protobuf:"bytes,2,opt,name=value" json:"value,omitempty" query:"value"`
+	Value *string `protobuf:"bytes,2,opt,name=value" json:"value,omitempty" query:"value" params:"value"`
 }
 
 func (x *ArtifactCredentialInfo_HttpHeader) Reset() {
@@ -745,9 +745,9 @@ type GetCredentialsForRead_Response struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Credentials for reading from the specified artifact locations
-	CredentialInfos []*ArtifactCredentialInfo `protobuf:"bytes,2,rep,name=credential_infos,json=credentialInfos" json:"credential_infos,omitempty" query:"credential_infos"`
+	CredentialInfos []*ArtifactCredentialInfo `protobuf:"bytes,2,rep,name=credential_infos,json=credentialInfos" json:"credential_infos,omitempty" query:"credential_infos" params:"credential_infos"`
 	// Token used to fetch the next page of credentials for large requests that require pagination
-	NextPageToken *string `protobuf:"bytes,3,opt,name=next_page_token,json=nextPageToken" json:"next_page_token,omitempty" query:"next_page_token"`
+	NextPageToken *string `protobuf:"bytes,3,opt,name=next_page_token,json=nextPageToken" json:"next_page_token,omitempty" query:"next_page_token" params:"next_page_token"`
 }
 
 func (x *GetCredentialsForRead_Response) Reset() {
@@ -802,9 +802,9 @@ type GetCredentialsForWrite_Response struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Credentials for writing to the specified artifact locations
-	CredentialInfos []*ArtifactCredentialInfo `protobuf:"bytes,2,rep,name=credential_infos,json=credentialInfos" json:"credential_infos,omitempty" query:"credential_infos"`
+	CredentialInfos []*ArtifactCredentialInfo `protobuf:"bytes,2,rep,name=credential_infos,json=credentialInfos" json:"credential_infos,omitempty" query:"credential_infos" params:"credential_infos"`
 	// Token used to fetch the next page of credentials for large requests that require pagination
-	NextPageToken *string `protobuf:"bytes,3,opt,name=next_page_token,json=nextPageToken" json:"next_page_token,omitempty" query:"next_page_token"`
+	NextPageToken *string `protobuf:"bytes,3,opt,name=next_page_token,json=nextPageToken" json:"next_page_token,omitempty" query:"next_page_token" params:"next_page_token"`
 }
 
 func (x *GetCredentialsForWrite_Response) Reset() {
@@ -859,11 +859,11 @@ type CreateMultipartUpload_Response struct {
 	unknownFields protoimpl.UnknownFields
 
 	// ID identifying the initiated multipart upload
-	UploadId *string `protobuf:"bytes,1,opt,name=upload_id,json=uploadId" json:"upload_id,omitempty" query:"upload_id"`
+	UploadId *string `protobuf:"bytes,1,opt,name=upload_id,json=uploadId" json:"upload_id,omitempty" query:"upload_id" params:"upload_id"`
 	// Credentials for uploading file parts in the initiated multipart upload
-	UploadCredentialInfos []*ArtifactCredentialInfo `protobuf:"bytes,2,rep,name=upload_credential_infos,json=uploadCredentialInfos" json:"upload_credential_infos,omitempty" query:"upload_credential_infos"`
+	UploadCredentialInfos []*ArtifactCredentialInfo `protobuf:"bytes,2,rep,name=upload_credential_infos,json=uploadCredentialInfos" json:"upload_credential_infos,omitempty" query:"upload_credential_infos" params:"upload_credential_infos"`
 	// Credential for aborting the initiated multipart upload
-	AbortCredentialInfo *ArtifactCredentialInfo `protobuf:"bytes,3,opt,name=abort_credential_info,json=abortCredentialInfo" json:"abort_credential_info,omitempty" query:"abort_credential_info"`
+	AbortCredentialInfo *ArtifactCredentialInfo `protobuf:"bytes,3,opt,name=abort_credential_info,json=abortCredentialInfo" json:"abort_credential_info,omitempty" query:"abort_credential_info" params:"abort_credential_info"`
 }
 
 func (x *CreateMultipartUpload_Response) Reset() {
@@ -963,7 +963,7 @@ type GetPresignedUploadPartUrl_Response struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Credential for uploading the part
-	UploadCredentialInfo *ArtifactCredentialInfo `protobuf:"bytes,1,opt,name=upload_credential_info,json=uploadCredentialInfo" json:"upload_credential_info,omitempty" query:"upload_credential_info"`
+	UploadCredentialInfo *ArtifactCredentialInfo `protobuf:"bytes,1,opt,name=upload_credential_info,json=uploadCredentialInfo" json:"upload_credential_info,omitempty" query:"upload_credential_info" params:"upload_credential_info"`
 }
 
 func (x *GetPresignedUploadPartUrl_Response) Reset() {
@@ -1010,7 +1010,7 @@ type GetCredentialsForTraceDataDownload_Response struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	CredentialInfo *ArtifactCredentialInfo `protobuf:"bytes,1,opt,name=credential_info,json=credentialInfo" json:"credential_info,omitempty" query:"credential_info"`
+	CredentialInfo *ArtifactCredentialInfo `protobuf:"bytes,1,opt,name=credential_info,json=credentialInfo" json:"credential_info,omitempty" query:"credential_info" params:"credential_info"`
 }
 
 func (x *GetCredentialsForTraceDataDownload_Response) Reset() {
@@ -1057,7 +1057,7 @@ type GetCredentialsForTraceDataUpload_Response struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	CredentialInfo *ArtifactCredentialInfo `protobuf:"bytes,1,opt,name=credential_info,json=credentialInfo" json:"credential_info,omitempty" query:"credential_info"`
+	CredentialInfo *ArtifactCredentialInfo `protobuf:"bytes,1,opt,name=credential_info,json=credentialInfo" json:"credential_info,omitempty" query:"credential_info" params:"credential_info"`
 }
 
 func (x *GetCredentialsForTraceDataUpload_Response) Reset() {

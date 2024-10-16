@@ -126,7 +126,6 @@ func truncateFn(fieldLevel validator.FieldLevel) bool {
 
 	truncateLongValues, shouldTruncate := os.LookupEnv("MLFLOW_TRUNCATE_LONG_VALUES")
 	shouldTruncate = shouldTruncate && truncateLongValues == "true"
-
 	field := fieldLevel.Field()
 
 	if field.Kind() == reflect.String {
