@@ -36,6 +36,8 @@ jobs:
       - name: Install our dev packages
         run: uv pip install -e ".[dev]"
 
+        run: uv pip install build
+
       - name: Install mage
         run: go install github.com/magefile/mage@v1.15.0
 
