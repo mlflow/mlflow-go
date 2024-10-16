@@ -36,6 +36,7 @@ jobs:
       - name: Install our dev packages
         run: uv pip install -e ".[dev]"
 
+      - name: Install build
         run: uv pip install build
 
       - name: Install mage
