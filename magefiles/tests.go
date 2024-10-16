@@ -5,6 +5,7 @@ package main
 
 import (
 	"os"
+	"path/filepath"
 
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
@@ -40,15 +41,30 @@ func (Test) Python() error {
 	//nolint:errcheck
 	defer cleanUpMemoryFile()
 
+	venv, err := filepath.Abs(".venv")
+	if err != nil {
+		return err
+	}
+
+	python := filepath.Join(venv, "bin", "python")
+
 	// Build the Go binary in a temporary directory
-	if err := sh.RunV("python", "-m", "mlflow_go.lib", ".", libpath); err != nil {
+	if err := sh.RunV(python, "-m", "mlflow_go.lib", ".", libpath); err != nil {
 		return nil
 	}
+
+	if err := sh.RunWithV(map[string]string{
+		"VIRTUAL_ENV": venv,
+	}, "uv", "pip", "install", "pytest"); err != nil {
+		return err
+	}
+
+	pytest := filepath.Join(venv, "bin", "pytest")
 
 	//  Run the tests (currently just the server ones)
 	if err := sh.RunWithV(map[string]string{
 		"MLFLOW_GO_LIBRARY_PATH": libpath,
-	}, "pytest",
+	}, pytest,
 		"--confcutdir=.",
 		".mlflow.repo/tests/tracking/test_rest_tracking.py",
 		".mlflow.repo/tests/tracking/test_model_registry.py",

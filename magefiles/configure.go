@@ -78,7 +78,7 @@ func Configure() error {
 	mg.Deps(Repo.Init)
 
 	// create virtual environment using uv
-	if err := sh.Run("uv", "venv"); err != nil {
+	if err := sh.Run("uv", "venv", "--python", "3.8"); err != nil {
 		return err
 	}
 
