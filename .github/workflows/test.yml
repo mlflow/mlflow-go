@@ -48,7 +48,7 @@ jobs:
       - name: Install mage
         run: go install github.com/magefile/mage@v1.15.0
       - name: Create virtual environment
-        run: uv venv
+        run: uv venv --python ${{ matrix.python }}
       - name: Install our package in editable mode
         run: uv pip install -e .
       - name: Initialize MLflow repo
