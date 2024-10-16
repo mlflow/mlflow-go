@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools", "wheel", "ziglang"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -171,3 +171,6 @@ exclude = [
   "mlflow/store/db_migrations",
   "tests/protos",
 ]
+
+[project.optional-dependencies]
+dev = ["ziglang", "pytest"]

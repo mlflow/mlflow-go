@@ -83,13 +83,22 @@ func Configure() error {
 		return err
 	}
 
-	// Install our Python package and its dependencies
-	if err := sh.RunV("uv", "pip", "install", "-e", "."); err != nil {
+	venv, err := filepath.Abs(".venv")
+	if err != nil {
 		return err
 	}
 
-	venv, err := filepath.Abs(".venv")
-	if err != nil {
+	// Install our Python package and its dependencies
+	if err := sh.RunWithV(map[string]string{
+		"VIRTUAL_ENV": venv,
+	}, "uv", "pip", "install", "-e", "."); err != nil {
+		return err
+	}
+
+	// Install dev dependencies
+	if err := sh.RunWithV(map[string]string{
+		"VIRTUAL_ENV": venv,
+	}, "uv", "pip", "install", "-e", ".[dev]"); err != nil {
 		return err
 	}
 

@@ -37,7 +37,7 @@ func (Test) Python() error {
 	buildEnv := make(map[string]string)
 
 	if IsNotMac() {
-		cc, err := getCC(venv, python, runtime.GOOS, runtime.GOARCH)
+		cc, err := getCC(python, runtime.GOOS, runtime.GOARCH)
 		if err != nil {
 			return err
 		}
@@ -48,12 +48,6 @@ func (Test) Python() error {
 	// Build the Go binary in a temporary directory
 	if err := sh.RunWithV(buildEnv, python, "-m", "mlflow_go.lib", ".", libpath); err != nil {
 		return nil
-	}
-
-	if err := sh.RunWithV(map[string]string{
-		"VIRTUAL_ENV": venv,
-	}, "uv", "pip", "install", "pytest"); err != nil {
-		return err
 	}
 
 	pytest := filepath.Join(venv, "bin", "pytest")

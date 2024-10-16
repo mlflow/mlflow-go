@@ -45,13 +45,7 @@ func getTargetTriple(goos, goarch string) (string, error) {
 	return "", fmt.Errorf("%w: %s/%s", errUnknownTarget, goos, goarch)
 }
 
-func getCC(venv, pythonExecutable, goos, goarch string) (string, error) {
-	if err := sh.RunWithV(map[string]string{
-		"VIRTUAL_ENV": venv,
-	}, "uv", "pip", "install", "build", "ziglang"); err != nil {
-		return "", err
-	}
-
+func getCC(pythonExecutable, goos, goarch string) (string, error) {
 	target, err := getTargetTriple(goos, goarch)
 	if err != nil {
 		return "", err
@@ -99,7 +93,7 @@ func Build(goos, goarch string) error {
 			return errUnsupportedDarwin
 		}
 	} else {
-		zigCC, err := getCC(venv, python, goos, goarch)
+		zigCC, err := getCC(python, goos, goarch)
 		if err != nil {
 			return err
 		}
