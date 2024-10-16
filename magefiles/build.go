@@ -55,7 +55,6 @@ func Build(goos, goarch string) error {
 		return err
 	}
 
-	// todo: is this the case with UV as well Windows
 	binDir := "bin"
 	if runtime.GOOS == "windows" {
 		binDir = "Scripts"
