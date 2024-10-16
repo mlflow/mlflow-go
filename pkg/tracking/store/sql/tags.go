@@ -148,8 +148,8 @@ func (s TrackingSQLStore) SetTag(
 	ctx context.Context, runID, key, value string,
 ) *contract.Error {
 	var run models.Run
-	err := s.db.Where("run_uuid = ?", runID).First(&run).Error
 
+	err := s.db.Where("run_uuid = ?", runID).First(&run).Error
 	if err != nil {
 		return contract.NewErrorWith(
 			protos.ErrorCode_INTERNAL_ERROR,
@@ -166,7 +166,6 @@ func (s TrackingSQLStore) SetTag(
 
 		return s.handleTagUpsert(transaction, runID, key, value)
 	})
-
 	if err != nil {
 		var contractError *contract.Error
 		if errors.As(err, &contractError) {
@@ -192,8 +191,8 @@ func (s TrackingSQLStore) handleTagUpsert(
 	transaction *gorm.DB, runID, key, value string,
 ) error {
 	var tag models.Tag
-	result := transaction.Where("run_uuid = ? AND key = ?", runID, key).First(&tag)
 
+	result := transaction.Where("run_uuid = ? AND key = ?", runID, key).First(&tag)
 	if result.Error != nil && !errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return contract.NewErrorWith(
 			protos.ErrorCode_INTERNAL_ERROR,
