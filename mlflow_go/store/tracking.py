@@ -205,6 +205,7 @@ class _TrackingStore:
         request = SetTag(run_id=run_id, key=tag.key, value=tag.value)
         self.service.call_endpoint(get_lib().TrackingServiceSetTag, request)
 
+
 def TrackingStore(cls):
     return type(cls.__name__, (_TrackingStore, cls), {})
 
