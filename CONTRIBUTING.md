@@ -1,5 +1,14 @@
 # Contributing
 
+## Prerequisites
+
+To contribute to this project, you need the following:
+
+- [UV](https://docs.astral.sh/uv/getting-started/installation/)
+- [Go 1.22](https://go.dev/doc/install)
+
+Alternatively, you can use the [development container](https://containers.dev/) that includes all the required tools.
+
 ## Installation
 
 to configure all the development environment just run `mage` target:
