@@ -173,4 +173,4 @@ exclude = [
 ]
 
 [project.optional-dependencies]
-dev = ["ziglang", "pytest"]
+dev = ["build", "ziglang", "pytest"]
