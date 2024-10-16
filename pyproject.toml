@@ -22,7 +22,7 @@ classifiers = [
 ]
 requires-python = ">=3.8"
 dependencies = ["mlflow==2.14.1", "cffi"]
-license = { file = "LICENSE.txt" }
+license = { file = "LICENSE" }
 
 [[project.maintainers]]
 name = "Databricks"

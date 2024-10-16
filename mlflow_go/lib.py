@@ -17,7 +17,7 @@ def _get_lib_name() -> str:
 
 
 def build_lib(src_dir: pathlib.Path, out_dir: pathlib.Path) -> pathlib.Path:
-    out_path = out_dir.joinpath(_get_lib_name())
+    out_path = out_dir.joinpath(_get_lib_name()).absolute()
     env = os.environ.copy()
     env.update(
         {
@@ -45,9 +45,13 @@ def build_lib(src_dir: pathlib.Path, out_dir: pathlib.Path) -> pathlib.Path:
 
 def _get_lib():
     # check if the library exists and load it
-    path = pathlib.Path(
-        os.environ.get("MLFLOW_GO_LIBRARY_PATH", pathlib.Path(__file__).parent.as_posix())
-    ).joinpath(_get_lib_name())
+    path = (
+        pathlib.Path(
+            os.environ.get("MLFLOW_GO_LIBRARY_PATH", pathlib.Path(__file__).parent.as_posix())
+        )
+        .joinpath(_get_lib_name())
+        .absolute()
+    )
     if path.is_file():
         return _load_lib(path)
 
@@ -78,10 +82,17 @@ def _parse_header(path: pathlib.Path):
         content = file.read()
 
     # Find all matches in the header
-    functions = re.findall(r"extern\s+\w+\s*\*?\s+\w+\s*\([^)]*\);", content, re.MULTILINE)
+    functions = re.findall(
+        r"extern\s+(?:__declspec\(dllexport\)\s+)?\w+\s*\*?\s+\w+\s*\([^)]*\);",
+        content,
+        re.MULTILINE,
+    )
 
     # Replace GoInt64 with int64_t in each function
-    transformed_functions = [func.replace("GoInt64", "int64_t") for func in functions]
+    transformed_functions = [
+        func.replace("GoInt64", "int64_t").replace("__declspec(dllexport) ", "")
+        for func in functions
+    ]
 
     return "\n".join(transformed_functions)
 
@@ -111,6 +122,23 @@ def get_lib():
     if _lib is None:
         _lib = _get_lib()
     return _lib
+
+
+_clib = None
+
+
+def _get_clib():
+    if sys.platform == "win32":
+        return get_ffi().dlopen("msvcrt.dll")
+    else:
+        return get_lib()
+
+
+def get_clib():
+    global _clib
+    if _clib is None:
+        _clib = _get_clib()
+    return _clib
 
 
 if __name__ == "__main__":
