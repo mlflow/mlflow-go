@@ -30,15 +30,6 @@ jobs:
       - name: Set up Python
         run: uv python install 3.12
 
-      - name: Create virtual environment
-        run: uv venv --python 3.12
-
-      - name: Install our dev packages
-        run: uv pip install -e ".[dev]"
-
-      - name: Install build
-        run: uv pip install build
-
       - name: Install mage
         run: go install github.com/magefile/mage@v1.15.0
 

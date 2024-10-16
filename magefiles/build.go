@@ -70,7 +70,13 @@ func Build(goos, goarch string) error {
 		return err
 	}
 
-	if err := sh.RunV("uv", "venv", venv); err != nil {
+	if err := sh.RunV("uv", "venv", "--python", "3.12", venv); err != nil {
+		return err
+	}
+
+	if err := sh.RunWithV(map[string]string{
+		"VIRTUAL_ENV": venv,
+	}, "uv", "pip", "install", ".[dev]"); err != nil {
 		return err
 	}
 
