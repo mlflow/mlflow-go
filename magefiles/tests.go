@@ -57,6 +57,9 @@ func (Test) Python() error {
 	}
 
 	pytest := filepath.Join(venv, "bin", "pytest")
+	if IsWindows() {
+		pytest = filepath.Join(venv, "Scripts", "pytest")
+	}
 
 	//  Run the tests (currently just the server ones)
 	if err := sh.RunWithV(map[string]string{
