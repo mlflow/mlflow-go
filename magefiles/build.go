@@ -13,6 +13,8 @@ import (
 	"github.com/magefile/mage/sh"
 )
 
+const Windows = "windows"
+
 var errUnknownTarget = errors.New("could not determine zig target")
 
 // Helper function to determine the Zig target triple based on OS and architecture.
@@ -24,7 +26,7 @@ func getTargetTriple(goos, goarch string) (string, error) {
 		} else if goarch == "arm64" {
 			return "aarch64-linux-gnu", nil
 		}
-	case "windows":
+	case Windows:
 		if goarch == "amd64" {
 			return "x86_64-windows-gnu", nil
 		} else if goarch == "arm64" {
@@ -56,7 +58,7 @@ func Build(goos, goarch string) error {
 	}
 
 	binDir := "bin"
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == Windows {
 		binDir = "Scripts"
 	}
 

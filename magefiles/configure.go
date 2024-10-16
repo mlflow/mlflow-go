@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
@@ -87,9 +88,14 @@ func Configure() error {
 		return err
 	}
 
-	mlflowDir, err := filepath.Abs(filepath.Join(".venv", "lib", "python3.8", "site-packages", "mlflow"))
+	venv, err := filepath.Abs(".venv")
 	if err != nil {
 		return err
+	}
+
+	mlflowDir := filepath.Join(venv, "lib", "python3.8", "site-packages", "mlflow")
+	if runtime.GOOS == Windows {
+		mlflowDir = filepath.Join(venv, "Lib", "site-packages", "mlflow")
 	}
 
 	jsBuild := filepath.Join(mlflowDir, "server", "js", "build")
