@@ -51,19 +51,21 @@ func Build(goos, goarch string) error {
 		return err
 	}
 
-	if err := sh.RunV("python3", "-mvenv", env); err != nil {
+	if err := sh.RunV("uv", "venv", env); err != nil {
 		return err
 	}
 
+	// todo: is this the case with UV as well Windows
 	binDir := "bin"
 	if runtime.GOOS == "windows" {
 		binDir = "Scripts"
 	}
 
-	pip := filepath.Join(env, binDir, "pip")
 	python := filepath.Join(env, binDir, "python")
 
-	if err := sh.RunV(pip, "install", "build", "ziglang"); err != nil {
+	if err := sh.RunWithV(map[string]string{
+		"VIRTUAL_ENV": env,
+	}, "uv", "pip", "install", "build", "ziglang"); err != nil {
 		return err
 	}
 
