@@ -15,6 +15,14 @@ import (
 
 const Windows = "windows"
 
+func IsWindows() bool {
+	return runtime.GOOS == Windows
+}
+
+func IsNotMac() bool {
+	return runtime.GOOS != "darwin"
+}
+
 var errUnknownTarget = errors.New("could not determine zig target")
 
 // Helper function to determine the Zig target triple based on OS and architecture.
@@ -37,6 +45,21 @@ func getTargetTriple(goos, goarch string) (string, error) {
 	return "", fmt.Errorf("%w: %s/%s", errUnknownTarget, goos, goarch)
 }
 
+func getCC(venv, pythonExecutable, goos, goarch string) (string, error) {
+	if err := sh.RunWithV(map[string]string{
+		"VIRTUAL_ENV": venv,
+	}, "uv", "pip", "install", "build", "ziglang"); err != nil {
+		return "", err
+	}
+
+	target, err := getTargetTriple(goos, goarch)
+	if err != nil {
+		return "", err
+	}
+
+	return pythonExecutable + " -mziglang cc -target " + target, nil
+}
+
 var errUnsupportedDarwin = errors.New(`it is unsupported to build a Python wheel on Mac on a non-Mac platform`)
 
 // Build a Python wheel.
@@ -48,27 +71,21 @@ func Build(goos, goarch string) error {
 
 	defer os.RemoveAll(tmp)
 
-	env, err := filepath.Abs(filepath.Join(tmp, ".venv"))
+	venv, err := filepath.Abs(filepath.Join(tmp, ".venv"))
 	if err != nil {
 		return err
 	}
 
-	if err := sh.RunV("uv", "venv", env); err != nil {
+	if err := sh.RunV("uv", "venv", venv); err != nil {
 		return err
 	}
 
 	binDir := "bin"
-	if runtime.GOOS == Windows {
+	if IsWindows() {
 		binDir = "Scripts"
 	}
 
-	python := filepath.Join(env, binDir, "python")
-
-	if err := sh.RunWithV(map[string]string{
-		"VIRTUAL_ENV": env,
-	}, "uv", "pip", "install", "build", "ziglang"); err != nil {
-		return err
-	}
+	python := filepath.Join(venv, binDir, "python")
 
 	environmentVariables := map[string]string{
 		"GOOS":   goos,
@@ -78,16 +95,15 @@ func Build(goos, goarch string) error {
 	// Set Zig as the C compiler for cross-compilation
 	// If we are on Mac and targeting Mac we don't need Zig.
 	if goos == "darwin" {
-		if runtime.GOOS != "darwin" {
+		if IsNotMac() {
 			return errUnsupportedDarwin
 		}
 	} else {
-		target, err := getTargetTriple(goos, goarch)
+		zigCC, err := getCC(venv, python, goos, goarch)
 		if err != nil {
 			return err
 		}
 
-		zigCC := python + " -mziglang cc -target " + target
 		environmentVariables["CC"] = zigCC
 	}
 

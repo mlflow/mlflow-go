@@ -6,28 +6,13 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
 )
 
 type Test mg.Namespace
-
-func cleanUpMemoryFile() error {
-	// Clean up :memory: file
-	filename := ":memory:"
-	_, err := os.Stat(filename)
-
-	if err == nil {
-		// File exists, delete it
-		err = os.Remove(filename)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
 
 // Run mlflow Python tests against the Go backend.
 func (Test) Python() error {
@@ -38,8 +23,6 @@ func (Test) Python() error {
 
 	// Remove the Go binary
 	defer os.RemoveAll(libpath)
-	//nolint:errcheck
-	defer cleanUpMemoryFile()
 
 	venv, err := filepath.Abs(".venv")
 	if err != nil {
@@ -47,9 +30,23 @@ func (Test) Python() error {
 	}
 
 	python := filepath.Join(venv, "bin", "python")
+	if IsWindows() {
+		python = filepath.Join(venv, "Scripts", "python")
+	}
+
+	buildEnv := make(map[string]string)
+
+	if IsNotMac() {
+		cc, err := getCC(venv, python, runtime.GOOS, runtime.GOARCH)
+		if err != nil {
+			return err
+		}
+
+		buildEnv["CC"] = cc
+	}
 
 	// Build the Go binary in a temporary directory
-	if err := sh.RunV(python, "-m", "mlflow_go.lib", ".", libpath); err != nil {
+	if err := sh.RunWithV(buildEnv, python, "-m", "mlflow_go.lib", ".", libpath); err != nil {
 		return nil
 	}
 
