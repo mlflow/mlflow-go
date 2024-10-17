@@ -13,3 +13,10 @@ func (i InputTag) ToProto() *protos.InputTag {
 		Value: &i.Value,
 	}
 }
+
+func NewInputTagFromProto(proto *protos.InputTag) *InputTag {
+	return &InputTag{
+		Key:   proto.GetKey(),
+		Value: proto.GetValue(),
+	}
+}
