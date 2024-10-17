@@ -100,9 +100,9 @@ func findExistingInputs(
 
 	err := transaction.
 		Model(&models.Input{}).
-		Where("source_type = ?", "DATASET").
+		Where("source_type = ?", models.SourceTypeDataset).
 		Where("source_id IN ?", datasetUuidsValues).
-		Where("destination_type = ?", "RUN").
+		Where("destination_type = ?", models.DestinationTypeRun).
 		Where("destination_id = ?", runID).
 		Find(&existingInputs).Error
 	if err != nil {
@@ -144,26 +144,6 @@ func mkDataset(
 		Source:       dataset.Dataset.Source,
 		Schema:       dataset.Dataset.Schema,
 		Profile:      dataset.Dataset.Profile,
-	}
-}
-
-func mkInput(
-	newInputUUID, sourceID, destinationID string,
-) *models.Input {
-	return &models.Input{
-		ID:              newInputUUID,
-		SourceType:      "DATASET",
-		SourceID:        sourceID,
-		DestinationType: "RUN",
-		DestinationID:   destinationID,
-	}
-}
-
-func mkInputTag(inputID string, tag *entities.InputTag) *models.InputTag {
-	return &models.InputTag{
-		InputID: inputID,
-		Key:     tag.Key,
-		Value:   tag.Value,
 	}
 }
 
@@ -219,10 +199,10 @@ func (s TrackingSQLStore) LogInputs(
 			if _, ok := existingInputsMap[inputKey]; !ok {
 				existingInputsMap[inputKey] = struct{}{}
 				newInputUUID := newGUID()
-				inputToInsert = append(inputToInsert, mkInput(newInputUUID, inputKey.SourceID, runID))
+				inputToInsert = append(inputToInsert, models.NewInputFromEntity(newInputUUID, inputKey.SourceID, runID))
 
 				for _, tag := range dataset.Tags {
-					inputTagsToInsert = append(inputTagsToInsert, mkInputTag(newInputUUID, tag))
+					inputTagsToInsert = append(inputTagsToInsert, models.NewInputTagFromEntity(newInputUUID, tag))
 				}
 			}
 		}

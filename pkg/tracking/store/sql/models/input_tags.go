@@ -17,3 +17,11 @@ func (i *InputTag) ToEntity() *entities.InputTag {
 		Value: i.Value,
 	}
 }
+
+func NewInputTagFromEntity(inputID string, tag *entities.InputTag) *InputTag {
+	return &InputTag{
+		InputID: inputID,
+		Key:     tag.Key,
+		Value:   tag.Value,
+	}
+}
