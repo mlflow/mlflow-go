@@ -4,6 +4,11 @@ import (
 	"github.com/mlflow/mlflow-go/pkg/entities"
 )
 
+const (
+	SourceTypeDataset  = "DATASET"
+	DestinationTypeRun = "RUN"
+)
+
 // Input mapped from table <inputs>.
 type Input struct {
 	ID              string     `db:"input_uuid"                          gorm:"column:input_uuid;not null"`
@@ -24,5 +29,17 @@ func (i *Input) ToEntity() *entities.DatasetInput {
 	return &entities.DatasetInput{
 		Tags:    tags,
 		Dataset: i.Dataset.ToEntity(),
+	}
+}
+
+func NewInputFromEntity(
+	id, sourceID, destinationID string,
+) *Input {
+	return &Input{
+		ID:              id,
+		SourceType:      SourceTypeDataset,
+		SourceID:        sourceID,
+		DestinationType: DestinationTypeRun,
+		DestinationID:   destinationID,
 	}
 }

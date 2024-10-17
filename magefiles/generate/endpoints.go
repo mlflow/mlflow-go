@@ -37,7 +37,7 @@ var ServiceInfoMap = map[string]ServiceGenerationInfo{
 			// "getMetricHistoryBulkInterval",
 			"logBatch",
 			// "logModel",
-			// "logInputs",
+			"logInputs",
 			// "startTrace",
 			// "endTrace",
 			// "getTraceInfo",
