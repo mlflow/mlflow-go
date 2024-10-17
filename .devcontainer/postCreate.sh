@@ -7,7 +7,7 @@ sudo chown -R $(id -u):$(id -g) /var/cache/go
 pre-commit install -t pre-commit -t prepare-commit-msg
 
 # uv autocomplete
-echo 'eval "$(uv generate-shell-completion zsh)"' >> ~/.zshrc
+echo 'eval "$(uv generate-shell-completion zsh)"' >> ~/.oh-my-zsh/oh-my-zsh.sh
 
 # uvx autocomplete
-echo 'eval "$(uvx --generate-shell-completion zsh)"' >> ~/.zshrc
+echo 'eval "$(uvx --generate-shell-completion zsh)"' >> ~/.oh-my-zsh/oh-my-zsh.sh
