@@ -142,3 +142,32 @@ func (ts TrackingService) SetExperimentTag(
 
 	return &protos.SetExperimentTag_Response{}, nil
 }
+
+func (ts TrackingService) SearchExperiments(
+	ctx context.Context, input *protos.SearchExperiments,
+) (*protos.SearchExperiments_Response, *contract.Error) {
+	experiments, nextPageToken, err := ts.Store.SearchExperiments(
+		ctx,
+		input.GetViewType(),
+		input.GetMaxResults(),
+		input.GetFilter(),
+		input.GetOrderBy(),
+		input.GetPageToken(),
+	)
+	if err != nil {
+		return nil, contract.NewError(protos.ErrorCode_INTERNAL_ERROR, fmt.Sprintf("error getting experiments: %v", err))
+	}
+
+	response := protos.SearchExperiments_Response{
+		Experiments: make([]*protos.Experiment, len(experiments)),
+	}
+	if nextPageToken != "" {
+		response.NextPageToken = &nextPageToken
+	}
+
+	for i, experiment := range experiments {
+		response.Experiments[i] = experiment.ToProto()
+	}
+
+	return &response, nil
+}

@@ -56,11 +56,20 @@ type (
 		LogMetric(ctx context.Context, runID string, metric *entities.Metric) *contract.Error
 		LogParam(ctx context.Context, runID string, metric *entities.Param) *contract.Error
 	}
+
 	ExperimentTrackingStore interface {
 		// GetExperiment returns experiment by the experiment ID.
 		// The experiment should contain the linked tags.
 		GetExperiment(ctx context.Context, id string) (*entities.Experiment, *contract.Error)
 		GetExperimentByName(ctx context.Context, name string) (*entities.Experiment, *contract.Error)
+		SearchExperiments(
+			ctx context.Context,
+			experimentViewType protos.ViewType,
+			maxResults int64,
+			filter string,
+			orderBy []string,
+			pageToken string,
+		) ([]*entities.Experiment, string, *contract.Error)
 
 		CreateExperiment(
 			ctx context.Context,
@@ -84,6 +93,7 @@ type (
 		DeleteExperiment(ctx context.Context, id string) *contract.Error
 		SetExperimentTag(ctx context.Context, experimentID, key, value string) *contract.Error
 	}
+
 	InputTrackingStore interface {
 		LogInputs(ctx context.Context, runID string, datasets []*entities.DatasetInput) *contract.Error
 	}

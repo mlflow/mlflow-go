@@ -34,6 +34,7 @@ var validations = map[string]string{
 	"SetExperimentTag_ExperimentId":      "required",
 	"SetExperimentTag_Key":               "required,max=250,validMetricParamOrTagName",
 	"SetExperimentTag_Value":             "max=5000",
+	"SearchExperiments_MaxResults":       "positiveNonZeroInteger,max=50000",
 	"LogInputs_RunId":                    "required,runId",
 	"LogInputs_Datasets":                 "required",
 	"DatasetInput_Dataset":               "required",
