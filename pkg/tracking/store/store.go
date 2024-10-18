@@ -58,44 +58,43 @@ type (
 	}
 )
 
+type ExperimentTrackingStore interface {
+	// GetExperiment returns experiment by the experiment ID.
+	// The experiment should contain the linked tags.
+	GetExperiment(ctx context.Context, id string) (*entities.Experiment, *contract.Error)
+	GetExperimentByName(ctx context.Context, name string) (*entities.Experiment, *contract.Error)
+	SearchExperiments(
+		ctx context.Context,
+		experimentViewType protos.ViewType,
+		maxResults int64,
+		filter string,
+		orderBy []string,
+		pageToken string,
+	) ([]*entities.Experiment, string, *contract.Error)
 
-ExperimentTrackingStore interface {
-		// GetExperiment returns experiment by the experiment ID.
-		// The experiment should contain the linked tags.
-		GetExperiment(ctx context.Context, id string) (*entities.Experiment, *contract.Error)
-		GetExperimentByName(ctx context.Context, name string) (*entities.Experiment, *contract.Error)
-    SearchExperiments(
-      ctx context.Context,
-      experimentViewType protos.ViewType,
-      maxResults int64,
-      filter string,
-      orderBy []string,
-      pageToken string,
-    ) ([]*entities.Experiment, string, *contract.Error)
+	CreateExperiment(
+		ctx context.Context,
+		name string,
+		artifactLocation string,
+		tags []*entities.ExperimentTag,
+	) (string, *contract.Error)
+	RestoreExperiment(ctx context.Context, id string) *contract.Error
+	RenameExperiment(ctx context.Context, experimentID, name string) *contract.Error
 
-		CreateExperiment(
-			ctx context.Context,
-			name string,
-			artifactLocation string,
-			tags []*entities.ExperimentTag,
-		) (string, *contract.Error)
-		RestoreExperiment(ctx context.Context, id string) *contract.Error
-		RenameExperiment(ctx context.Context, experimentID, name string) *contract.Error
+	SearchRuns(
+		ctx context.Context,
+		experimentIDs []string,
+		filter string,
+		runViewType protos.ViewType,
+		maxResults int,
+		orderBy []string,
+		pageToken string,
+	) ([]*entities.Run, string, *contract.Error)
 
-		SearchRuns(
-			ctx context.Context,
-			experimentIDs []string,
-			filter string,
-			runViewType protos.ViewType,
-			maxResults int,
-			orderBy []string,
-			pageToken string,
-		) ([]*entities.Run, string, *contract.Error)
+	DeleteExperiment(ctx context.Context, id string) *contract.Error
+	SetExperimentTag(ctx context.Context, experimentID, key, value string) *contract.Error
+}
 
-		DeleteExperiment(ctx context.Context, id string) *contract.Error
-		SetExperimentTag(ctx context.Context, experimentID, key, value string) *contract.Error
-	}
-	InputTrackingStore interface {
-		LogInputs(ctx context.Context, runID string, datasets []*entities.DatasetInput) *contract.Error
-	}
-)
+type InputTrackingStore interface {
+	LogInputs(ctx context.Context, runID string, datasets []*entities.DatasetInput) *contract.Error
+}
