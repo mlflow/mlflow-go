@@ -61,6 +61,14 @@ type ExperimentTrackingStore interface {
 	// The experiment should contain the linked tags.
 	GetExperiment(ctx context.Context, id string) (*entities.Experiment, *contract.Error)
 	GetExperimentByName(ctx context.Context, name string) (*entities.Experiment, *contract.Error)
+	SearchExperiments(
+		ctx context.Context,
+		experimentViewType protos.ViewType,
+		maxResults int64,
+		filter string,
+		orderBy []string,
+		pageToken string,
+	) ([]*entities.Experiment, string, *contract.Error)
 
 	CreateExperiment(
 		ctx context.Context,

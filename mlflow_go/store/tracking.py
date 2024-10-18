@@ -29,6 +29,7 @@ from mlflow.protos.service_pb2 import (
     UpdateExperiment,
     UpdateRun,
 )
+from mlflow.store.entities import PagedList
 from mlflow.store.tracking import SEARCH_MAX_RESULTS_DEFAULT
 from mlflow.utils.uri import resolve_uri_if_local
 
@@ -200,11 +201,15 @@ class _TrackingStore:
         request = SearchExperiments(
             view_type=view_type,
             max_results=max_results,
-            filter_string=filter_string,
+            filter=filter_string,
             order_by=order_by,
             page_token=page_token,
         )
-        self.service.call_endpoint(get_lib().TrackingServiceSearchExperiments, request)
+        response = self.service.call_endpoint(get_lib().TrackingServiceSearchExperiments, request)
+        experiments = [
+            Experiment.from_proto(proto_experiment) for proto_experiment in response.experiments
+        ]
+        return PagedList(experiments, (response.next_page_token or None))
 
 
 def TrackingStore(cls):

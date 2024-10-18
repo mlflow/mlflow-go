@@ -271,6 +271,65 @@ func (s TrackingSQLStore) GetExperimentByName(
 	return experiment.ToEntity(), nil
 }
 
+func (s TrackingSQLStore) SearchExperiments(
+	ctx context.Context,
+	experimentViewType protos.ViewType,
+	maxResults int64,
+	filter string,
+	orderBy []string,
+	pageToken string,
+) ([]*entities.Experiment, string, *contract.Error) {
+	query := applyExperimentsLifecycleStagesFilter(s.db.WithContext(ctx), experimentViewType)
+
+	// apply Limit
+	query, limit := applyExperimentsLimitFilter(query, maxResults)
+
+	// apply Offet
+	query, offset, err := applyExperimentsOffsetFilter(query, pageToken)
+	if err != nil {
+		return nil, "", err
+	}
+
+	// Apply Filter
+	query, err = applyExperimentsFilter(s.db, query, filter)
+	if err != nil {
+		return nil, "", err
+	}
+
+	// OrderBy
+	query, err = applyExperimentsOrderBy(query, orderBy)
+	if err != nil {
+		return nil, "", err
+	}
+
+	// Actual query
+	var experiments []models.Experiment
+	if err := query.Preload("Tags").Find(&experiments).Error; err != nil {
+		return nil, "", contract.NewErrorWith(
+			protos.ErrorCode_INTERNAL_ERROR,
+			fmt.Sprintf("failed to get runs %q", err),
+			err,
+		)
+	}
+
+	// encode `nextPageToken` value.
+	nextPageToken, err := createExperimentsNextPageToken(experiments, limit, offset)
+	if err != nil {
+		return nil, "", err
+	}
+
+	if len(experiments) > limit {
+		experiments = experiments[:limit]
+	}
+
+	data := make([]*entities.Experiment, len(experiments))
+	for i, experiment := range experiments {
+		data[i] = experiment.ToEntity()
+	}
+
+	return data, nextPageToken, nil
+}
+
 func (s TrackingSQLStore) SetExperimentTag(
 	ctx context.Context, experimentID, key, value string,
 ) *contract.Error {

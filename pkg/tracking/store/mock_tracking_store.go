@@ -956,6 +956,78 @@ func (_c *MockTrackingStore_RestoreRun_Call) RunAndReturn(run func(context.Conte
 	return _c
 }
 
+// SearchExperiments provides a mock function with given fields: ctx, experimentViewType, maxResults, filter, orderBy, pageToken
+func (_m *MockTrackingStore) SearchExperiments(ctx context.Context, experimentViewType protos.ViewType, maxResults int64, filter string, orderBy []string, pageToken string) ([]*entities.Experiment, string, *contract.Error) {
+	ret := _m.Called(ctx, experimentViewType, maxResults, filter, orderBy, pageToken)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SearchExperiments")
+	}
+
+	var r0 []*entities.Experiment
+	var r1 string
+	var r2 *contract.Error
+	if rf, ok := ret.Get(0).(func(context.Context, protos.ViewType, int64, string, []string, string) ([]*entities.Experiment, string, *contract.Error)); ok {
+		return rf(ctx, experimentViewType, maxResults, filter, orderBy, pageToken)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, protos.ViewType, int64, string, []string, string) []*entities.Experiment); ok {
+		r0 = rf(ctx, experimentViewType, maxResults, filter, orderBy, pageToken)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*entities.Experiment)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, protos.ViewType, int64, string, []string, string) string); ok {
+		r1 = rf(ctx, experimentViewType, maxResults, filter, orderBy, pageToken)
+	} else {
+		r1 = ret.Get(1).(string)
+	}
+
+	if rf, ok := ret.Get(2).(func(context.Context, protos.ViewType, int64, string, []string, string) *contract.Error); ok {
+		r2 = rf(ctx, experimentViewType, maxResults, filter, orderBy, pageToken)
+	} else {
+		if ret.Get(2) != nil {
+			r2 = ret.Get(2).(*contract.Error)
+		}
+	}
+
+	return r0, r1, r2
+}
+
+// MockTrackingStore_SearchExperiments_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SearchExperiments'
+type MockTrackingStore_SearchExperiments_Call struct {
+	*mock.Call
+}
+
+// SearchExperiments is a helper method to define mock.On call
+//   - ctx context.Context
+//   - experimentViewType protos.ViewType
+//   - maxResults int64
+//   - filter string
+//   - orderBy []string
+//   - pageToken string
+func (_e *MockTrackingStore_Expecter) SearchExperiments(ctx interface{}, experimentViewType interface{}, maxResults interface{}, filter interface{}, orderBy interface{}, pageToken interface{}) *MockTrackingStore_SearchExperiments_Call {
+	return &MockTrackingStore_SearchExperiments_Call{Call: _e.mock.On("SearchExperiments", ctx, experimentViewType, maxResults, filter, orderBy, pageToken)}
+}
+
+func (_c *MockTrackingStore_SearchExperiments_Call) Run(run func(ctx context.Context, experimentViewType protos.ViewType, maxResults int64, filter string, orderBy []string, pageToken string)) *MockTrackingStore_SearchExperiments_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(protos.ViewType), args[2].(int64), args[3].(string), args[4].([]string), args[5].(string))
+	})
+	return _c
+}
+
+func (_c *MockTrackingStore_SearchExperiments_Call) Return(_a0 []*entities.Experiment, _a1 string, _a2 *contract.Error) *MockTrackingStore_SearchExperiments_Call {
+	_c.Call.Return(_a0, _a1, _a2)
+	return _c
+}
+
+func (_c *MockTrackingStore_SearchExperiments_Call) RunAndReturn(run func(context.Context, protos.ViewType, int64, string, []string, string) ([]*entities.Experiment, string, *contract.Error)) *MockTrackingStore_SearchExperiments_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SearchRuns provides a mock function with given fields: ctx, experimentIDs, filter, runViewType, maxResults, orderBy, pageToken
 func (_m *MockTrackingStore) SearchRuns(ctx context.Context, experimentIDs []string, filter string, runViewType protos.ViewType, maxResults int, orderBy []string, pageToken string) ([]*entities.Run, string, *contract.Error) {
 	ret := _m.Called(ctx, experimentIDs, filter, runViewType, maxResults, orderBy, pageToken)
