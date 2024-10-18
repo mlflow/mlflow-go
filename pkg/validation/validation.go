@@ -266,7 +266,7 @@ func mkMaxValidationError(field string, value interface{}, err validator.FieldEr
 	return constructValidationError(field, value, "")
 }
 
-func mkpositiveNonZeroIntegerError(field string, value interface{}) string {
+func mkPositiveNonZeroIntegerError(field string, value interface{}) string {
 	if _, ok := value.(int64); ok {
 		return fmt.Sprintf(
 			"Invalid value %d for parameter '%s' supplied. It must be a positive integer",
@@ -304,7 +304,7 @@ func NewErrorFromValidationError(err error) *contract.Error {
 			case "max":
 				validationErrors = append(validationErrors, mkMaxValidationError(field, value, err))
 			case "positiveNonZeroInteger":
-				validationErrors = append(validationErrors, mkpositiveNonZeroIntegerError(field, value))
+				validationErrors = append(validationErrors, mkPositiveNonZeroIntegerError(field, value))
 			default:
 				validationErrors = append(
 					validationErrors,
