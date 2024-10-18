@@ -18,3 +18,15 @@ func (ds DatasetInput) ToProto() *protos.DatasetInput {
 		Dataset: ds.Dataset.ToProto(),
 	}
 }
+
+func NewDatasetInputFromProto(proto *protos.DatasetInput) *DatasetInput {
+	tags := make([]*InputTag, 0, len(proto.GetTags()))
+	for _, t := range proto.GetTags() {
+		tags = append(tags, NewInputTagFromProto(t))
+	}
+
+	return &DatasetInput{
+		Dataset: NewDatasetFromProto(proto.GetDataset()),
+		Tags:    tags,
+	}
+}

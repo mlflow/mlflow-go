@@ -16,3 +16,11 @@ func (t TraceTag) ToEntity() *entities.TraceTag {
 		RequestID: t.RequestID,
 	}
 }
+
+func NewTraceTagFromEntity(entity *entities.TraceTag) TraceTag {
+	return TraceTag{
+		Key:       entity.Key,
+		Value:     entity.Value,
+		RequestID: entity.RequestID,
+	}
+}

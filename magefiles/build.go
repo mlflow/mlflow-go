@@ -55,8 +55,13 @@ func Build(goos, goarch string) error {
 		return err
 	}
 
-	pip := filepath.Join(env, "bin", "pip")
-	python := filepath.Join(env, "bin", "python")
+	binDir := "bin"
+	if runtime.GOOS == "windows" {
+		binDir = "Scripts"
+	}
+
+	pip := filepath.Join(env, binDir, "pip")
+	python := filepath.Join(env, binDir, "python")
 
 	if err := sh.RunV(pip, "install", "build", "ziglang"); err != nil {
 		return err
