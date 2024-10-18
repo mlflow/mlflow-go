@@ -70,13 +70,13 @@ func Build(goos, goarch string) error {
 		return err
 	}
 
-	if err := sh.RunV("uv", "venv", "--python", "3.12", venv); err != nil {
+	if err := sh.RunV("uv", "venv", "--python", "3.8", venv); err != nil {
 		return err
 	}
 
 	if err := sh.RunWithV(map[string]string{
-		"VIRTUAL_ENV": venv,
-	}, "uv", "pip", "install", ".[dev]"); err != nil {
+		"UV_PROJECT_ENVIRONMENT": venv,
+	}, "uv", "sync", "--all-extras"); err != nil {
 		return err
 	}
 
@@ -88,8 +88,9 @@ func Build(goos, goarch string) error {
 	python := filepath.Join(venv, binDir, "python")
 
 	environmentVariables := map[string]string{
-		"GOOS":   goos,
-		"GOARCH": goarch,
+		"UV_PROJECT_ENVIRONMENT": venv,
+		"GOOS":                   goos,
+		"GOARCH":                 goarch,
 	}
 
 	// Set Zig as the C compiler for cross-compilation
@@ -109,7 +110,7 @@ func Build(goos, goarch string) error {
 
 	if err := sh.RunWithV(
 		environmentVariables,
-		python, "-mbuild"); err != nil {
+		"uv", "run", "python", "-mbuild"); err != nil {
 		return err
 	}
 
