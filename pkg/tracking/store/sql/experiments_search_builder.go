@@ -139,7 +139,7 @@ func applyExperimentsOrderBy(query *gorm.DB, orderBy []string) (*gorm.DB, *contr
 	return query, nil
 }
 
-//nolint:funlen,gocognit,nestif,cyclop,goconst,mnd
+//nolint:funlen,gocognit,nestif,cyclop,goconst,mnd,forcetypeassert
 func applyExperimentsFilter(database, query *gorm.DB, filter string) (*gorm.DB, *contract.Error) {
 	if filter != "" {
 		for index, f := range filterAnd.Split(filter, -1) {
@@ -158,44 +158,11 @@ func applyExperimentsFilter(database, query *gorm.DB, filter string) (*gorm.DB, 
 			switch entity {
 			case "", "attribute", "attributes", "attr":
 				switch key {
-				case "name":
-					switch strings.ToUpper(comparison) {
-					case NotEqualExpression, EqualExpression, LikeExpression, ILikeExpression:
-						stringValue, ok := value.(string)
-						if !ok {
-							return nil, contract.NewError(
-								protos.ErrorCode_INVALID_PARAMETER_VALUE,
-								fmt.Sprintf("invalid string value '%s'", value),
-							)
-						}
-
-						if strings.HasPrefix(stringValue, "(") {
-							return nil, contract.NewError(
-								protos.ErrorCode_INVALID_PARAMETER_VALUE,
-								fmt.Sprintf("invalid string value '%s'", value),
-							)
-						}
-
-						value = strings.Trim(stringValue, `"'`)
-
-						if database.Dialector.Name() == "sqlite" && strings.ToUpper(comparison) == ILikeExpression {
-							key = fmt.Sprintf("LOWER(%s)", key)
-							comparison = LikeExpression
-							value = strings.ToLower(stringValue)
-						}
-					default:
-						return nil, contract.NewError(
-							protos.ErrorCode_INVALID_PARAMETER_VALUE,
-							fmt.Sprintf(
-								"invalid string attribute comparison operator '%s'", comparison,
-							),
-						)
-					}
 				case "creation_time", "last_update_time":
 					switch comparison {
 					case GraterExpression, GraterOrEqualExpression, NotEqualExpression,
 						EqualExpression, LessExpression, LessOrEqualExpression:
-						parsedValue, err := strconv.Atoi(value.(string))
+						intValue, err := strconv.Atoi(value.(string))
 						if err != nil {
 							return nil, contract.NewError(
 								protos.ErrorCode_INVALID_PARAMETER_VALUE,
@@ -203,11 +170,38 @@ func applyExperimentsFilter(database, query *gorm.DB, filter string) (*gorm.DB, 
 							)
 						}
 
-						value = parsedValue
+						value = intValue
 					default:
 						return nil, contract.NewError(
 							protos.ErrorCode_INVALID_PARAMETER_VALUE,
-							fmt.Sprintf("invalid numeric attribute comparison operator '%s'", comparison),
+							fmt.Sprintf(
+								"invalid numeric attribute comparison operator '%s'", comparison,
+							),
+						)
+					}
+				case "name":
+					switch strings.ToUpper(comparison) {
+					case NotEqualExpression, EqualExpression, LikeExpression, ILikeExpression:
+						if strings.HasPrefix(value.(string), "(") {
+							return nil, contract.NewError(
+								protos.ErrorCode_INVALID_PARAMETER_VALUE,
+								fmt.Sprintf("invalid string value '%s'", value),
+							)
+						}
+
+						value = strings.Trim(value.(string), `"'`)
+
+						if database.Dialector.Name() == "sqlite" && strings.ToUpper(comparison) == ILikeExpression {
+							key = fmt.Sprintf("LOWER(%s)", key)
+							comparison = LikeExpression
+							value = strings.ToLower(value.(string))
+						}
+					default:
+						return nil, contract.NewError(
+							protos.ErrorCode_INVALID_PARAMETER_VALUE,
+							fmt.Sprintf(
+								"invalid string attribute comparison operator '%s'", comparison,
+							),
 						)
 					}
 				default:
@@ -219,26 +213,18 @@ func applyExperimentsFilter(database, query *gorm.DB, filter string) (*gorm.DB, 
 					)
 				}
 
-				query = query.Where(fmt.Sprintf("%s %s ?", key, comparison), value)
+				query.Where(fmt.Sprintf("%s %s ?", key, comparison), value)
 			case "tag", "tags":
 				switch strings.ToUpper(comparison) {
 				case NotEqualExpression, EqualExpression, LikeExpression, ILikeExpression:
-					stringValue, ok := value.(string)
-					if !ok {
+					if strings.HasPrefix(value.(string), "(") {
 						return nil, contract.NewError(
 							protos.ErrorCode_INVALID_PARAMETER_VALUE,
 							fmt.Sprintf("invalid string value '%s'", value),
 						)
 					}
 
-					if strings.HasPrefix(stringValue, "(") {
-						return nil, contract.NewError(
-							protos.ErrorCode_INVALID_PARAMETER_VALUE,
-							fmt.Sprintf("invalid string value '%s'", value),
-						)
-					}
-
-					value = strings.Trim(stringValue, `"'`)
+					value = strings.Trim(value.(string), `"'`)
 				default:
 					return nil, contract.NewError(
 						protos.ErrorCode_INVALID_PARAMETER_VALUE,
@@ -251,29 +237,14 @@ func applyExperimentsFilter(database, query *gorm.DB, filter string) (*gorm.DB, 
 
 				if database.Dialector.Name() == "sqlite" && strings.ToUpper(comparison) == ILikeExpression {
 					where = "LOWER(value) LIKE ?"
-
-					stringValue, ok := value.(string)
-					if !ok {
-						return nil, contract.NewError(
-							protos.ErrorCode_INVALID_PARAMETER_VALUE,
-							fmt.Sprintf("invalid string value '%s'", value),
-						)
-					}
-
-					value = strings.ToLower(stringValue)
+					value = strings.ToLower(value.(string))
 				}
 
-				query = query.Joins(
+				query.Joins(
 					fmt.Sprintf("JOIN (?) AS %s ON experiments.experiment_id = %s.experiment_id", table, table),
 					database.Select(
 						"experiment_id", "value",
-					).Where(
-						"key = ?", key,
-					).Where(
-						where, value,
-					).Model(
-						&models.ExperimentTag{},
-					),
+					).Where("key = ?", key).Where(where, value).Model(&models.ExperimentTag{}),
 				)
 			default:
 				return nil, contract.NewError(
