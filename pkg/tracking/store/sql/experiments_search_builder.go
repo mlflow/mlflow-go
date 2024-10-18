@@ -18,14 +18,14 @@ import (
 
 // supported expression list.
 const (
-	LikeExpression          = "LIKE"
-	ILikeExpression         = "ILIKE"
-	EqualExpression         = "="
-	NotEqualExpression      = "!="
-	LessExpression          = "<"
-	LessOrEqualExpression   = "<="
-	GraterExpression        = ">"
-	GraterOrEqualExpression = ">="
+	LikeExpression           = "LIKE"
+	ILikeExpression          = "ILIKE"
+	EqualExpression          = "="
+	NotEqualExpression       = "!="
+	LessExpression           = "<"
+	LessOrEqualExpression    = "<="
+	GreaterExpression        = ">"
+	GreaterOrEqualExpression = ">="
 )
 
 //nolint:lll
@@ -160,7 +160,7 @@ func applyExperimentsFilter(database, query *gorm.DB, filter string) (*gorm.DB, 
 				switch key {
 				case "creation_time", "last_update_time":
 					switch comparison {
-					case GraterExpression, GraterOrEqualExpression, NotEqualExpression,
+					case GreaterExpression, GreaterOrEqualExpression, NotEqualExpression,
 						EqualExpression, LessExpression, LessOrEqualExpression:
 						intValue, err := strconv.Atoi(value.(string))
 						if err != nil {
