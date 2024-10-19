@@ -52,7 +52,7 @@ jobs:
       - name: Initialize MLflow repo
         run: mage repo:init
       - name: Install dependencies
-        run: pip install pytest==8.1.1 psycopg2-binary -e .mlflow.repo
+        run: pip install pytest==8.1.1 psycopg2-binary==2.9.9 -e .mlflow.repo
       - name: Run integration tests
         run: mage test:python
         # Temporary workaround for failing tests
