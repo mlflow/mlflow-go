@@ -1130,6 +1130,57 @@ func (_c *MockTrackingStore_SetExperimentTag_Call) RunAndReturn(run func(context
 	return _c
 }
 
+// SetTag provides a mock function with given fields: ctx, runID, key, value
+func (_m *MockTrackingStore) SetTag(ctx context.Context, runID string, key string, value string) *contract.Error {
+	ret := _m.Called(ctx, runID, key, value)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SetTag")
+	}
+
+	var r0 *contract.Error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) *contract.Error); ok {
+		r0 = rf(ctx, runID, key, value)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*contract.Error)
+		}
+	}
+
+	return r0
+}
+
+// MockTrackingStore_SetTag_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetTag'
+type MockTrackingStore_SetTag_Call struct {
+	*mock.Call
+}
+
+// SetTag is a helper method to define mock.On call
+//   - ctx context.Context
+//   - runID string
+//   - key string
+//   - value string
+func (_e *MockTrackingStore_Expecter) SetTag(ctx interface{}, runID interface{}, key interface{}, value interface{}) *MockTrackingStore_SetTag_Call {
+	return &MockTrackingStore_SetTag_Call{Call: _e.mock.On("SetTag", ctx, runID, key, value)}
+}
+
+func (_c *MockTrackingStore_SetTag_Call) Run(run func(ctx context.Context, runID string, key string, value string)) *MockTrackingStore_SetTag_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(string))
+	})
+	return _c
+}
+
+func (_c *MockTrackingStore_SetTag_Call) Return(_a0 *contract.Error) *MockTrackingStore_SetTag_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockTrackingStore_SetTag_Call) RunAndReturn(run func(context.Context, string, string, string) *contract.Error) *MockTrackingStore_SetTag_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SetTraceTag provides a mock function with given fields: ctx, requestID, key, value
 func (_m *MockTrackingStore) SetTraceTag(ctx context.Context, requestID string, key string, value string) error {
 	ret := _m.Called(ctx, requestID, key, value)

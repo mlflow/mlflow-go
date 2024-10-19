@@ -8,7 +8,7 @@ to configure all the development environment just run `mage` target:
 mage configure
 ```
 
-it will configure mlflow and all the Python dependencies required by the project or run each step manually:
+it will configure MLflow and all the Python dependencies required by the project or run each step manually:
 
 ```bash
 # Install our Python package and its dependencies
@@ -17,7 +17,7 @@ pip install -e .
 # Install the dreaded psycho
 pip install psycopg2-binary
 
-# Archive the MLFlow pre-built UI
+# Archive the MLflow pre-built UI
 tar -C /usr/local/python/current/lib/python3.8/site-packages/mlflow -czvf ./ui.tgz ./server/js/build
 
 # Clone the MLflow repo
@@ -30,7 +30,7 @@ tar -C .mlflow.repo/mlflow -xzvf ./ui.tgz
 pip install -e .mlflow.repo
 ```
 
-## Run Go Mlflow server
+## Run Go MLflow server
 
 To start the mlflow-go dev server connecting to postgres just run next `mage` target:
 
@@ -61,8 +61,16 @@ mage test:all
 ```
 
 ```bash
-# Run just MLFlow Python tests
+# Run just MLflow Python tests
 mage test:python
+```
+
+```bash
+# Run specific MLflow Python tests (matches all tests containing the argument)
+mage test:pythonSpecific <test_file::test_name>
+
+#Example
+mage test:pythonSpecific ".mlflow.repo/tests/tracking/test_rest_tracking.py::test_rename_experiment"
 ```
 
 ```bash

@@ -143,3 +143,107 @@ func (s TrackingSQLStore) DeleteTag(
 
 	return nil
 }
+
+func (s TrackingSQLStore) SetTag(
+	ctx context.Context, runID, key, value string,
+) *contract.Error {
+	var run models.Run
+
+	err := s.db.Where("run_uuid = ?", runID).First(&run).Error
+	if err != nil {
+		return contract.NewErrorWith(
+			protos.ErrorCode_INTERNAL_ERROR,
+			fmt.Sprintf("Failed to query run for run_id %q", runID),
+			err,
+		)
+	}
+
+	err = s.db.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
+		contractError := checkRunIsActive(transaction, runID)
+		if contractError != nil {
+			return contractError
+		}
+
+		return s.handleTagUpsert(transaction, runID, key, value)
+	})
+	if err != nil {
+		var contractError *contract.Error
+		if errors.As(err, &contractError) {
+			return contractError
+		}
+
+		return contract.NewErrorWith(
+			protos.ErrorCode_INTERNAL_ERROR,
+			fmt.Sprintf("Set tag transaction failed for run_id %q", runID),
+			err,
+		)
+	}
+
+	if key == utils.TagRunName {
+		return s.handleRunNameUpdate(ctx, run, runID, value)
+	}
+
+	return nil
+}
+
+// Handle tag creation and update.
+func (s TrackingSQLStore) handleTagUpsert(
+	transaction *gorm.DB, runID, key, value string,
+) error {
+	var tag models.Tag
+
+	result := transaction.Where("run_uuid = ? AND key = ?", runID, key).First(&tag)
+	if result.Error != nil && !errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return contract.NewErrorWith(
+			protos.ErrorCode_INTERNAL_ERROR,
+			fmt.Sprintf("Failed to query tag for run_id %q and key %q", runID, key),
+			result.Error,
+		)
+	}
+
+	if result.RowsAffected == 1 {
+		tag.Value = value
+		if err := transaction.Save(&tag).Error; err != nil {
+			return contract.NewErrorWith(
+				protos.ErrorCode_INTERNAL_ERROR,
+				fmt.Sprintf("Failed to update tag for run_id %q and key %q", runID, key),
+				err,
+			)
+		}
+	} else {
+		newTag := models.Tag{
+			RunID: runID,
+			Key:   key,
+			Value: value,
+		}
+		if err := transaction.Create(&newTag).Error; err != nil {
+			return contract.NewErrorWith(
+				protos.ErrorCode_INTERNAL_ERROR,
+				fmt.Sprintf("Failed to create tag for run_id %q and key %q", runID, key),
+				err,
+			)
+		}
+	}
+
+	return nil
+}
+
+// Handles updating the run name when setting tag.
+func (s TrackingSQLStore) handleRunNameUpdate(
+	ctx context.Context, run models.Run, runID, value string,
+) *contract.Error {
+	var endTimePtr *int64
+	if run.EndTime.Valid {
+		endTimePtr = &run.EndTime.Int64
+	}
+
+	if err := s.UpdateRun(ctx, runID, run.Status.String(), endTimePtr, value); err != nil {
+		return contract.NewErrorWith(
+			protos.ErrorCode_INTERNAL_ERROR,
+			fmt.Sprintf("Failed to update run info for run_id %q", runID),
+			err,
+		)
+	}
+
+	return nil
+}

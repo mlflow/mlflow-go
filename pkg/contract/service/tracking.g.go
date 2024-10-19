@@ -22,6 +22,7 @@ type TrackingService interface {
 	LogMetric(ctx context.Context, input *protos.LogMetric) (*protos.LogMetric_Response, *contract.Error)
 	LogParam(ctx context.Context, input *protos.LogParam) (*protos.LogParam_Response, *contract.Error)
 	SetExperimentTag(ctx context.Context, input *protos.SetExperimentTag) (*protos.SetExperimentTag_Response, *contract.Error)
+	SetTag(ctx context.Context, input *protos.SetTag) (*protos.SetTag_Response, *contract.Error)
 	SetTraceTag(ctx context.Context, input *protos.SetTraceTag) (*protos.SetTraceTag_Response, *contract.Error)
 	DeleteTraceTag(ctx context.Context, input *protos.DeleteTraceTag) (*protos.DeleteTraceTag_Response, *contract.Error)
 	DeleteTag(ctx context.Context, input *protos.DeleteTag) (*protos.DeleteTag_Response, *contract.Error)
