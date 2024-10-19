@@ -232,14 +232,12 @@ func (s TrackingSQLStore) handleTagUpsert(
 func (s TrackingSQLStore) handleRunNameUpdate(
 	ctx context.Context, run models.Run, runID, value string,
 ) *contract.Error {
-	runStatus := run.Status.String()
-
 	var endTimePtr *int64
 	if run.EndTime.Valid {
 		endTimePtr = &run.EndTime.Int64
 	}
 
-	if err := s.UpdateRun(ctx, runID, runStatus, endTimePtr, value); err != nil {
+	if err := s.UpdateRun(ctx, runID, run.Status.String(), endTimePtr, value); err != nil {
 		return contract.NewErrorWith(
 			protos.ErrorCode_INTERNAL_ERROR,
 			fmt.Sprintf("Failed to update run info for run_id %q", runID),
