@@ -67,7 +67,10 @@ mage test:python
 
 ```bash
 # Run specific MLflow Python tests (matches all tests containing the argument)
-mage test:pythonSpecific <test_name>
+mage test:pythonSpecific <test_file::test_name>
+
+#Example
+mage test:pythonSpecific ".mlflow.repo/tests/tracking/test_rest_tracking.py::test_rename_experiment"
 ```
 
 ```bash
