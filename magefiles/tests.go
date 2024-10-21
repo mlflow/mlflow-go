@@ -28,8 +28,7 @@ func cleanUpMemoryFile() error {
 	return nil
 }
 
-// Run mlflow Python tests against the Go backend.
-func (Test) Python() error {
+func runPythonTests(pytestArgs []string) error {
 	libpath, err := os.MkdirTemp("", "")
 	if err != nil {
 		return err
@@ -45,23 +44,40 @@ func (Test) Python() error {
 		return nil
 	}
 
+	args := []string{
+		"--confcutdir=.",
+		"-k", "not [file",
+	}
+	args = append(args, pytestArgs...)
+
 	//  Run the tests (currently just the server ones)
 	if err := sh.RunWithV(map[string]string{
 		"MLFLOW_GO_LIBRARY_PATH": libpath,
-	}, "pytest",
-		"--confcutdir=.",
-		".mlflow.repo/tests/tracking/test_rest_tracking.py",
-		".mlflow.repo/tests/tracking/test_model_registry.py",
-		".mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py",
-		".mlflow.repo/tests/store/model_registry/test_sqlalchemy_store.py",
-		"-k",
-		"not [file",
-		// "-vv",
+	}, "pytest", args...,
+	// "-vv",
 	); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+// Run mlflow Python tests against the Go backend.
+func (Test) Python() error {
+	return runPythonTests([]string{
+		".mlflow.repo/tests/tracking/test_rest_tracking.py",
+		".mlflow.repo/tests/tracking/test_model_registry.py",
+		".mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py",
+		".mlflow.repo/tests/store/model_registry/test_sqlalchemy_store.py",
+	})
+}
+
+// Run specific Python test against the Go backend.
+func (Test) PythonSpecific(testName string) error {
+	return runPythonTests([]string{
+		testName,
+		"-vv",
+	})
 }
 
 // Run the Go unit tests.

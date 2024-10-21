@@ -27,6 +27,7 @@ from mlflow.protos.service_pb2 import (
     RestoreRun,
     SearchExperiments,
     SearchRuns,
+    SetTag,
     SetTraceTag,
     UpdateExperiment,
     UpdateRun,
@@ -223,6 +224,10 @@ class _TrackingStore:
             Experiment.from_proto(proto_experiment) for proto_experiment in response.experiments
         ]
         return PagedList(experiments, (response.next_page_token or None))
+
+      def set_tag(self, run_id, tag):
+        request = SetTag(run_id=run_id, key=tag.key, value=tag.value)
+        self.service.call_endpoint(get_lib().TrackingServiceSetTag, request)
 
 
 def TrackingStore(cls):
