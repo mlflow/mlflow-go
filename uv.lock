@@ -28,15 +28,6 @@ wheels = [
 ]
 
 [[package]]
-name = "aniso8601"
-version = "9.0.1"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/cb/72/be3db445b03944bfbb2b02b82d00cb2a2bcf96275c4543f14bf60fa79e12/aniso8601-9.0.1.tar.gz", hash = "sha256:72e3117667eedf66951bb2d93f4296a56b94b078a8a95905a052611fb3f1b973", size = 47345 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/e3/04/e97c12dc034791d7b504860acfcdd2963fa21ae61eaca1c9d31245f812c3/aniso8601-9.0.1-py2.py3-none-any.whl", hash = "sha256:1d2b7ef82963909e93c4f24ce48d4de9e66009a21bf1c1e1c85bdd0812fe412f", size = 52754 },
-]
-
-[[package]]
 name = "blinker"
 version = "1.8.2"
 source = { registry = "https://pypi.org/simple" }
@@ -444,6 +435,19 @@ wheels = [
 ]
 
 [[package]]
+name = "databricks-sdk"
+version = "0.35.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "google-auth" },
+    { name = "requests" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ca/ce/5983eda8527349fe91ebeb9fe9ed36ec82cf9b388082316861b240d55a0e/databricks_sdk-0.35.0.tar.gz", hash = "sha256:9446409fd321b43ac586653120b16734d13a97674fee9f89b6562f24d32d48e0", size = 585725 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/62/4d/de5db97965338cf50eb141ebfc32ba6ef0bc44d6275991bf20b4254b8a8c/databricks_sdk-0.35.0-py3-none-any.whl", hash = "sha256:00cce49014dfa1d5912cb18e376d28b2de8829a8f645d87d4040bae048630578", size = 568371 },
+]
+
+[[package]]
 name = "deprecated"
 version = "1.2.14"
 source = { registry = "https://pypi.org/simple" }
@@ -467,15 +471,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/91/9b/4a2ea29aeba62471211598dac5d96825bb49348fa07e906ea930394a83ce/docker-7.1.0.tar.gz", hash = "sha256:ad8c70e6e3f8926cb8a92619b832b4ea5299e2831c14284663184e200546fa6c", size = 117834 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e3/26/57c6fb270950d476074c087527a558ccb6f4436657314bfb6cdf484114c4/docker-7.1.0-py3-none-any.whl", hash = "sha256:c96b93b7f0a746f9e77d325bcfb87422a3d8bd4f03136ae8a85b37f1898d5fc0", size = 147774 },
-]
-
-[[package]]
-name = "entrypoints"
-version = "0.4"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/ea/8d/a7121ffe5f402dc015277d2d31eb82d2187334503a011c18f2e78ecbb9b2/entrypoints-0.4.tar.gz", hash = "sha256:b706eddaa9218a19ebcd67b56818f05bb27589b1ca9e8d797b74affad4ccacd4", size = 13974 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/35/a8/365059bbcd4572cbc41de17fd5b682be5868b218c3c5479071865cab9078/entrypoints-0.4-py3-none-any.whl", hash = "sha256:f174b5ff827504fd3cd97cc3f8649f3693f51538c7e4bdf3ef002c8429d42f9f", size = 5294 },
 ]
 
 [[package]]
@@ -584,17 +579,31 @@ wheels = [
 ]
 
 [[package]]
-name = "graphene"
-version = "3.3"
+name = "google-auth"
+version = "2.35.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "aniso8601" },
+    { name = "cachetools" },
+    { name = "pyasn1-modules" },
+    { name = "rsa" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a1/37/c854a8b1b1020cf042db3d67577c6f84cd1e8ff6515e4f5498ae9e444ea5/google_auth-2.35.0.tar.gz", hash = "sha256:f4c64ed4e01e8e8b646ef34c018f8bf3338df0c8e37d8b3bba40e7f574a3278a", size = 267223 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/27/1f/3a72917afcb0d5cd842cbccb81bf7a8a7b45b4c66d8dc4556ccb3b016bfc/google_auth-2.35.0-py2.py3-none-any.whl", hash = "sha256:25df55f327ef021de8be50bad0dfd4a916ad0de96da86cd05661c9297723ad3f", size = 208968 },
+]
+
+[[package]]
+name = "graphene"
+version = "3.4"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
     { name = "graphql-core" },
     { name = "graphql-relay" },
+    { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/82/75/02875858c7c09fc156840181cdee27b23408fac75720a2e1e9128f3d48a5/graphene-3.3.tar.gz", hash = "sha256:529bf40c2a698954217d3713c6041d69d3f719ad0080857d7ee31327112446b0", size = 57893 }
+sdist = { url = "https://files.pythonhosted.org/packages/f6/fb/4f842f0a79e328616af0f24d8b5493573b50612158eef52bb2efbb0225b7/graphene-3.4.tar.gz", hash = "sha256:65e5ec84c5b7fb4fc41518acfbafb62ebb393d3982fbba00cd5393e431a80b97", size = 44574 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/24/70/96f6027cdfc9bb89fc07627b615cb43fb1c443c93498412beaeaf157e9f1/graphene-3.3-py2.py3-none-any.whl", hash = "sha256:bb3810be33b54cb3e6969506671eb72319e8d7ba0d5ca9c8066472f75bf35a38", size = 128227 },
+    { url = "https://files.pythonhosted.org/packages/53/57/451947bf23a88639642256a478a98fb20bfe725139af02012e7671b33ae2/graphene-3.4-py2.py3-none-any.whl", hash = "sha256:28bf359b802cdb808130a5521135d4c88a262564598cfdc91628d2c172b99dce", size = 114589 },
 ]
 
 [[package]]
@@ -1048,15 +1057,15 @@ wheels = [
 
 [[package]]
 name = "mlflow"
-version = "2.14.1"
-source = { registry = "https://pypi.org/simple" }
+version = "2.17.1.dev0"
+source = { editable = ".mlflow.repo" }
 dependencies = [
     { name = "alembic" },
     { name = "cachetools" },
     { name = "click" },
     { name = "cloudpickle" },
+    { name = "databricks-sdk" },
     { name = "docker" },
-    { name = "entrypoints" },
     { name = "flask" },
     { name = "gitpython" },
     { name = "graphene" },
@@ -1072,9 +1081,7 @@ dependencies = [
     { name = "pandas" },
     { name = "protobuf" },
     { name = "pyarrow" },
-    { name = "pytz" },
     { name = "pyyaml" },
-    { name = "querystring-parser" },
     { name = "requests" },
     { name = "scikit-learn" },
     { name = "scipy" },
@@ -1082,9 +1089,75 @@ dependencies = [
     { name = "sqlparse" },
     { name = "waitress", marker = "platform_system == 'Windows'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/9c/60/f048104cb593337a5eb52f25e5c9289766d53bdb1734fdc4a434f8633e60/mlflow-2.14.1.tar.gz", hash = "sha256:1258ade134b9fbb15b1b0f22b0e9f98b5ff6f5f57575c10adfb255b9331fc587", size = 25248218 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/4f/9a/cfad2206b8745a65284d24dd8b397836c7641db1bf226c3fb111c17a17fa/mlflow-2.14.1-py3-none-any.whl", hash = "sha256:0bda38f94468d69a169415b1d751078f1083ddb44646f50854d387bcb6d0b9ec", size = 25773937 },
+
+[package.metadata]
+requires-dist = [
+    { name = "aiohttp", marker = "extra == 'gateway'", specifier = "<4" },
+    { name = "aiohttp", marker = "extra == 'genai'", specifier = "<4" },
+    { name = "alembic", specifier = "!=1.10.0,<2" },
+    { name = "aliyunstoreplugin", marker = "extra == 'aliyun-oss'" },
+    { name = "azure-storage-file-datalake", marker = "extra == 'databricks'", specifier = ">12" },
+    { name = "azureml-core", marker = "extra == 'extras'", specifier = ">=1.2.0" },
+    { name = "boto3", marker = "extra == 'databricks'", specifier = ">1" },
+    { name = "boto3", marker = "extra == 'extras'" },
+    { name = "boto3", marker = "extra == 'gateway'", specifier = ">=1.28.56,<2" },
+    { name = "boto3", marker = "extra == 'genai'", specifier = ">=1.28.56,<2" },
+    { name = "botocore", marker = "extra == 'databricks'" },
+    { name = "botocore", marker = "extra == 'extras'" },
+    { name = "cachetools", specifier = ">=5.0.0,<6" },
+    { name = "click", specifier = ">=7.0,<9" },
+    { name = "cloudpickle", specifier = "<4" },
+    { name = "databricks-sdk", specifier = ">=0.20.0,<1" },
+    { name = "docker", specifier = ">=4.0.0,<8" },
+    { name = "fastapi", marker = "extra == 'gateway'", specifier = "<1" },
+    { name = "fastapi", marker = "extra == 'genai'", specifier = "<1" },
+    { name = "flask", specifier = "<4" },
+    { name = "gitpython", specifier = ">=3.1.9,<4" },
+    { name = "google-cloud-storage", marker = "extra == 'databricks'", specifier = ">=1.30.0" },
+    { name = "google-cloud-storage", marker = "extra == 'extras'", specifier = ">=1.30.0" },
+    { name = "graphene", specifier = "<4" },
+    { name = "gunicorn", marker = "platform_system != 'Windows'", specifier = "<24" },
+    { name = "importlib-metadata", specifier = ">=3.7.0,!=4.7.0,<9" },
+    { name = "jinja2", marker = "platform_system != 'Windows'", specifier = ">=2.11,<4" },
+    { name = "jinja2", marker = "platform_system == 'Windows'", specifier = ">=3.0,<4" },
+    { name = "kubernetes", marker = "extra == 'extras'" },
+    { name = "langchain", marker = "extra == 'langchain'", specifier = ">=0.1.0,<=0.3.3" },
+    { name = "markdown", specifier = ">=3.3,<4" },
+    { name = "matplotlib", specifier = "<4" },
+    { name = "mlflow-dbstore", marker = "extra == 'sqlserver'" },
+    { name = "mlflow-jfrog-plugin", marker = "extra == 'jfrog'" },
+    { name = "mlflow-xethub", marker = "extra == 'xethub'" },
+    { name = "mlserver", marker = "extra == 'mlserver'", specifier = ">=1.2.0,!=1.3.1" },
+    { name = "mlserver-mlflow", marker = "extra == 'mlserver'", specifier = ">=1.2.0,!=1.3.1" },
+    { name = "numpy", specifier = "<3" },
+    { name = "opentelemetry-api", specifier = ">=1.9.0,<3" },
+    { name = "opentelemetry-sdk", specifier = ">=1.9.0,<3" },
+    { name = "packaging", specifier = "<25" },
+    { name = "pandas", specifier = "<3" },
+    { name = "prometheus-flask-exporter", marker = "extra == 'extras'" },
+    { name = "protobuf", specifier = ">=3.12.0,<6" },
+    { name = "pyarrow", specifier = ">=4.0.0,<18" },
+    { name = "pyarrow", marker = "extra == 'extras'" },
+    { name = "pydantic", marker = "extra == 'gateway'", specifier = ">=1.0,<3" },
+    { name = "pydantic", marker = "extra == 'genai'", specifier = ">=1.0,<3" },
+    { name = "pysftp", marker = "extra == 'extras'" },
+    { name = "pyyaml", specifier = ">=5.1,<7" },
+    { name = "requests", specifier = ">=2.17.3,<3" },
+    { name = "requests-auth-aws-sigv4", marker = "extra == 'extras'" },
+    { name = "scikit-learn", specifier = "<2" },
+    { name = "scipy", specifier = "<2" },
+    { name = "slowapi", marker = "extra == 'gateway'", specifier = ">=0.1.9,<1" },
+    { name = "slowapi", marker = "extra == 'genai'", specifier = ">=0.1.9,<1" },
+    { name = "sqlalchemy", specifier = ">=1.4.0,<3" },
+    { name = "sqlparse", specifier = ">=0.4.0,<1" },
+    { name = "tiktoken", marker = "extra == 'gateway'", specifier = "<1" },
+    { name = "tiktoken", marker = "extra == 'genai'", specifier = "<1" },
+    { name = "uvicorn", extras = ["standard"], marker = "extra == 'gateway'", specifier = "<1" },
+    { name = "uvicorn", extras = ["standard"], marker = "extra == 'genai'", specifier = "<1" },
+    { name = "virtualenv", marker = "extra == 'extras'" },
+    { name = "waitress", marker = "platform_system == 'Windows'", specifier = "<4" },
+    { name = "watchfiles", marker = "extra == 'gateway'", specifier = "<1" },
+    { name = "watchfiles", marker = "extra == 'genai'", specifier = "<1" },
 ]
 
 [[package]]
@@ -1108,7 +1181,7 @@ dev = [
 requires-dist = [
     { name = "build", marker = "extra == 'dev'" },
     { name = "cffi" },
-    { name = "mlflow", specifier = "==2.14.1" },
+    { name = "mlflow", editable = ".mlflow.repo" },
     { name = "psycopg2-binary", specifier = "==2.9.9" },
     { name = "pytest", marker = "extra == 'dev'" },
     { name = "ziglang", marker = "extra == 'dev'" },
@@ -1465,6 +1538,27 @@ wheels = [
 ]
 
 [[package]]
+name = "pyasn1"
+version = "0.6.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/ba/e9/01f1a64245b89f039897cb0130016d79f77d52669aae6ee7b159a6c4c018/pyasn1-0.6.1.tar.gz", hash = "sha256:6f580d2bdd84365380830acf45550f2511469f673cb4a5ae3857a3170128b034", size = 145322 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c8/f1/d6a797abb14f6283c0ddff96bbdd46937f64122b8c925cab503dd37f8214/pyasn1-0.6.1-py3-none-any.whl", hash = "sha256:0d632f46f2ba09143da3a8afe9e33fb6f92fa2320ab7e886e2d0f7672af84629", size = 83135 },
+]
+
+[[package]]
+name = "pyasn1-modules"
+version = "0.4.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pyasn1" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/1d/67/6afbf0d507f73c32d21084a79946bfcfca5fbc62a72057e9c23797a737c9/pyasn1_modules-0.4.1.tar.gz", hash = "sha256:c28e2dbf9c06ad61c71a075c7e0f9fd0f1b0bb2d2ad4377f240d33ac2ab60a7c", size = 310028 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/77/89/bc88a6711935ba795a679ea6ebee07e128050d6382eaa35a0a47c8032bdc/pyasn1_modules-0.4.1-py3-none-any.whl", hash = "sha256:49bfa96b45a292b711e986f222502c1c9a5e1f4e568fc30e2574a6c7d07838fd", size = 181537 },
+]
+
+[[package]]
 name = "pycparser"
 version = "2.22"
 source = { registry = "https://pypi.org/simple" }
@@ -1613,18 +1707,6 @@ wheels = [
 ]
 
 [[package]]
-name = "querystring-parser"
-version = "1.2.4"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "six" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/4a/fa/f54f5662e0eababf0c49e92fd94bf178888562c0e7b677c8941bbbcd1bd6/querystring_parser-1.2.4.tar.gz", hash = "sha256:644fce1cffe0530453b43a83a38094dbe422ccba8c9b2f2a1c00280e14ca8a62", size = 5454 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/88/6b/572b2590fd55114118bf08bde63c0a421dcc82d593700f3e2ad89908a8a9/querystring_parser-1.2.4-py2.py3-none-any.whl", hash = "sha256:d2fa90765eaf0de96c8b087872991a10238e89ba015ae59fedfed6bd61c242a0", size = 7908 },
-]
-
-[[package]]
 name = "requests"
 version = "2.32.3"
 source = { registry = "https://pypi.org/simple" }
@@ -1637,6 +1719,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/63/70/2bf7780ad2d390a8d301ad0b550f1581eadbd9a20f896afe06353c2a2913/requests-2.32.3.tar.gz", hash = "sha256:55365417734eb18255590a9ff9eb97e9e1da868d4ccd6402399eaf68af20a760", size = 131218 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/f9/9b/335f9764261e915ed497fcdeb11df5dfd6f7bf257d4a6a2a686d80da4d54/requests-2.32.3-py3-none-any.whl", hash = "sha256:70761cfe03c773ceb22aa2f671b4757976145175cdfca038c02654d061d6dcc6", size = 64928 },
+]
+
+[[package]]
+name = "rsa"
+version = "4.9"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pyasn1" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/aa/65/7d973b89c4d2351d7fb232c2e452547ddfa243e93131e7cfa766da627b52/rsa-4.9.tar.gz", hash = "sha256:e38464a49c6c85d7f1351b0126661487a7e0a14a50f1675ec50eb34d4f20ef21", size = 29711 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/49/97/fa78e3d2f65c02c8e1268b9aba606569fe97f6c8f7c2d74394553347c145/rsa-4.9-py3-none-any.whl", hash = "sha256:90260d9058e514786967344d0ef75fa8727eed8a7d2e43ce9f4bcf1b536174f7", size = 34315 },
 ]
 
 [[package]]

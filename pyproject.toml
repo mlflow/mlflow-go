@@ -21,7 +21,11 @@ classifiers = [
   "Programming Language :: Python :: 3.8",
 ]
 requires-python = ">=3.8"
-dependencies = ["mlflow==2.14.1", "cffi", "psycopg2-binary==2.9.9"]
+dependencies = [
+    "mlflow==2.14.1",
+    "cffi",
+    "psycopg2-binary==2.9.9",
+]
 license = { file = "LICENSE" }
 
 [[project.maintainers]]
@@ -171,6 +175,9 @@ exclude = [
   "mlflow/store/db_migrations",
   "tests/protos",
 ]
+
+[tool.uv.sources]
+mlflow = { path = ".mlflow.repo", editable = true }
 
 [project.optional-dependencies]
 dev = ["build", "ziglang", "pytest"]
