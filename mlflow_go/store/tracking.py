@@ -225,7 +225,7 @@ class _TrackingStore:
         ]
         return PagedList(experiments, (response.next_page_token or None))
 
-      def set_tag(self, run_id, tag):
+    def set_tag(self, run_id, tag):
         request = SetTag(run_id=run_id, key=tag.key, value=tag.value)
         self.service.call_endpoint(get_lib().TrackingServiceSetTag, request)
 

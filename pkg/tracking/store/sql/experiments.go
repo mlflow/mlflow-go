@@ -284,7 +284,7 @@ func (s TrackingSQLStore) SearchExperiments(
 	// apply Limit
 	query, limit := applyExperimentsLimitFilter(query, maxResults)
 
-	// apply Offet
+	// apply Offset
 	query, offset, err := applyExperimentsOffsetFilter(query, pageToken)
 	if err != nil {
 		return nil, "", err
