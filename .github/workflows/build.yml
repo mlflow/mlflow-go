@@ -30,6 +30,9 @@ jobs:
       - name: Install mage
         run: go install github.com/magefile/mage@v1.15.0
 
+      - name: Run repo target
+        run: mage repo init
+
       - name: Run build target
         run: mage build ${{ matrix.os }} ${{ matrix.arch }}
 
