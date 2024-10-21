@@ -24,11 +24,14 @@ jobs:
           check-latest: true
           cache: false
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
 
       - name: Install mage
         run: go install github.com/magefile/mage@v1.15.0
+
+      - name: Run repo target
+        run: mage repo:init
 
       - name: Run build target
         run: mage build ${{ matrix.os }} ${{ matrix.arch }}
