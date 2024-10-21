@@ -61,6 +61,11 @@ def pytest_configure(config):
         (
             "tests.store.tracking.test_sqlalchemy_store.test_sqlalchemy_store_behaves_as_expected_with_inmemory_sqlite_db",
             "tests/override_test_sqlalchemy_store.py",
+        ),  # We do not support applying the SQL schema to sqlite like Python does.
+        # So we do not support sqlite:////:memory: database.
+        (
+            "tests.store.tracking.test_sqlalchemy_store.test_search_experiments_max_results_validation",
+            "tests/override_test_sqlalchemy_store.py",
         ),
     ):
         func_name = func_to_patch.rsplit(".", 1)[1]

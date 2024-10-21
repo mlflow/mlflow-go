@@ -195,10 +195,18 @@ func NewValidator() (*validator.Validate, error) {
 		return nil, fmt.Errorf("validation registration for 'truncateFn' failed: %w", err)
 	}
 
+	if err := validate.RegisterValidation("positiveNonZeroInteger", positiveNonZeroInteger); err != nil {
+		return nil, fmt.Errorf("validation registration for 'positiveNonZeroInteger' failed: %w", err)
+	}
+
 	validate.RegisterStructValidation(validateLogBatchLimits, &protos.LogBatch{})
 	validate.RegisterStructValidation(validateSetTagRunIDExists, &protos.SetTag{})
 
 	return validate, nil
+}
+
+func positiveNonZeroInteger(fl validator.FieldLevel) bool {
+	return fl.Field().Int() > 0
 }
 
 func dereference(value interface{}) interface{} {
@@ -268,6 +276,18 @@ func mkMaxValidationError(field string, value interface{}, err validator.FieldEr
 	return constructValidationError(field, value, "")
 }
 
+func mkPositiveNonZeroIntegerError(field string, value interface{}) string {
+	if _, ok := value.(int64); ok {
+		return fmt.Sprintf(
+			"Invalid value %d for parameter '%s' supplied. It must be a positive integer",
+			value,
+			field,
+		)
+	}
+
+	return constructValidationError(field, value, "")
+}
+
 func NewErrorFromValidationError(err error) *contract.Error {
 	var validatorValidationErrors validator.ValidationErrors
 	if errors.As(err, &validatorValidationErrors) {
@@ -293,6 +313,8 @@ func NewErrorFromValidationError(err error) *contract.Error {
 				)
 			case "max":
 				validationErrors = append(validationErrors, mkMaxValidationError(field, value, err))
+			case "positiveNonZeroInteger":
+				validationErrors = append(validationErrors, mkPositiveNonZeroIntegerError(field, value))
 			default:
 				validationErrors = append(
 					validationErrors,

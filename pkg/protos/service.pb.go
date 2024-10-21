@@ -1265,7 +1265,7 @@ type SearchExperiments struct {
 	// guaranteed to support a `max_results` threshold of at least 1,000 but may
 	// support more. Callers of this endpoint are encouraged to pass max_results
 	// explicitly and leverage page_token to iterate through experiments.
-	MaxResults *int64 `protobuf:"varint,1,opt,name=max_results,json=maxResults" json:"max_results,omitempty" query:"max_results" params:"max_results"`
+	MaxResults *int64 `protobuf:"varint,1,opt,name=max_results,json=maxResults" json:"max_results,omitempty" query:"max_results" params:"max_results" validate:"positiveNonZeroInteger,max=50000"`
 	// Token indicating the page of experiments to fetch
 	PageToken *string `protobuf:"bytes,2,opt,name=page_token,json=pageToken" json:"page_token,omitempty" query:"page_token" params:"page_token"`
 	// A filter expression over experiment attributes and tags that allows returning a subset of

@@ -33,6 +33,28 @@ func RegisterTrackingServiceRoutes(service service.TrackingService, parser *pars
 		}
 		return ctx.JSON(output)
 	})
+	app.Post("/mlflow/experiments/search", func(ctx *fiber.Ctx) error {
+		input := &protos.SearchExperiments{}
+		if err := parser.ParseBody(ctx, input); err != nil {
+			return err
+		}
+		output, err := service.SearchExperiments(utils.NewContextWithLoggerFromFiberContext(ctx), input)
+		if err != nil {
+			return err
+		}
+		return ctx.JSON(output)
+	})
+	app.Get("/mlflow/experiments/search", func(ctx *fiber.Ctx) error {
+		input := &protos.SearchExperiments{}
+		if err := parser.ParseQuery(ctx, input); err != nil {
+			return err
+		}
+		output, err := service.SearchExperiments(utils.NewContextWithLoggerFromFiberContext(ctx), input)
+		if err != nil {
+			return err
+		}
+		return ctx.JSON(output)
+	})
 	app.Get("/mlflow/experiments/get", func(ctx *fiber.Ctx) error {
 		input := &protos.GetExperiment{}
 		if err := parser.ParseQuery(ctx, input); err != nil {
