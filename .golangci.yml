@@ -9,7 +9,6 @@ linters:
     - gosimple
     - lll
   disable:
-    - ireturn 
     - depguard
     - gochecknoglobals # Immutable globals are fine.
     - exhaustruct # Often the case for protobuf generated code or gorm structs.
