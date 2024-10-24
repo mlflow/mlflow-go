@@ -9,7 +9,7 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 
 # [Optional] Uncomment the next lines to use go get to install anything else you need
 USER vscode
-RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.33.0 \
+RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.35.1 \
     && go install github.com/vektra/mockery/v2@v2.46.3 \
     && go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.61.0 \
     && go install github.com/magefile/mage@v1.15.0 \
