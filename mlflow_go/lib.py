@@ -6,7 +6,7 @@ import re
 import subprocess
 import sys
 import tempfile
-
+import shutil
 
 def _get_lib_name() -> str:
     ext = ".so"
@@ -37,16 +37,16 @@ def get_target_triple(goos, goarch):
         elif goarch == "arm64":
             return "aarch64-linux-gnu"
         else:
-            raise (f"Could not deterime target triple for {goos}, {goarch}")
+            raise (f"Could not determine target triple for {goos}, {goarch}")
     elif goos == "windows":
         if goarch == "amd64":
             return "x86_64-windows-gnu"
         elif goarch == "arm64":
             return "aarch64-windows-gnu"
         else:
-            raise (f"Could not deterime target triple for {goos}, {goarch}")
+            raise (f"Could not determine target triple for {goos}, {goarch}")
     else:
-        raise (f"Could not deterime target triple for {goos}, {goarch}")
+        raise (f"Could not determine target triple for {goos}, {goarch}")
 
 
 def build_lib(src_dir: pathlib.Path, out_dir: pathlib.Path) -> pathlib.Path:
@@ -104,16 +104,27 @@ def _get_lib():
     if path.is_file():
         return _load_lib(path)
 
-    logging.getLogger(__name__).warn("Go library not found, building it now")
+    logger = logging.getLogger(__name__)
+    logger.warning("Go library not found, building it now")
+
+    cache_dir = pathlib.Path(tempfile.gettempdir()).joinpath("mlflow_go_lib_cache")
+    if os.path.isdir(cache_dir) and os.listdir(cache_dir):
+        logger.info(f"Deleting files in {cache_dir}")
+        shutil.rmtree(cache_dir)
+    
+    cache_dir.mkdir(exist_ok=True)
 
     # build the library in a temporary directory and load it
     with tempfile.TemporaryDirectory() as tmpdir:
-        return _load_lib(
-            build_lib(
-                pathlib.Path(__file__).parent.parent,
-                pathlib.Path(tmpdir),
-            )
+        logger.info(f"Building library in {tmpdir}")
+        built_path = build_lib(
+            pathlib.Path(__file__).parent.parent,
+            pathlib.Path(tmpdir),
         )
+        cached_path = cache_dir.joinpath(built_path.name)
+        shutil.copy(built_path, cached_path)
+        shutil.copy(built_path.with_suffix(".h"), cached_path.with_suffix(".h"))
+        return _load_lib(cached_path)
 
 
 def _load_lib(path: pathlib.Path):
@@ -124,7 +135,6 @@ def _load_lib(path: pathlib.Path):
 
     # load the library
     return ffi.dlopen(path.as_posix())
-
 
 def _parse_header(path: pathlib.Path):
     with open(path) as file:
