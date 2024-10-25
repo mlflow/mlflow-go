@@ -12,7 +12,61 @@ import (
 	"github.com/mlflow/mlflow-go/pkg/entities"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 	"github.com/mlflow/mlflow-go/pkg/tracking/store/sql/models"
+	"github.com/mlflow/mlflow-go/pkg/utils"
 )
+
+func (s TrackingSQLStore) SetTrace(
+	ctx context.Context,
+	experimentID string,
+	timestampMS int64,
+	metadata []*entities.TraceRequestMetadata,
+	tags []*entities.TraceTag,
+) (*entities.TraceInfo, error) {
+	traceInfo := &models.TraceInfo{
+		RequestID:            utils.NewUUID(),
+		ExperimentID:         experimentID,
+		TimestampMS:          timestampMS,
+		Status:               models.TraceInfoStatusInProgress,
+		Tags:                 make([]models.TraceTag, 0, len(tags)),
+		TraceRequestMetadata: make([]models.TraceRequestMetadata, 0, len(metadata)),
+	}
+
+	experiment, err := s.GetExperiment(ctx, experimentID)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, tag := range tags {
+		traceInfo.Tags = append(traceInfo.Tags, models.NewTraceTagFromEntity(traceInfo.RequestID, tag))
+	}
+
+	traceArtifactLocationTag, artifactLocationTagErr := GetTraceArtifactLocationTag(experiment, traceInfo.RequestID)
+	if artifactLocationTagErr != nil {
+		return nil, contract.NewErrorWith(
+			protos.ErrorCode_INTERNAL_ERROR,
+			fmt.Sprintf("failed to create trace for experiment_id %q", experimentID),
+			err,
+		)
+	}
+
+	traceInfo.Tags = append(traceInfo.Tags, traceArtifactLocationTag)
+
+	for _, m := range metadata {
+		traceInfo.TraceRequestMetadata = append(
+			traceInfo.TraceRequestMetadata, models.NewTraceRequestMetadataFromEntity(traceInfo.RequestID, m),
+		)
+	}
+
+	if err := s.db.WithContext(ctx).Create(&traceInfo).Error; err != nil {
+		return nil, contract.NewErrorWith(
+			protos.ErrorCode_INTERNAL_ERROR,
+			fmt.Sprintf("failed to create trace for experiment_id %q", experimentID),
+			err,
+		)
+	}
+
+	return traceInfo.ToEntity(), nil
+}
 
 func (s TrackingSQLStore) SetTraceTag(
 	ctx context.Context, requestID, key, value string,

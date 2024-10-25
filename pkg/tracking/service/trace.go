@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/mlflow/mlflow-go/pkg/contract"
+	"github.com/mlflow/mlflow-go/pkg/entities"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 )
 
@@ -44,4 +45,23 @@ func (ts TrackingService) DeleteTraceTag(
 	}
 
 	return &protos.DeleteTraceTag_Response{}, nil
+}
+
+func (ts TrackingService) StartTrace(
+	ctx context.Context, input *protos.StartTrace,
+) (*protos.StartTrace_Response, *contract.Error) {
+	traceInfo, err := ts.Store.SetTrace(
+		ctx,
+		input.GetExperimentId(),
+		input.GetTimestampMs(),
+		entities.TraceRequestMetadataFromStartTraceProtoInput(input.GetRequestMetadata()),
+		entities.TagsFromStartTraceProtoInput(input.GetTags()),
+	)
+	if err != nil {
+		return nil, contract.NewError(protos.ErrorCode_INTERNAL_ERROR, fmt.Sprintf("error starting trace: %v", err))
+	}
+
+	return &protos.StartTrace_Response{
+		TraceInfo: traceInfo.ToProto(),
+	}, nil
 }

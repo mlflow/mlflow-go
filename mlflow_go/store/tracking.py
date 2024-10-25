@@ -1,10 +1,12 @@
 import json
 import logging
+from typing import Dict
 
 from mlflow.entities import (
     Experiment,
     Run,
     RunInfo,
+    TraceInfo,
     ViewType,
 )
 from mlflow.environment_variables import MLFLOW_TRUNCATE_LONG_VALUES
@@ -29,6 +31,9 @@ from mlflow.protos.service_pb2 import (
     SearchRuns,
     SetTag,
     SetTraceTag,
+    StartTrace,
+    TraceRequestMetadata,
+    TraceTag,
     UpdateExperiment,
     UpdateRun,
 )
@@ -228,6 +233,29 @@ class _TrackingStore:
     def set_tag(self, run_id, tag):
         request = SetTag(run_id=run_id, key=tag.key, value=tag.value)
         self.service.call_endpoint(get_lib().TrackingServiceSetTag, request)
+
+    def start_trace(
+        self,
+        experiment_id: str,
+        timestamp_ms: int,
+        request_metadata: Dict[str, str],
+        tags: Dict[str, str],
+    ) -> TraceInfo:
+        request = StartTrace(
+            experiment_id=experiment_id,
+            timestamp_ms=timestamp_ms,
+            request_metadata=[
+                TraceRequestMetadata(key=key, value=value)
+                for key, value in request_metadata.items()
+            ]
+            if request_metadata
+            else [],
+            tags=[TraceTag(key=key, value=value) for key, value in tags.items()]
+            if request_metadata
+            else [],
+        )
+        response = self.service.call_endpoint(get_lib().TrackingServiceStartTrace, request)
+        return TraceInfo.from_proto(response.trace_info)
 
 
 def TrackingStore(cls):

@@ -1253,6 +1253,68 @@ func (_c *MockTrackingStore_SetTag_Call) RunAndReturn(run func(context.Context, 
 	return _c
 }
 
+// SetTrace provides a mock function with given fields: ctx, experimentID, timestampMS, metadata, tags
+func (_m *MockTrackingStore) SetTrace(ctx context.Context, experimentID string, timestampMS int64, metadata []*entities.TraceRequestMetadata, tags []*entities.TraceTag) (*entities.TraceInfo, error) {
+	ret := _m.Called(ctx, experimentID, timestampMS, metadata, tags)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SetTrace")
+	}
+
+	var r0 *entities.TraceInfo
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, int64, []*entities.TraceRequestMetadata, []*entities.TraceTag) (*entities.TraceInfo, error)); ok {
+		return rf(ctx, experimentID, timestampMS, metadata, tags)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, int64, []*entities.TraceRequestMetadata, []*entities.TraceTag) *entities.TraceInfo); ok {
+		r0 = rf(ctx, experimentID, timestampMS, metadata, tags)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*entities.TraceInfo)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, int64, []*entities.TraceRequestMetadata, []*entities.TraceTag) error); ok {
+		r1 = rf(ctx, experimentID, timestampMS, metadata, tags)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockTrackingStore_SetTrace_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetTrace'
+type MockTrackingStore_SetTrace_Call struct {
+	*mock.Call
+}
+
+// SetTrace is a helper method to define mock.On call
+//   - ctx context.Context
+//   - experimentID string
+//   - timestampMS int64
+//   - metadata []*entities.TraceRequestMetadata
+//   - tags []*entities.TraceTag
+func (_e *MockTrackingStore_Expecter) SetTrace(ctx interface{}, experimentID interface{}, timestampMS interface{}, metadata interface{}, tags interface{}) *MockTrackingStore_SetTrace_Call {
+	return &MockTrackingStore_SetTrace_Call{Call: _e.mock.On("SetTrace", ctx, experimentID, timestampMS, metadata, tags)}
+}
+
+func (_c *MockTrackingStore_SetTrace_Call) Run(run func(ctx context.Context, experimentID string, timestampMS int64, metadata []*entities.TraceRequestMetadata, tags []*entities.TraceTag)) *MockTrackingStore_SetTrace_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(int64), args[3].([]*entities.TraceRequestMetadata), args[4].([]*entities.TraceTag))
+	})
+	return _c
+}
+
+func (_c *MockTrackingStore_SetTrace_Call) Return(_a0 *entities.TraceInfo, _a1 error) *MockTrackingStore_SetTrace_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockTrackingStore_SetTrace_Call) RunAndReturn(run func(context.Context, string, int64, []*entities.TraceRequestMetadata, []*entities.TraceTag) (*entities.TraceInfo, error)) *MockTrackingStore_SetTrace_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SetTraceTag provides a mock function with given fields: ctx, requestID, key, value
 func (_m *MockTrackingStore) SetTraceTag(ctx context.Context, requestID string, key string, value string) error {
 	ret := _m.Called(ctx, requestID, key, value)
