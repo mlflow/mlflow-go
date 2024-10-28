@@ -3,10 +3,11 @@ import os
 import pathlib
 import platform
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
-import shutil
+
 
 def _get_lib_name() -> str:
     ext = ".so"
@@ -111,7 +112,7 @@ def _get_lib():
     if os.path.isdir(cache_dir) and os.listdir(cache_dir):
         logger.info(f"Deleting files in {cache_dir}")
         shutil.rmtree(cache_dir)
-    
+
     cache_dir.mkdir(exist_ok=True)
 
     # build the library in a temporary directory and load it
@@ -135,6 +136,7 @@ def _load_lib(path: pathlib.Path):
 
     # load the library
     return ffi.dlopen(path.as_posix())
+
 
 def _parse_header(path: pathlib.Path):
     with open(path) as file:
