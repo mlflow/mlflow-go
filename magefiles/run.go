@@ -18,6 +18,8 @@ func Dev() error {
 
 	return sh.RunWithV(
 		envs,
+		"uv",
+		"run",
 		"mlflow-go",
 		"server",
 		"--backend-store-uri",
