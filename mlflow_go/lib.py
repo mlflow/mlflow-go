@@ -7,7 +7,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import shutil
+
 
 def _get_lib_name() -> str:
     ext = ".so"
@@ -136,6 +136,7 @@ def _load_lib(path: pathlib.Path):
 
     # load the library
     return ffi.dlopen(path.as_posix())
+
 
 def _parse_header(path: pathlib.Path):
     with open(path) as file:

@@ -4,7 +4,7 @@ from google.protobuf.message import DecodeError
 from mlflow.exceptions import MlflowException
 from mlflow.protos.databricks_pb2 import INTERNAL_ERROR, ErrorCode
 
-from mlflow_go.lib import get_clib, get_ffi, get_lib
+from mlflow_go.lib import get_ffi, get_lib
 
 
 class _ServiceProxy:
