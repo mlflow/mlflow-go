@@ -4,7 +4,7 @@ from google.protobuf.message import DecodeError
 from mlflow.exceptions import MlflowException
 from mlflow.protos.databricks_pb2 import INTERNAL_ERROR, ErrorCode
 
-from mlflow_go.lib import get_clib, get_ffi
+from mlflow_go.lib import get_clib, get_ffi, get_lib
 
 
 class _ServiceProxy:
@@ -23,7 +23,7 @@ class _ServiceProxy:
         )
 
         response_bytes = get_ffi().buffer(response_data, response_size[0])[:]
-        get_clib().free(response_data)
+        get_lib().FreeResponse(response_data)
 
         try:
             response = type(request).Response()

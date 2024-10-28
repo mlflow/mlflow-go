@@ -29,6 +29,8 @@ func runPythonTests(pytestArgs []string) error {
 	args := []string{
 		"run",
 		"pytest",
+		// "-s",
+		// "--log-cli-level=DEBUG",
 		"--confcutdir=.",
 		"-k", "not [file",
 	}
@@ -37,6 +39,7 @@ func runPythonTests(pytestArgs []string) error {
 	//  Run the tests (currently just the server ones)
 	if err := sh.RunWithV(map[string]string{
 		"MLFLOW_GO_LIBRARY_PATH": libpath,
+		// "PYTHONLOGGING":          "DEBUG",
 	},
 		"uv", args...,
 	); err != nil {
