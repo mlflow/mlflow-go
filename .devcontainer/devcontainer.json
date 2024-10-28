@@ -17,7 +17,9 @@
 		"ghcr.io/devcontainers-contrib/features/protoc-asdf:1": {
 			"version": "26.0"
 		},
-		"ghcr.io/devcontainers-contrib/features/ruff:1": {}
+		"ghcr.io/devcontainers-contrib/features/ruff:1": {
+			"version": "0.7.1"
+		}
 	},
 
 	// Configure tool-specific properties.

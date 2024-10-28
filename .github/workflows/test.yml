@@ -31,14 +31,14 @@ jobs:
     strategy:
       matrix:
         runner: [macos-latest, ubuntu-latest, windows-latest]
-        python: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        python: ["3.9", "3.10", "3.11", "3.12"]
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python }}
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+      - name: Set up Python ${{ matrix.python }}
+        run: uv python install ${{ matrix.python }}
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
@@ -47,12 +47,12 @@ jobs:
           cache: false
       - name: Install mage
         run: go install github.com/magefile/mage@v1.15.0
-      - name: Install our package in editable mode
-        run: pip install -e .
       - name: Initialize MLflow repo
         run: mage repo:init
-      - name: Install dependencies
-        run: pip install pytest==8.1.1 psycopg2-binary==2.9.9 -e .mlflow.repo
+      - name: Create virtual environment
+        run: uv venv --python ${{ matrix.python }}
+      - name: Install our package in editable mode
+        run: uv sync --all-extras
       - name: Run integration tests
         run: mage test:python
         # Temporary workaround for failing tests

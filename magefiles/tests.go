@@ -12,22 +12,6 @@ import (
 
 type Test mg.Namespace
 
-func cleanUpMemoryFile() error {
-	// Clean up :memory: file
-	filename := ":memory:"
-	_, err := os.Stat(filename)
-
-	if err == nil {
-		// File exists, delete it
-		err = os.Remove(filename)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 func runPythonTests(pytestArgs []string) error {
 	libpath, err := os.MkdirTemp("", "")
 	if err != nil {
@@ -36,15 +20,15 @@ func runPythonTests(pytestArgs []string) error {
 
 	// Remove the Go binary
 	defer os.RemoveAll(libpath)
-	//nolint:errcheck
-	defer cleanUpMemoryFile()
 
 	// Build the Go binary in a temporary directory
-	if err := sh.RunV("python", "-m", "mlflow_go.lib", ".", libpath); err != nil {
+	if err := sh.RunV("uv", "run", "-m", "mlflow_go.lib", "--", ".", libpath); err != nil {
 		return nil
 	}
 
 	args := []string{
+		"run",
+		"pytest",
 		"--confcutdir=.",
 		"-k", "not [file",
 	}
@@ -53,8 +37,8 @@ func runPythonTests(pytestArgs []string) error {
 	//  Run the tests (currently just the server ones)
 	if err := sh.RunWithV(map[string]string{
 		"MLFLOW_GO_LIBRARY_PATH": libpath,
-	}, "pytest", args...,
-	// "-vv",
+	},
+		"uv", args...,
 	); err != nil {
 		return err
 	}

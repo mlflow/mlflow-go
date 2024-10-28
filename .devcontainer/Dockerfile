@@ -9,6 +9,13 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 
 # [Optional] Uncomment the next lines to use go get to install anything else you need
 USER vscode
+
+# Download the latest installer, run it and remove it.
+RUN curl -LsSf https://astral.sh/uv/install.sh -o ~/uv-installer.sh && sh ~/uv-installer.sh && rm ~/uv-installer.sh
+
+# Ensure the installed binary is on the `PATH`
+ENV PATH="~/.cargo/bin/:$PATH"
+
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.33.0 \
     && go install github.com/vektra/mockery/v2@v2.43.2 \
     && go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.59.1 \
