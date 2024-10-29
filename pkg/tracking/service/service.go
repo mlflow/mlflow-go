@@ -27,6 +27,9 @@ func NewTrackingService(ctx context.Context, config *config.Config) (*TrackingSe
 }
 
 func (ts TrackingService) Close() error {
-	fmt.Println("dispose of TrackingService")
-	return ts.Store.Close()
+	if err := ts.Store.Close(); err != nil {
+		return fmt.Errorf("failed to close store: %w", err)
+	}
+
+	return nil
 }

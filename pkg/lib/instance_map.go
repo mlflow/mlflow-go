@@ -82,14 +82,23 @@ func (s *instanceMap[T]) Create(
 	return s.counter
 }
 
-func (s *instanceMap[T]) Destroy(id int64) {
+func (s *instanceMap[T]) Destroy(identifier int64) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
-	if instance, ok := s.instances[id]; ok {
+
+	if instance, ok := s.instances[identifier]; ok {
 		err := instance.Close()
 		if err != nil {
-			fmt.Println(fmt.Errorf("the destruction of server %d was not ok: %w", id, err))
+			logger := utils.GetLoggerFromContext(context.Background())
+			logger.Error(
+				fmt.Errorf(
+					"the destruction of server %d was not ok: %w",
+					identifier,
+					err,
+				),
+			)
 		}
 	}
-	delete(s.instances, id)
+
+	delete(s.instances, identifier)
 }

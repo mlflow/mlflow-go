@@ -20,6 +20,7 @@ import (
 var (
 	errSqliteMemory             = errors.New("go implementation does not support :memory: for sqlite")
 	errSqliteQueryParamsWindows = errors.New("query parameters are not supported on Windows")
+	errInUseConnections         = errors.New("there are still in use connections")
 )
 
 //nolint:ireturn
@@ -102,22 +103,22 @@ func NewDatabase(ctx context.Context, storeURL string) (*gorm.DB, error) {
 	return database, nil
 }
 
-func CloseDatabase(database *gorm.DB) error {
-	db, err := database.DB()
+func CloseDatabase(gormDatabase *gorm.DB) error {
+	database, err := gormDatabase.DB()
 	if err != nil {
 		return fmt.Errorf("error while getting database connection: %w", err)
 	}
 
-	database.Logger.Info(database.Statement.Context, "closing sql connection")
+	gormDatabase.Logger.Info(gormDatabase.Statement.Context, "closing sql connection")
 
-	err = db.Close()
+	err = database.Close()
 	if err != nil {
 		return fmt.Errorf("error while closing store: %w", err)
 	}
 
-	inUse := db.Stats().InUse
+	inUse := database.Stats().InUse
 	if inUse > 0 {
-		return fmt.Errorf("there are still %d in use connections", inUse)
+		return fmt.Errorf("%w: %d", errInUseConnections, inUse)
 	}
 
 	return nil
