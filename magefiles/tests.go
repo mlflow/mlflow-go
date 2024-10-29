@@ -5,6 +5,7 @@ package main
 
 import (
 	"os"
+	"runtime"
 
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
@@ -36,11 +37,17 @@ func runPythonTests(pytestArgs []string) error {
 	}
 	args = append(args, pytestArgs...)
 
-	//  Run the tests (currently just the server ones)
-	if err := sh.RunWithV(map[string]string{
+	environmentVariables := map[string]string{
 		"MLFLOW_GO_LIBRARY_PATH": libpath,
 		// "PYTHONLOGGING":          "DEBUG",
-	},
+	}
+
+	if runtime.GOOS == "windows" {
+		environmentVariables["MLFLOW_SQLALCHEMYSTORE_POOLCLASS"] = "NullPool"
+	}
+
+	//  Run the tests (currently just the server ones)
+	if err := sh.RunWithV(environmentVariables,
 		"uv", args...,
 	); err != nil {
 		return err
