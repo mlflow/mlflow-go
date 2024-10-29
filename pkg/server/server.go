@@ -134,6 +134,7 @@ func launchServer(ctx context.Context, cfg *config.Config) error {
 
 			time.Sleep(50 * time.Millisecond) //nolint:mnd
 		}
+
 		logger.Debugf("Python server is ready on http://%s", cfg.PythonAddress)
 	}
 
