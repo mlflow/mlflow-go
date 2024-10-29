@@ -101,3 +101,24 @@ func NewDatabase(ctx context.Context, storeURL string) (*gorm.DB, error) {
 
 	return database, nil
 }
+
+func CloseDatabase(database *gorm.DB) error {
+	db, err := database.DB()
+	if err != nil {
+		return fmt.Errorf("error while getting database connection: %w", err)
+	}
+
+	database.Logger.Info(database.Statement.Context, "closing sql connection")
+
+	err = db.Close()
+	if err != nil {
+		return fmt.Errorf("error while closing store: %w", err)
+	}
+
+	inUse := db.Stats().InUse
+	if inUse > 0 {
+		return fmt.Errorf("there are still %d in use connections", inUse)
+	}
+
+	return nil
+}

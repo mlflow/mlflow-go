@@ -45,7 +45,11 @@ func mkServiceInterfaceNode(
 	endpoints map[string]any, interfaceName string, serviceInfo discovery.ServiceInfo,
 ) *ast.GenDecl {
 	// We add one method to validate any of the input structs
-	methods := make([]*ast.Field, 0, len(serviceInfo.Methods))
+	methods := make([]*ast.Field, 0, 1+len(serviceInfo.Methods))
+
+	methods = append(methods, &ast.Field{
+		Type: mkSelectorExpr("io", "Closer"),
+	})
 
 	for _, method := range serviceInfo.Methods {
 		if _, ok := endpoints[method.Name]; ok {
@@ -248,14 +252,18 @@ func generateServices(
 ) error {
 	decls := make([]ast.Decl, 0, len(endpoints)+expectedImportStatements)
 
+	importStatements := []string{`"io"`}
+
 	if len(endpoints) > 0 {
-		decls = append(decls,
-			mkImportStatements(
-				`"context"`,
-				`"github.com/mlflow/mlflow-go/pkg/protos"`,
-				`"github.com/mlflow/mlflow-go/pkg/contract"`,
-			))
+		importStatements = []string{
+			`"context"`,
+			`"io"`,
+			`"github.com/mlflow/mlflow-go/pkg/protos"`,
+			`"github.com/mlflow/mlflow-go/pkg/contract"`,
+		}
 	}
+
+	decls = append(decls, mkImportStatements(importStatements...))
 
 	decls = append(decls, mkServiceInterfaceNode(
 		endpoints,

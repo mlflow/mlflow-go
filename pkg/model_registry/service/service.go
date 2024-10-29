@@ -25,3 +25,7 @@ func NewModelRegistryService(ctx context.Context, config *config.Config) (*Model
 		config: config,
 	}, nil
 }
+
+func (m *ModelRegistryService) Close() error {
+	return m.store.Close()
+}

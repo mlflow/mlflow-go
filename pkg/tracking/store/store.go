@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"io"
 
 	"github.com/mlflow/mlflow-go/pkg/contract"
 	"github.com/mlflow/mlflow-go/pkg/entities"
@@ -10,6 +11,7 @@ import (
 
 //go:generate mockery
 type TrackingStore interface {
+	io.Closer
 	RunTrackingStore
 	TraceTrackingStore
 	MetricTrackingStore

@@ -26,3 +26,7 @@ func NewModelRegistrySQLStore(ctx context.Context, config *config.Config) (*Mode
 		db:     database,
 	}, nil
 }
+
+func (m *ModelRegistrySQLStore) Close() error {
+	return sql.CloseDatabase(m.db)
+}

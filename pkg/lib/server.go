@@ -17,6 +17,10 @@ type serverInstance struct {
 	errChan <-chan error
 }
 
+func (si serverInstance) Close() error {
+	return nil
+}
+
 var serverInstances = newInstanceMap[serverInstance]()
 
 //export LaunchServer

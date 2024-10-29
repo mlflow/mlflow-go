@@ -26,3 +26,7 @@ func NewTrackingSQLStore(ctx context.Context, config *config.Config) (*TrackingS
 		db:     database,
 	}, nil
 }
+
+func (ts TrackingSQLStore) Close() error {
+	return sql.CloseDatabase(ts.db)
+}

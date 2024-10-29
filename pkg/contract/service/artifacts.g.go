@@ -2,5 +2,8 @@
 
 package service
 
+import "io"
+
 type ArtifactsService interface {
+	io.Closer
 }
