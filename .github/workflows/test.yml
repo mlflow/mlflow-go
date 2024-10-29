@@ -55,6 +55,6 @@ jobs:
         run: uv sync --all-extras
       - name: Run integration tests
         run: mage test:python
-        if: !(matrix.python == '3.12' && matrix.runner == 'windows-latest')
+        if: ${{ !(matrix.python == '3.12' && matrix.runner == 'windows-latest') }}
         # Temporary workaround for failing tests
         continue-on-error: ${{ matrix.runner == 'macos-latest' }}
