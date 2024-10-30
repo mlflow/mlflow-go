@@ -42,6 +42,14 @@ type (
 		SetTag(ctx context.Context, runID, key, value string) *contract.Error
 	}
 	TraceTrackingStore interface {
+		EndTrace(
+			ctx context.Context,
+			reqeustID string,
+			timestampMS int64,
+			status string,
+			metadata []*entities.TraceRequestMetadata,
+			tags []*entities.TraceTag,
+		) (*entities.TraceInfo, error)
 		SetTraceTag(ctx context.Context, requestID, key, value string) error
 		GetTraceTag(ctx context.Context, requestID, key string) (*entities.TraceTag, *contract.Error)
 		DeleteTraceTag(ctx context.Context, tag *entities.TraceTag) *contract.Error

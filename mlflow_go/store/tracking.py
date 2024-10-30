@@ -1,12 +1,15 @@
 import json
 import logging
+from typing import Dict
 
 from mlflow.entities import (
     Experiment,
     Run,
     RunInfo,
+    TraceInfo,
     ViewType,
 )
+from mlflow.entities.trace_status import TraceStatus
 from mlflow.environment_variables import MLFLOW_TRUNCATE_LONG_VALUES
 from mlflow.exceptions import MlflowException
 from mlflow.protos import databricks_pb2
@@ -17,6 +20,7 @@ from mlflow.protos.service_pb2 import (
     DeleteRun,
     DeleteTag,
     DeleteTraceTag,
+    EndTrace,
     GetExperiment,
     GetExperimentByName,
     GetRun,
@@ -29,6 +33,8 @@ from mlflow.protos.service_pb2 import (
     SearchRuns,
     SetTag,
     SetTraceTag,
+    TraceRequestMetadata,
+    TraceTag,
     UpdateExperiment,
     UpdateRun,
 )
@@ -228,6 +234,31 @@ class _TrackingStore:
     def set_tag(self, run_id, tag):
         request = SetTag(run_id=run_id, key=tag.key, value=tag.value)
         self.service.call_endpoint(get_lib().TrackingServiceSetTag, request)
+
+    def end_trace(
+        self,
+        request_id: str,
+        timestamp_ms: int,
+        status: TraceStatus,
+        request_metadata: Dict[str, str],
+        tags: Dict[str, str],
+    ) -> TraceInfo:
+        request = EndTrace(
+            request_id=request_id,
+            timestamp_ms=timestamp_ms,
+            status=status,
+            request_metadata=[
+                TraceRequestMetadata(key=key, value=value)
+                for key, value in request_metadata.items()
+            ]
+            if request_metadata
+            else [],
+            tags=[TraceTag(key=key, value=value) for key, value in tags.items()]
+            if request_metadata
+            else [],
+        )
+        response = self.service.call_endpoint(get_lib().TrackingServiceEndTrace, request)
+        return TraceInfo.from_proto(response.trace_info)
 
 
 def TrackingStore(cls):
