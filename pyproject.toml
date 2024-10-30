@@ -1,8 +1,10 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools", "wheel", "ziglang"]
 build-backend = "setuptools.build_meta"
 
 [project]
+license = { file = "LICENSE" }
+
 name = "mlflow-go"
 version = "2.14.1"
 description = "MLflow is an open source platform for the complete machine learning lifecycle"
@@ -18,12 +20,14 @@ classifiers = [
   "Topic :: Software Development :: Libraries :: Python Modules",
   "License :: OSI Approved :: Apache Software License",
   "Operating System :: OS Independent",
-  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
 ]
-requires-python = ">=3.8"
-dependencies = ["mlflow==2.14.1", "cffi"]
-license = { file = "LICENSE" }
-
+requires-python = ">=3.9"
+dependencies = [
+    "cffi>=1.17.1",
+    "mlflow>=2.17.0",
+    "psycopg2-binary==2.9.9",
+]
 [[project.maintainers]]
 name = "Databricks"
 email = "mlflow-oss-maintainers@googlegroups.com"
@@ -171,3 +175,15 @@ exclude = [
   "mlflow/store/db_migrations",
   "tests/protos",
 ]
+
+# [tool.uv.sources]
+# mlflow = { path = ".mlflow.repo", editable = true }
+
+# [project.optional-dependencies]
+# dev = ["build", "ziglang", "pytest"]
+
+[tool.uv]
+dev-dependencies = ["pytest>=8.0.0", "ziglang>0.12", "pip>=24.2"]
+
+[tool.uv.sources]
+mlflow = { path = ".mlflow.repo", editable = true }

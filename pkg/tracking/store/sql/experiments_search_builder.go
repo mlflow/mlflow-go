@@ -258,6 +258,7 @@ func applyExperimentsFilter(database, query *gorm.DB, filter string) (*gorm.DB, 
 	return query, nil
 }
 
+//nolint:gosec // disable G115
 func createExperimentsNextPageToken(experiments []models.Experiment, limit, offset int) (string, *contract.Error) {
 	var token strings.Builder
 	if len(experiments) > limit {

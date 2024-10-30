@@ -65,3 +65,23 @@ func (ts TrackingService) StartTrace(
 		TraceInfo: traceInfo.ToProto(),
 	}, nil
 }
+
+func (ts TrackingService) EndTrace(
+	ctx context.Context, input *protos.EndTrace,
+) (*protos.EndTrace_Response, *contract.Error) {
+	traceInfo, err := ts.Store.EndTrace(
+		ctx,
+		input.GetRequestId(),
+		input.GetTimestampMs(),
+		input.GetStatus().String(),
+		entities.TraceRequestMetadataFromStartTraceProtoInput(input.GetRequestMetadata()),
+		entities.TagsFromStartTraceProtoInput(input.GetTags()),
+	)
+	if err != nil {
+		return nil, contract.NewError(protos.ErrorCode_INTERNAL_ERROR, fmt.Sprintf("error ending trace: %v", err))
+	}
+
+	return &protos.EndTrace_Response{
+		TraceInfo: traceInfo.ToProto(),
+	}, nil
+}

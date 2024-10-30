@@ -32,4 +32,5 @@ type TrackingService interface {
 	LogBatch(ctx context.Context, input *protos.LogBatch) (*protos.LogBatch_Response, *contract.Error)
 	LogInputs(ctx context.Context, input *protos.LogInputs) (*protos.LogInputs_Response, *contract.Error)
 	StartTrace(ctx context.Context, input *protos.StartTrace) (*protos.StartTrace_Response, *contract.Error)
+	EndTrace(ctx context.Context, input *protos.EndTrace) (*protos.EndTrace_Response, *contract.Error)
 }

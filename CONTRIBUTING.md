@@ -1,5 +1,29 @@
 # Contributing
 
+## Prerequisites
+
+To contribute to this project, you need the following:
+
+### Python
+
+- [UV](https://docs.astral.sh/uv/getting-started/installation/)
+- [pre-commit](https://pre-commit.com/) (via `uv tool install pre-commit`)
+- [ruff](https://astral.sh/ruff) (via `uv tool install ruff`)
+
+### Go
+
+- [Go 1.22](https://go.dev/doc/install)
+- [Mage](https://magefile.org/) (via `go install github.com/magefile/mage@v1.15.0`)
+- [protoc-gen-go](https://pkg.go.dev/github.com/golang/protobuf/protoc-gen-go) (via `go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.33.0`)
+- [Mockery](https://vektra.github.io/mockery/latest/) (via `go install github.com/vektra/mockery/v2@v2.43.2`)
+- [Golangci-lint](https://golangci-lint.run/) (via `go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.59.1`)
+
+### Protocol Buffer Compiler
+
+See [Protocol Buffer Compiler Installation](https://grpc.io/docs/protoc-installation/)
+
+Alternatively, you can use the [development container](https://containers.dev/) that includes all the required tools.
+
 ## Installation
 
 to configure all the development environment just run `mage` target:

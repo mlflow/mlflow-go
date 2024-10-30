@@ -1,7 +1,9 @@
 import logging
 import os
 import pathlib
+import platform
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -16,6 +18,38 @@ def _get_lib_name() -> str:
     return "libmlflow-go" + ext
 
 
+def get_goarch():
+    machine = platform.machine().lower()
+
+    if machine in ["x86_64", "amd64"]:
+        return "amd64"
+    elif machine in ["aarch64", "arm64"]:
+        return "arm64"
+    elif machine in ["armv7l", "arm"]:
+        return "arm"
+    else:
+        return "unknown"
+
+
+def get_target_triple(goos, goarch):
+    if goos == "linux":
+        if goarch == "amd64":
+            return "x86_64-linux-gnu"
+        elif goarch == "arm64":
+            return "aarch64-linux-gnu"
+        else:
+            raise (f"Could not determine target triple for {goos}, {goarch}")
+    elif goos == "windows":
+        if goarch == "amd64":
+            return "x86_64-windows-gnu"
+        elif goarch == "arm64":
+            return "aarch64-windows-gnu"
+        else:
+            raise (f"Could not determine target triple for {goos}, {goarch}")
+    else:
+        raise (f"Could not determine target triple for {goos}, {goarch}")
+
+
 def build_lib(src_dir: pathlib.Path, out_dir: pathlib.Path) -> pathlib.Path:
     out_path = out_dir.joinpath(_get_lib_name()).absolute()
     env = os.environ.copy()
@@ -24,6 +58,22 @@ def build_lib(src_dir: pathlib.Path, out_dir: pathlib.Path) -> pathlib.Path:
             "CGO_ENABLED": "1",
         }
     )
+
+    current_goos = platform.system().lower()
+    current_goarch = get_goarch()
+
+    target_goos = os.getenv("TARGET_GOOS", current_goos)
+    target_goarch = os.getenv("TARGET_GOARCH", current_goarch)
+    env.update({"GOOS": target_goos, "GOARCH": target_goarch})
+
+    if target_goos == "darwin" and current_goos != "darwin":
+        raise "it is unsupported to build a Python wheel on Mac on a non-Mac platform"
+
+    if target_goos != "darwin":
+        triple = get_target_triple(target_goos, target_goarch)
+        logging.getLogger(__name__).info(f"CC={sys.executable} -mziglang cc -target {triple}")
+        env.update({"CC": f"{sys.executable} -mziglang cc -target {triple}"})
+
     subprocess.check_call(
         [
             "go",
@@ -55,16 +105,27 @@ def _get_lib():
     if path.is_file():
         return _load_lib(path)
 
-    logging.getLogger(__name__).warn("Go library not found, building it now")
+    logger = logging.getLogger(__name__)
+    logger.warning("Go library not found, building it now")
+
+    cache_dir = pathlib.Path(tempfile.gettempdir()).joinpath("mlflow_go_lib_cache")
+    if os.path.isdir(cache_dir) and os.listdir(cache_dir):
+        logger.info(f"Deleting files in {cache_dir}")
+        shutil.rmtree(cache_dir)
+
+    cache_dir.mkdir(exist_ok=True)
 
     # build the library in a temporary directory and load it
     with tempfile.TemporaryDirectory() as tmpdir:
-        return _load_lib(
-            build_lib(
-                pathlib.Path(__file__).parent.parent,
-                pathlib.Path(tmpdir),
-            )
+        logger.info(f"Building library in {tmpdir}")
+        built_path = build_lib(
+            pathlib.Path(__file__).parent.parent,
+            pathlib.Path(tmpdir),
         )
+        cached_path = cache_dir.joinpath(built_path.name)
+        shutil.copy(built_path, cached_path)
+        shutil.copy(built_path.with_suffix(".h"), cached_path.with_suffix(".h"))
+        return _load_lib(cached_path)
 
 
 def _load_lib(path: pathlib.Path):

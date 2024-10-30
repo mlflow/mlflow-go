@@ -1,3 +1,4 @@
+//nolint:ireturn
 package sql
 
 import (

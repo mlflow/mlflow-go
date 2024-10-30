@@ -68,6 +68,10 @@ func (s TrackingSQLStore) SetTrace(
 	return traceInfo.ToEntity(), nil
 }
 
+const (
+	BatchSize = 100
+)
+
 func (s TrackingSQLStore) SetTraceTag(
 	ctx context.Context, requestID, key, value string,
 ) error {
@@ -89,7 +93,9 @@ func (s TrackingSQLStore) GetTraceTag(
 	ctx context.Context, requestID, key string,
 ) (*entities.TraceTag, *contract.Error) {
 	var tag models.TraceTag
-	if err := s.db.WithContext(ctx).Where(
+	if err := s.db.WithContext(
+		ctx,
+	).Where(
 		"request_id = ?", requestID,
 	).Where(
 		"key = ?", key,
@@ -124,6 +130,127 @@ func (s TrackingSQLStore) DeleteTraceTag(
 		entities.TraceTag{},
 	).Error; err != nil {
 		return contract.NewError(protos.ErrorCode_INTERNAL_ERROR, fmt.Sprintf("error deleting trace tag: %v", err))
+	}
+
+	return nil
+}
+
+func (s TrackingSQLStore) GetTrace(ctx context.Context, reqeustID string) (*entities.TraceInfo, error) {
+	var traceInfo models.TraceInfo
+	if err := s.db.WithContext(
+		ctx,
+	).Where(
+		"request_id = ?", reqeustID,
+	).Preload(
+		"Tags",
+	).Preload(
+		"TraceRequestMetadata",
+	).First(
+		&traceInfo,
+	).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, contract.NewError(
+				protos.ErrorCode_RESOURCE_DOES_NOT_EXIST,
+				fmt.Sprintf(
+					"Trace with request_id '%s' not found.",
+					reqeustID,
+				),
+			)
+		}
+
+		return nil, contract.NewError(
+			protos.ErrorCode_INTERNAL_ERROR, fmt.Sprintf("error getting trace info: %v", err),
+		)
+	}
+
+	return traceInfo.ToEntity(), nil
+}
+
+func (s TrackingSQLStore) EndTrace(
+	ctx context.Context,
+	reqeustID string,
+	timestampMS int64,
+	status string,
+	metadata []*entities.TraceRequestMetadata,
+	tags []*entities.TraceTag,
+) (*entities.TraceInfo, error) {
+	traceInfo, err := s.GetTrace(ctx, reqeustID)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := s.db.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
+		if err := transaction.Model(
+			&models.TraceInfo{},
+		).Where(
+			"request_id = ?", traceInfo.RequestID,
+		).UpdateColumns(map[string]interface{}{
+			"status":            status,
+			"execution_time_ms": timestampMS - traceInfo.TimestampMS,
+		}).Error; err != nil {
+			return contract.NewErrorWith(
+				protos.ErrorCode_INTERNAL_ERROR,
+				fmt.Sprintf("failed to update trace with request_id '%s'", reqeustID),
+				err,
+			)
+		}
+
+		if err := s.createTraceTags(transaction, reqeustID, tags); err != nil {
+			return err
+		}
+
+		if err := s.createTraceMetadata(transaction, reqeustID, metadata); err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
+		return nil, err //nolint
+	}
+
+	traceInfo, err = s.GetTrace(ctx, reqeustID)
+	if err != nil {
+		return nil, err
+	}
+
+	return traceInfo, nil
+}
+
+func (s TrackingSQLStore) createTraceTags(transaction *gorm.DB, requestID string, tags []*entities.TraceTag) error {
+	traceTags := make([]models.TraceTag, 0, len(tags))
+	for _, tag := range tags {
+		traceTags = append(traceTags, models.NewTraceTagFromEntity(requestID, tag))
+	}
+
+	if err := transaction.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).CreateInBatches(traceTags, batchSize).Error; err != nil {
+		return contract.NewErrorWith(
+			protos.ErrorCode_INTERNAL_ERROR,
+			fmt.Sprintf("failed to update trace tags %v", err),
+			err,
+		)
+	}
+
+	return nil
+}
+
+func (s TrackingSQLStore) createTraceMetadata(
+	transaction *gorm.DB, requestID string, metadata []*entities.TraceRequestMetadata,
+) error {
+	traceMetadata := make([]models.TraceRequestMetadata, 0, len(metadata))
+	for _, m := range metadata {
+		traceMetadata = append(traceMetadata, models.NewTraceRequestMetadataFromEntity(requestID, m))
+	}
+
+	if err := transaction.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).CreateInBatches(traceMetadata, batchSize).Error; err != nil {
+		return contract.NewErrorWith(
+			protos.ErrorCode_INTERNAL_ERROR,
+			fmt.Sprintf("failed to update trace metadata %v", err),
+			err,
+		)
 	}
 
 	return nil
