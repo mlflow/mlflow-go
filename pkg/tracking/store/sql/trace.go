@@ -112,7 +112,6 @@ func (s TrackingSQLStore) GetTrace(ctx context.Context, reqeustID string) (*enti
 	return traceInfo.ToEntity(), nil
 }
 
-//nolint:funlen
 func (s TrackingSQLStore) EndTrace(
 	ctx context.Context,
 	reqeustID string,
@@ -142,34 +141,12 @@ func (s TrackingSQLStore) EndTrace(
 			)
 		}
 
-		traceTags := make([]models.TraceTag, 0, len(tags))
-		for _, tag := range tags {
-			traceTags = append(traceTags, models.NewTraceTagFromEntity(reqeustID, tag))
+		if err := s.createTraceTags(transaction, reqeustID, tags); err != nil {
+			return err
 		}
 
-		if err := transaction.Clauses(clause.OnConflict{
-			UpdateAll: true,
-		}).CreateInBatches(traceTags, batchSize).Error; err != nil {
-			return contract.NewErrorWith(
-				protos.ErrorCode_INTERNAL_ERROR,
-				fmt.Sprintf("failed to update trace tags %v", err),
-				err,
-			)
-		}
-
-		traceMetadata := make([]models.TraceRequestMetadata, 0, len(metadata))
-		for _, m := range metadata {
-			traceMetadata = append(traceMetadata, models.NewTraceRequestMetadataFromEntity(traceInfo.RequestID, m))
-		}
-
-		if err := transaction.Clauses(clause.OnConflict{
-			UpdateAll: true,
-		}).CreateInBatches(traceMetadata, batchSize).Error; err != nil {
-			return contract.NewErrorWith(
-				protos.ErrorCode_INTERNAL_ERROR,
-				fmt.Sprintf("failed to update trace metadata %v", err),
-				err,
-			)
+		if err := s.createTraceMetadata(transaction, reqeustID, metadata); err != nil {
+			return err
 		}
 
 		return nil
@@ -183,4 +160,44 @@ func (s TrackingSQLStore) EndTrace(
 	}
 
 	return traceInfo, nil
+}
+
+func (s TrackingSQLStore) createTraceTags(transaction *gorm.DB, requestID string, tags []*entities.TraceTag) error {
+	traceTags := make([]models.TraceTag, 0, len(tags))
+	for _, tag := range tags {
+		traceTags = append(traceTags, models.NewTraceTagFromEntity(requestID, tag))
+	}
+
+	if err := transaction.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).CreateInBatches(traceTags, batchSize).Error; err != nil {
+		return contract.NewErrorWith(
+			protos.ErrorCode_INTERNAL_ERROR,
+			fmt.Sprintf("failed to update trace tags %v", err),
+			err,
+		)
+	}
+
+	return nil
+}
+
+func (s TrackingSQLStore) createTraceMetadata(
+	transaction *gorm.DB, requestID string, metadata []*entities.TraceRequestMetadata,
+) error {
+	traceMetadata := make([]models.TraceRequestMetadata, 0, len(metadata))
+	for _, m := range metadata {
+		traceMetadata = append(traceMetadata, models.NewTraceRequestMetadataFromEntity(requestID, m))
+	}
+
+	if err := transaction.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).CreateInBatches(traceMetadata, batchSize).Error; err != nil {
+		return contract.NewErrorWith(
+			protos.ErrorCode_INTERNAL_ERROR,
+			fmt.Sprintf("failed to update trace metadata %v", err),
+			err,
+		)
+	}
+
+	return nil
 }
