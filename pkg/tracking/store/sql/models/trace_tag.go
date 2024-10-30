@@ -6,7 +6,7 @@ import "github.com/mlflow/mlflow-go/pkg/entities"
 type TraceTag struct {
 	Key       string `db:"key"        gorm:"column:key;primaryKey"`
 	Value     string `db:"value"      gorm:"column:value"`
-	RequestID string `db:"request_id" gorm:"column:request_id"`
+	RequestID string `db:"request_id" gorm:"column:request_id;primaryKey"`
 }
 
 func (t TraceTag) ToEntity() *entities.TraceTag {
@@ -17,10 +17,10 @@ func (t TraceTag) ToEntity() *entities.TraceTag {
 	}
 }
 
-func NewTraceTagFromEntity(entity *entities.TraceTag) TraceTag {
+func NewTraceTagFromEntity(requestID string, entity *entities.TraceTag) TraceTag {
 	return TraceTag{
 		Key:       entity.Key,
 		Value:     entity.Value,
-		RequestID: entity.RequestID,
+		RequestID: requestID,
 	}
 }

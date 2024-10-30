@@ -183,3 +183,11 @@ func TrackingServiceLogInputs(serviceID int64, requestData unsafe.Pointer, reque
 	}
 	return invokeServiceMethod(service.LogInputs, new(protos.LogInputs), requestData, requestSize, responseSize)
 }
+//export TrackingServiceEndTrace
+func TrackingServiceEndTrace(serviceID int64, requestData unsafe.Pointer, requestSize C.int, responseSize *C.int) unsafe.Pointer {
+	service, err := trackingServices.Get(serviceID)
+	if err != nil {
+		return makePointerFromError(err, responseSize)
+	}
+	return invokeServiceMethod(service.EndTrace, new(protos.EndTrace), requestData, requestSize, responseSize)
+}
