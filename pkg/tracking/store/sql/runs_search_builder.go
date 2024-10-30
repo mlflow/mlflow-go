@@ -465,6 +465,7 @@ func applyOrderBy(ctx context.Context, database, transaction *gorm.DB, orderBy [
 	return nil
 }
 
+//nolint:gosec // disable G115
 func mkNextPageToken(runLength, maxResults, offset int) (string, *contract.Error) {
 	var nextPageToken string
 
