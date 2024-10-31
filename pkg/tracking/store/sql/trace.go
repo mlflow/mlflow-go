@@ -37,7 +37,15 @@ func (s TrackingSQLStore) SetTrace(
 	}
 
 	for _, tag := range tags {
-		traceInfo.Tags = append(traceInfo.Tags, models.NewTraceTagFromEntity(traceInfo.RequestID, tag))
+		// Very often Python tests mock generation of `request_id` of the flight.
+		// It easily works with Python, but it doesn't work with GO,
+		// so that's why we need to pass `request_id`
+		// from Pythong to Go and override traceInfo.RequestID with value from Python.
+		if tag.Key == "request_id" {
+			traceInfo.RequestID = tag.Value
+		} else {
+			traceInfo.Tags = append(traceInfo.Tags, models.NewTraceTagFromEntity(traceInfo.RequestID, tag))
+		}
 	}
 
 	traceArtifactLocationTag, artifactLocationTagErr := GetTraceArtifactLocationTag(experiment, traceInfo.RequestID)

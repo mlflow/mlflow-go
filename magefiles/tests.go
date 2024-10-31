@@ -46,10 +46,6 @@ func runPythonTests(pytestArgs []string) error {
 	return nil
 }
 
-// test_delete_traces
-// test_search_traces_order_by
-// test_search_traces_with_filter
-// test_search_traces_with_invalid_filter
 // Run mlflow Python tests against the Go backend.
 func (Test) Python() error {
 	return runPythonTests([]string{
