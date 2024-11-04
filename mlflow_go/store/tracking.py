@@ -255,7 +255,10 @@ class _TrackingStore:
             tags=[TraceTag(key=key, value=value) for key, value in tags.items()] if tags else [],
         )
         response = self.service.call_endpoint(get_lib().TrackingServiceStartTrace, request)
-        return TraceInfo.from_proto(response.trace_info)
+        entity = TraceInfo.from_proto(response.trace_info)
+        if entity.execution_time_ms == 0:
+            entity.execution_time_ms = None
+        return entity
 
     def end_trace(
         self,
