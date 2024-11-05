@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"io"
 	"os"
 	"sync"
 
@@ -15,13 +14,13 @@ import (
 	"github.com/mlflow/mlflow-go/pkg/utils"
 )
 
-type instanceMap[T io.Closer] struct {
+type instanceMap[T contract.Destroyer] struct {
 	counter   int64
 	mutex     sync.Mutex
 	instances map[int64]T
 }
 
-func newInstanceMap[T io.Closer]() *instanceMap[T] {
+func newInstanceMap[T contract.Destroyer]() *instanceMap[T] {
 	return &instanceMap[T]{
 		instances: make(map[int64]T),
 	}
@@ -87,7 +86,7 @@ func (s *instanceMap[T]) Destroy(identifier int64) {
 	defer s.mutex.Unlock()
 
 	if instance, ok := s.instances[identifier]; ok {
-		err := instance.Close()
+		err := instance.Destroy()
 		if err != nil {
 			logger := utils.GetLoggerFromContext(context.Background())
 			logger.Error(

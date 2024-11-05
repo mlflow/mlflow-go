@@ -27,7 +27,7 @@ func (_m *MockTrackingStore) EXPECT() *MockTrackingStore_Expecter {
 }
 
 // Close provides a mock function with given fields:
-func (_m *MockTrackingStore) Close() error {
+func (_m *MockTrackingStore) Destroy() error {
 	ret := _m.Called()
 
 	if len(ret) == 0 {

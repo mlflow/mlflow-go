@@ -17,7 +17,7 @@ type serverInstance struct {
 	errChan <-chan error
 }
 
-func (si serverInstance) Close() error {
+func (si serverInstance) Destroy() error {
 	return nil
 }
 

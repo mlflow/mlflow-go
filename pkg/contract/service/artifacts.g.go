@@ -2,8 +2,8 @@
 
 package service
 
-import "io"
+import "github.com/mlflow/mlflow-go/pkg/contract"
 
 type ArtifactsService interface {
-	io.Closer
+	contract.Destroyer
 }

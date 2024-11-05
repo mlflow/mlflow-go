@@ -26,8 +26,8 @@ func NewModelRegistryService(ctx context.Context, config *config.Config) (*Model
 	}, nil
 }
 
-func (m *ModelRegistryService) Close() error {
-	if err := m.store.Close(); err != nil {
+func (m *ModelRegistryService) Destroy() error {
+	if err := m.store.Destroy(); err != nil {
 		return fmt.Errorf("failed to close store: %w", err)
 	}
 

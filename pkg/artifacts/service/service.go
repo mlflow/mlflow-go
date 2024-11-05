@@ -16,6 +16,6 @@ func NewArtifactsService(_ context.Context, config *config.Config) (*ArtifactsSe
 	}, nil
 }
 
-func (as ArtifactsService) Close() error {
+func (as ArtifactsService) Destroy() error {
 	return nil
 }

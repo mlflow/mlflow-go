@@ -48,7 +48,7 @@ func mkServiceInterfaceNode(
 	methods := make([]*ast.Field, 0, 1+len(serviceInfo.Methods))
 
 	methods = append(methods, &ast.Field{
-		Type: mkSelectorExpr("io", "Closer"),
+		Type: mkSelectorExpr("contract", "Destroyer"),
 	})
 
 	for _, method := range serviceInfo.Methods {
@@ -252,12 +252,11 @@ func generateServices(
 ) error {
 	decls := make([]ast.Decl, 0, len(endpoints)+expectedImportStatements)
 
-	importStatements := []string{`"io"`}
+	importStatements := []string{`"github.com/mlflow/mlflow-go/pkg/contract"`}
 
 	if len(endpoints) > 0 {
 		importStatements = []string{
 			`"context"`,
-			`"io"`,
 			`"github.com/mlflow/mlflow-go/pkg/protos"`,
 			`"github.com/mlflow/mlflow-go/pkg/contract"`,
 		}
