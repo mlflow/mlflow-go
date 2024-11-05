@@ -394,6 +394,69 @@ func (_c *MockTrackingStore_DeleteTraceTag_Call) RunAndReturn(run func(context.C
 	return _c
 }
 
+// EndTrace provides a mock function with given fields: ctx, reqeustID, timestampMS, status, metadata, tags
+func (_m *MockTrackingStore) EndTrace(ctx context.Context, reqeustID string, timestampMS int64, status string, metadata []*entities.TraceRequestMetadata, tags []*entities.TraceTag) (*entities.TraceInfo, error) {
+	ret := _m.Called(ctx, reqeustID, timestampMS, status, metadata, tags)
+
+	if len(ret) == 0 {
+		panic("no return value specified for EndTrace")
+	}
+
+	var r0 *entities.TraceInfo
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, int64, string, []*entities.TraceRequestMetadata, []*entities.TraceTag) (*entities.TraceInfo, error)); ok {
+		return rf(ctx, reqeustID, timestampMS, status, metadata, tags)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, int64, string, []*entities.TraceRequestMetadata, []*entities.TraceTag) *entities.TraceInfo); ok {
+		r0 = rf(ctx, reqeustID, timestampMS, status, metadata, tags)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*entities.TraceInfo)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, int64, string, []*entities.TraceRequestMetadata, []*entities.TraceTag) error); ok {
+		r1 = rf(ctx, reqeustID, timestampMS, status, metadata, tags)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockTrackingStore_EndTrace_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'EndTrace'
+type MockTrackingStore_EndTrace_Call struct {
+	*mock.Call
+}
+
+// EndTrace is a helper method to define mock.On call
+//   - ctx context.Context
+//   - reqeustID string
+//   - timestampMS int64
+//   - status string
+//   - metadata []*entities.TraceRequestMetadata
+//   - tags []*entities.TraceTag
+func (_e *MockTrackingStore_Expecter) EndTrace(ctx interface{}, reqeustID interface{}, timestampMS interface{}, status interface{}, metadata interface{}, tags interface{}) *MockTrackingStore_EndTrace_Call {
+	return &MockTrackingStore_EndTrace_Call{Call: _e.mock.On("EndTrace", ctx, reqeustID, timestampMS, status, metadata, tags)}
+}
+
+func (_c *MockTrackingStore_EndTrace_Call) Run(run func(ctx context.Context, reqeustID string, timestampMS int64, status string, metadata []*entities.TraceRequestMetadata, tags []*entities.TraceTag)) *MockTrackingStore_EndTrace_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(int64), args[3].(string), args[4].([]*entities.TraceRequestMetadata), args[5].([]*entities.TraceTag))
+	})
+	return _c
+}
+
+func (_c *MockTrackingStore_EndTrace_Call) Return(_a0 *entities.TraceInfo, _a1 error) *MockTrackingStore_EndTrace_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockTrackingStore_EndTrace_Call) RunAndReturn(run func(context.Context, string, int64, string, []*entities.TraceRequestMetadata, []*entities.TraceTag) (*entities.TraceInfo, error)) *MockTrackingStore_EndTrace_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetExperiment provides a mock function with given fields: ctx, id
 func (_m *MockTrackingStore) GetExperiment(ctx context.Context, id string) (*entities.Experiment, *contract.Error) {
 	ret := _m.Called(ctx, id)

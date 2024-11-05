@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/mlflow/mlflow-go/pkg/contract"
+	"github.com/mlflow/mlflow-go/pkg/entities"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 )
 
@@ -44,4 +45,24 @@ func (ts TrackingService) DeleteTraceTag(
 	}
 
 	return &protos.DeleteTraceTag_Response{}, nil
+}
+
+func (ts TrackingService) EndTrace(
+	ctx context.Context, input *protos.EndTrace,
+) (*protos.EndTrace_Response, *contract.Error) {
+	traceInfo, err := ts.Store.EndTrace(
+		ctx,
+		input.GetRequestId(),
+		input.GetTimestampMs(),
+		input.GetStatus().String(),
+		entities.TraceRequestMetadataFromStartTraceProtoInput(input.GetRequestMetadata()),
+		entities.TagsFromStartTraceProtoInput(input.GetTags()),
+	)
+	if err != nil {
+		return nil, contract.NewError(protos.ErrorCode_INTERNAL_ERROR, fmt.Sprintf("error ending trace: %v", err))
+	}
+
+	return &protos.EndTrace_Response{
+		TraceInfo: traceInfo.ToProto(),
+	}, nil
 }
