@@ -81,7 +81,7 @@ func (s TrackingSQLStore) DeleteTraceTag(
 	return nil
 }
 
-func (s TrackingSQLStore) GetTrace(ctx context.Context, reqeustID string) (*entities.TraceInfo, error) {
+func (s TrackingSQLStore) GetTraceInfo(ctx context.Context, reqeustID string) (*entities.TraceInfo, *contract.Error) {
 	var traceInfo models.TraceInfo
 	if err := s.db.WithContext(
 		ctx,
@@ -120,7 +120,7 @@ func (s TrackingSQLStore) EndTrace(
 	metadata []*entities.TraceRequestMetadata,
 	tags []*entities.TraceTag,
 ) (*entities.TraceInfo, error) {
-	traceInfo, err := s.GetTrace(ctx, reqeustID)
+	traceInfo, err := s.GetTraceInfo(ctx, reqeustID)
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +154,7 @@ func (s TrackingSQLStore) EndTrace(
 		return nil, err //nolint
 	}
 
-	traceInfo, err = s.GetTrace(ctx, reqeustID)
+	traceInfo, err = s.GetTraceInfo(ctx, reqeustID)
 	if err != nil {
 		return nil, err
 	}

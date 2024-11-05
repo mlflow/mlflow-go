@@ -66,3 +66,16 @@ func (ts TrackingService) EndTrace(
 		TraceInfo: traceInfo.ToProto(),
 	}, nil
 }
+
+func (ts TrackingService) GetTraceInfo(
+	ctx context.Context, input *protos.GetTraceInfo,
+) (*protos.GetTraceInfo_Response, *contract.Error) {
+	traceInfo, err := ts.Store.GetTraceInfo(ctx, input.GetRequestId())
+	if err != nil {
+		return nil, err
+	}
+
+	return &protos.GetTraceInfo_Response{
+		TraceInfo: traceInfo.ToProto(),
+	}, nil
+}
