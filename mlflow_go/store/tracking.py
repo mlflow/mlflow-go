@@ -24,6 +24,7 @@ from mlflow.protos.service_pb2 import (
     GetExperiment,
     GetExperimentByName,
     GetRun,
+    GetTraceInfo,
     LogBatch,
     LogMetric,
     LogParam,
@@ -259,6 +260,14 @@ class _TrackingStore:
         )
         response = self.service.call_endpoint(get_lib().TrackingServiceEndTrace, request)
         return TraceInfo.from_proto(response.trace_info)
+
+    def get_trace_info(self, request_id) -> TraceInfo:
+        request = GetTraceInfo(request_id=request_id)
+        response = self.service.call_endpoint(get_lib().TrackingServiceGetTraceInfo, request)
+        entity = TraceInfo.from_proto(response.trace_info)
+        if entity.execution_time_ms == 0:
+            entity.execution_time_ms = None
+        return entity
 
 
 def TrackingStore(cls):

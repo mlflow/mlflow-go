@@ -702,6 +702,67 @@ func (_c *MockTrackingStore_GetRunTag_Call) RunAndReturn(run func(context.Contex
 	return _c
 }
 
+// GetTraceInfo provides a mock function with given fields: ctx, reqeustID
+func (_m *MockTrackingStore) GetTraceInfo(ctx context.Context, reqeustID string) (*entities.TraceInfo, *contract.Error) {
+	ret := _m.Called(ctx, reqeustID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetTraceInfo")
+	}
+
+	var r0 *entities.TraceInfo
+	var r1 *contract.Error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*entities.TraceInfo, *contract.Error)); ok {
+		return rf(ctx, reqeustID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) *entities.TraceInfo); ok {
+		r0 = rf(ctx, reqeustID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*entities.TraceInfo)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) *contract.Error); ok {
+		r1 = rf(ctx, reqeustID)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(*contract.Error)
+		}
+	}
+
+	return r0, r1
+}
+
+// MockTrackingStore_GetTraceInfo_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTraceInfo'
+type MockTrackingStore_GetTraceInfo_Call struct {
+	*mock.Call
+}
+
+// GetTraceInfo is a helper method to define mock.On call
+//   - ctx context.Context
+//   - reqeustID string
+func (_e *MockTrackingStore_Expecter) GetTraceInfo(ctx interface{}, reqeustID interface{}) *MockTrackingStore_GetTraceInfo_Call {
+	return &MockTrackingStore_GetTraceInfo_Call{Call: _e.mock.On("GetTraceInfo", ctx, reqeustID)}
+}
+
+func (_c *MockTrackingStore_GetTraceInfo_Call) Run(run func(ctx context.Context, reqeustID string)) *MockTrackingStore_GetTraceInfo_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *MockTrackingStore_GetTraceInfo_Call) Return(_a0 *entities.TraceInfo, _a1 *contract.Error) *MockTrackingStore_GetTraceInfo_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockTrackingStore_GetTraceInfo_Call) RunAndReturn(run func(context.Context, string) (*entities.TraceInfo, *contract.Error)) *MockTrackingStore_GetTraceInfo_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetTraceTag provides a mock function with given fields: ctx, requestID, key
 func (_m *MockTrackingStore) GetTraceTag(ctx context.Context, requestID string, key string) (*entities.TraceTag, *contract.Error) {
 	ret := _m.Called(ctx, requestID, key)
