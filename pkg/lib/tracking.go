@@ -1,5 +1,6 @@
 package main
 
+// #include <stdlib.h>
 import "C"
 
 import (
@@ -21,4 +22,9 @@ func CreateTrackingService(configData unsafe.Pointer, configSize C.int) int64 {
 //export DestroyTrackingService
 func DestroyTrackingService(id int64) {
 	trackingServices.Destroy(id)
+}
+
+//export FreeResponse
+func FreeResponse(pointer *int64) {
+	C.free(unsafe.Pointer(pointer))
 }

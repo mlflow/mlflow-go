@@ -26,3 +26,11 @@ func NewModelRegistrySQLStore(ctx context.Context, config *config.Config) (*Mode
 		db:     database,
 	}, nil
 }
+
+func (m *ModelRegistrySQLStore) Destroy() error {
+	if err := sql.CloseDatabase(m.db); err != nil {
+		return fmt.Errorf("failed to close database: %w", err)
+	}
+
+	return nil
+}

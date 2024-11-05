@@ -25,3 +25,11 @@ func NewTrackingService(ctx context.Context, config *config.Config) (*TrackingSe
 		Store:  store,
 	}, nil
 }
+
+func (ts TrackingService) Destroy() error {
+	if err := ts.Store.Destroy(); err != nil {
+		return fmt.Errorf("failed to close store: %w", err)
+	}
+
+	return nil
+}

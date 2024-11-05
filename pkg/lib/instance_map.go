@@ -14,13 +14,13 @@ import (
 	"github.com/mlflow/mlflow-go/pkg/utils"
 )
 
-type instanceMap[T any] struct {
+type instanceMap[T contract.Destroyer] struct {
 	counter   int64
 	mutex     sync.Mutex
 	instances map[int64]T
 }
 
-func newInstanceMap[T any]() *instanceMap[T] {
+func newInstanceMap[T contract.Destroyer]() *instanceMap[T] {
 	return &instanceMap[T]{
 		instances: make(map[int64]T),
 	}
@@ -81,8 +81,23 @@ func (s *instanceMap[T]) Create(
 	return s.counter
 }
 
-func (s *instanceMap[T]) Destroy(id int64) {
+func (s *instanceMap[T]) Destroy(identifier int64) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
-	delete(s.instances, id)
+
+	if instance, ok := s.instances[identifier]; ok {
+		err := instance.Destroy()
+		if err != nil {
+			logger := utils.GetLoggerFromContext(context.Background())
+			logger.Error(
+				fmt.Errorf(
+					"the destruction of server %d was not ok: %w",
+					identifier,
+					err,
+				),
+			)
+		}
+	}
+
+	delete(s.instances, identifier)
 }

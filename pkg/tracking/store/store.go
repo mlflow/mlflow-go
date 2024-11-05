@@ -10,6 +10,7 @@ import (
 
 //go:generate mockery
 type TrackingStore interface {
+	contract.Destroyer
 	RunTrackingStore
 	TraceTrackingStore
 	MetricTrackingStore

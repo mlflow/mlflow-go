@@ -8,5 +8,6 @@ import (
 )
 
 type ModelRegistryStore interface {
+	contract.Destroyer
 	GetLatestVersions(ctx context.Context, name string, stages []string) ([]*protos.ModelVersion, *contract.Error)
 }

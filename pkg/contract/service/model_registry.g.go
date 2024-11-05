@@ -9,5 +9,6 @@ import (
 )
 
 type ModelRegistryService interface {
+	contract.Destroyer
 	GetLatestVersions(ctx context.Context, input *protos.GetLatestVersions) (*protos.GetLatestVersions_Response, *contract.Error)
 }

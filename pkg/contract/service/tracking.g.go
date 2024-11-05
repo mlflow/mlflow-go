@@ -9,6 +9,7 @@ import (
 )
 
 type TrackingService interface {
+	contract.Destroyer
 	GetExperimentByName(ctx context.Context, input *protos.GetExperimentByName) (*protos.GetExperimentByName_Response, *contract.Error)
 	CreateExperiment(ctx context.Context, input *protos.CreateExperiment) (*protos.CreateExperiment_Response, *contract.Error)
 	SearchExperiments(ctx context.Context, input *protos.SearchExperiments) (*protos.SearchExperiments_Response, *contract.Error)
