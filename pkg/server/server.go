@@ -39,19 +39,21 @@ func configureApp(ctx context.Context, cfg *config.Config) (*fiber.App, error) {
 		WriteTimeout:   600 * time.Second,
 		IdleTimeout:    120 * time.Second,
 		ServerHeader:   "mlflow/" + cfg.Version,
-		JSONEncoder: func(v interface{}) ([]byte, error) {
-			if protoMessage, ok := v.(proto.Message); ok {
-				return protojson.Marshal(protoMessage)
+		JSONEncoder: func(value interface{}) ([]byte, error) {
+			if protoMessage, ok := value.(proto.Message); ok {
+				return protojson.MarshalOptions{
+					UseProtoNames: true,
+				}.Marshal(protoMessage)
 			}
 
-			return json.Marshal(v)
+			return json.Marshal(value)
 		},
-		JSONDecoder: func(data []byte, v interface{}) error {
-			if protoMessage, ok := v.(proto.Message); ok {
+		JSONDecoder: func(data []byte, value interface{}) error {
+			if protoMessage, ok := value.(proto.Message); ok {
 				return protojson.Unmarshal(data, protoMessage)
 			}
 
-			return json.Unmarshal(data, v)
+			return json.Unmarshal(data, value)
 		},
 		DisableStartupMessage: true,
 	})
