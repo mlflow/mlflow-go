@@ -25,5 +25,5 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           packages-dir: wheelhouse
-          repository-url: https://test.pypi.org/
+          repository-url: https://test.pypi.org/legacy/
           skip-existing: true
