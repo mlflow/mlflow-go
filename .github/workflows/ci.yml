@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - 'v*'
   pull_request:
   schedule:
     # Run daily at 01:34 so we get notified if CI is broken before a pull request
