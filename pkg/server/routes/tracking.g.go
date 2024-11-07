@@ -264,6 +264,17 @@ func RegisterTrackingServiceRoutes(service service.TrackingService, parser *pars
 		}
 		return ctx.JSON(output)
 	})
+	app.Post("/mlflow/traces", func(ctx *fiber.Ctx) error {
+		input := &protos.StartTrace{}
+		if err := parser.ParseBody(ctx, input); err != nil {
+			return err
+		}
+		output, err := service.StartTrace(utils.NewContextWithLoggerFromFiberContext(ctx), input)
+		if err != nil {
+			return err
+		}
+		return ctx.JSON(output)
+	})
 	app.Patch("/mlflow/traces/:request_id", func(ctx *fiber.Ctx) error {
 		input := &protos.EndTrace{}
 		if err := parser.ParseBody(ctx, input); err != nil {

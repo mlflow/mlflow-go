@@ -35,6 +35,7 @@ from mlflow.protos.service_pb2 import (
     SearchRuns,
     SetTag,
     SetTraceTag,
+    StartTrace,
     TraceRequestMetadata,
     TraceTag,
     UpdateExperiment,
@@ -236,6 +237,30 @@ class _TrackingStore:
     def set_tag(self, run_id, tag):
         request = SetTag(run_id=run_id, key=tag.key, value=tag.value)
         self.service.call_endpoint(get_lib().TrackingServiceSetTag, request)
+
+    def start_trace(
+        self,
+        experiment_id: str,
+        timestamp_ms: int,
+        request_metadata: Dict[str, str],
+        tags: Dict[str, str],
+    ) -> TraceInfo:
+        request = StartTrace(
+            experiment_id=experiment_id,
+            timestamp_ms=timestamp_ms,
+            request_metadata=[
+                TraceRequestMetadata(key=key, value=value)
+                for key, value in request_metadata.items()
+            ]
+            if request_metadata
+            else [],
+            tags=[TraceTag(key=key, value=value) for key, value in tags.items()] if tags else [],
+        )
+        response = self.service.call_endpoint(get_lib().TrackingServiceStartTrace, request)
+        entity = TraceInfo.from_proto(response.trace_info)
+        if entity.execution_time_ms == 0:
+            entity.execution_time_ms = None
+        return entity
 
     def end_trace(
         self,
