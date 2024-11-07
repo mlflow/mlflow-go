@@ -9,6 +9,11 @@ if (!base_url.startsWith("http")) {
 
 function searchRuns() {
     // 37 was chosen as experiment number with 23525 runs
+    // Found using
+    // SELECT experiment_id, count(experiment_id) As count
+    // FROM runs
+    // GROUP BY experiment_id
+    // ORDER BY count DESC;
     const experiment_id = "37";
 
     const run_response = http.post(
