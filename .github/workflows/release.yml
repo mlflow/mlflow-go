@@ -11,8 +11,6 @@ jobs:
     name: Upload release to PyPI
     runs-on: ubuntu-latest
     environment: testpypi
-    permissions:
-      id-token: write
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v4
