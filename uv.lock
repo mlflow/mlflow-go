@@ -903,7 +903,7 @@ wheels = [
 
 [[package]]
 name = "mlflow"
-version = "2.17.1.dev0"
+version = "2.17.3.dev0"
 source = { editable = ".mlflow.repo" }
 dependencies = [
     { name = "alembic" },
@@ -982,7 +982,7 @@ requires-dist = [
     { name = "pandas", specifier = "<3" },
     { name = "prometheus-flask-exporter", marker = "extra == 'extras'" },
     { name = "protobuf", specifier = ">=3.12.0,<6" },
-    { name = "pyarrow", specifier = ">=4.0.0,<18" },
+    { name = "pyarrow", specifier = ">=4.0.0,<19" },
     { name = "pyarrow", marker = "extra == 'extras'" },
     { name = "pydantic", marker = "extra == 'gateway'", specifier = ">=1.0,<3" },
     { name = "pydantic", marker = "extra == 'genai'", specifier = ">=1.0,<3" },

@@ -15,3 +15,7 @@ func NewArtifactsService(_ context.Context, config *config.Config) (*ArtifactsSe
 		config: config,
 	}, nil
 }
+
+func (as ArtifactsService) Destroy() error {
+	return nil
+}

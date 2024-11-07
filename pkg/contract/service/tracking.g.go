@@ -9,6 +9,7 @@ import (
 )
 
 type TrackingService interface {
+	contract.Destroyer
 	GetExperimentByName(ctx context.Context, input *protos.GetExperimentByName) (*protos.GetExperimentByName_Response, *contract.Error)
 	CreateExperiment(ctx context.Context, input *protos.CreateExperiment) (*protos.CreateExperiment_Response, *contract.Error)
 	SearchExperiments(ctx context.Context, input *protos.SearchExperiments) (*protos.SearchExperiments_Response, *contract.Error)
@@ -33,4 +34,6 @@ type TrackingService interface {
 	LogInputs(ctx context.Context, input *protos.LogInputs) (*protos.LogInputs_Response, *contract.Error)
 	StartTrace(ctx context.Context, input *protos.StartTrace) (*protos.StartTrace_Response, *contract.Error)
 	EndTrace(ctx context.Context, input *protos.EndTrace) (*protos.EndTrace_Response, *contract.Error)
+	GetTraceInfo(ctx context.Context, input *protos.GetTraceInfo) (*protos.GetTraceInfo_Response, *contract.Error)
+	DeleteTraces(ctx context.Context, input *protos.DeleteTraces) (*protos.DeleteTraces_Response, *contract.Error)
 }

@@ -199,3 +199,19 @@ func TrackingServiceEndTrace(serviceID int64, requestData unsafe.Pointer, reques
 	}
 	return invokeServiceMethod(service.EndTrace, new(protos.EndTrace), requestData, requestSize, responseSize)
 }
+//export TrackingServiceGetTraceInfo
+func TrackingServiceGetTraceInfo(serviceID int64, requestData unsafe.Pointer, requestSize C.int, responseSize *C.int) unsafe.Pointer {
+	service, err := trackingServices.Get(serviceID)
+	if err != nil {
+		return makePointerFromError(err, responseSize)
+	}
+	return invokeServiceMethod(service.GetTraceInfo, new(protos.GetTraceInfo), requestData, requestSize, responseSize)
+}
+//export TrackingServiceDeleteTraces
+func TrackingServiceDeleteTraces(serviceID int64, requestData unsafe.Pointer, requestSize C.int, responseSize *C.int) unsafe.Pointer {
+	service, err := trackingServices.Get(serviceID)
+	if err != nil {
+		return makePointerFromError(err, responseSize)
+	}
+	return invokeServiceMethod(service.DeleteTraces, new(protos.DeleteTraces), requestData, requestSize, responseSize)
+}
