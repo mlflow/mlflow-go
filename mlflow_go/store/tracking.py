@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Dict
+from typing import Dict, Optional
 
 from mlflow.entities import (
     Experiment,
@@ -19,6 +19,7 @@ from mlflow.protos.service_pb2 import (
     DeleteExperiment,
     DeleteRun,
     DeleteTag,
+    DeleteTraces,
     DeleteTraceTag,
     EndTrace,
     GetExperiment,
@@ -268,6 +269,22 @@ class _TrackingStore:
         if entity.execution_time_ms == 0:
             entity.execution_time_ms = None
         return entity
+
+    def delete_traces(
+        self,
+        experiment_id: str,
+        max_timestamp_millis: Optional[int] = None,
+        max_traces: Optional[int] = None,
+        request_ids: Optional[list[str]] = None,
+    ) -> int:
+        request = DeleteTraces(
+            experiment_id=experiment_id,
+            max_timestamp_millis=max_timestamp_millis,
+            max_traces=max_traces,
+            request_ids=request_ids,
+        )
+        response = self.service.call_endpoint(get_lib().TrackingServiceDeleteTraces, request)
+        return response.traces_deleted
 
 
 def TrackingStore(cls):

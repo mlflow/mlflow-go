@@ -7,6 +7,7 @@ import (
 	"github.com/mlflow/mlflow-go/pkg/contract"
 	"github.com/mlflow/mlflow-go/pkg/entities"
 	"github.com/mlflow/mlflow-go/pkg/protos"
+	"github.com/mlflow/mlflow-go/pkg/utils"
 )
 
 func (ts TrackingService) SetTraceTag(
@@ -77,5 +78,52 @@ func (ts TrackingService) GetTraceInfo(
 
 	return &protos.GetTraceInfo_Response{
 		TraceInfo: traceInfo.ToProto(),
+	}, nil
+}
+
+func (ts TrackingService) DeleteTraces(
+	ctx context.Context, input *protos.DeleteTraces,
+) (*protos.DeleteTraces_Response, *contract.Error) {
+	if input.MaxTimestampMillis == nil && len(input.RequestIds) == 0 {
+		return nil, contract.NewError(
+			protos.ErrorCode_INVALID_PARAMETER_VALUE,
+			"Either `max_timestamp_millis` or `request_ids` must be specified.",
+		)
+	}
+
+	if input.MaxTimestampMillis != nil && input.RequestIds != nil {
+		return nil, contract.NewError(
+			protos.ErrorCode_INVALID_PARAMETER_VALUE,
+			"Only one of `max_timestamp_millis` and `request_ids` can be specified.",
+		)
+	}
+
+	if input.RequestIds != nil && input.MaxTraces != nil {
+		return nil, contract.NewError(
+			protos.ErrorCode_INVALID_PARAMETER_VALUE,
+			"`max_traces` can't be specified if `request_ids` is specified.",
+		)
+	}
+
+	if input.MaxTraces != nil && *input.MaxTraces <= 0 {
+		return nil, contract.NewError(
+			protos.ErrorCode_INVALID_PARAMETER_VALUE,
+			fmt.Sprintf("`max_traces` must be a positive integer, received %d.", *input.MaxTraces),
+		)
+	}
+
+	result, err := ts.Store.DeleteTraces(
+		ctx,
+		input.GetExperimentId(),
+		input.GetMaxTimestampMillis(),
+		input.GetMaxTraces(),
+		input.GetRequestIds(),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &protos.DeleteTraces_Response{
+		TracesDeleted: utils.PtrTo(result),
 	}, nil
 }

@@ -41,7 +41,7 @@ var ServiceInfoMap = map[string]ServiceGenerationInfo{
 			"endTrace",
 			"getTraceInfo",
 			// "searchTraces",
-			// "deleteTraces",
+			"deleteTraces",
 		},
 	},
 	"ModelRegistryService": {

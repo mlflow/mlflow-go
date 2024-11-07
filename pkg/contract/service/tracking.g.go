@@ -34,4 +34,5 @@ type TrackingService interface {
 	LogInputs(ctx context.Context, input *protos.LogInputs) (*protos.LogInputs_Response, *contract.Error)
 	EndTrace(ctx context.Context, input *protos.EndTrace) (*protos.EndTrace_Response, *contract.Error)
 	GetTraceInfo(ctx context.Context, input *protos.GetTraceInfo) (*protos.GetTraceInfo_Response, *contract.Error)
+	DeleteTraces(ctx context.Context, input *protos.DeleteTraces) (*protos.DeleteTraces_Response, *contract.Error)
 }

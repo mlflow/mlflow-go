@@ -26,51 +26,6 @@ func (_m *MockTrackingStore) EXPECT() *MockTrackingStore_Expecter {
 	return &MockTrackingStore_Expecter{mock: &_m.Mock}
 }
 
-// Close provides a mock function with given fields:
-func (_m *MockTrackingStore) Destroy() error {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for Close")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func() error); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// MockTrackingStore_Close_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Close'
-type MockTrackingStore_Close_Call struct {
-	*mock.Call
-}
-
-// Close is a helper method to define mock.On call
-func (_e *MockTrackingStore_Expecter) Close() *MockTrackingStore_Close_Call {
-	return &MockTrackingStore_Close_Call{Call: _e.mock.On("Close")}
-}
-
-func (_c *MockTrackingStore_Close_Call) Run(run func()) *MockTrackingStore_Close_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *MockTrackingStore_Close_Call) Return(_a0 error) *MockTrackingStore_Close_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockTrackingStore_Close_Call) RunAndReturn(run func() error) *MockTrackingStore_Close_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // CreateExperiment provides a mock function with given fields: ctx, name, artifactLocation, tags
 func (_m *MockTrackingStore) CreateExperiment(ctx context.Context, name string, artifactLocation string, tags []*entities.ExperimentTag) (string, *contract.Error) {
 	ret := _m.Called(ctx, name, artifactLocation, tags)
@@ -390,6 +345,113 @@ func (_c *MockTrackingStore_DeleteTraceTag_Call) Return(_a0 *contract.Error) *Mo
 }
 
 func (_c *MockTrackingStore_DeleteTraceTag_Call) RunAndReturn(run func(context.Context, *entities.TraceTag) *contract.Error) *MockTrackingStore_DeleteTraceTag_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// DeleteTraces provides a mock function with given fields: ctx, experimentId, maxTimestampMillis, maxTraces, requestIds
+func (_m *MockTrackingStore) DeleteTraces(ctx context.Context, experimentId string, maxTimestampMillis int64, maxTraces int32, requestIds []string) (int32, *contract.Error) {
+	ret := _m.Called(ctx, experimentId, maxTimestampMillis, maxTraces, requestIds)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteTraces")
+	}
+
+	var r0 int32
+	var r1 *contract.Error
+	if rf, ok := ret.Get(0).(func(context.Context, string, int64, int32, []string) (int32, *contract.Error)); ok {
+		return rf(ctx, experimentId, maxTimestampMillis, maxTraces, requestIds)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, int64, int32, []string) int32); ok {
+		r0 = rf(ctx, experimentId, maxTimestampMillis, maxTraces, requestIds)
+	} else {
+		r0 = ret.Get(0).(int32)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, int64, int32, []string) *contract.Error); ok {
+		r1 = rf(ctx, experimentId, maxTimestampMillis, maxTraces, requestIds)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(*contract.Error)
+		}
+	}
+
+	return r0, r1
+}
+
+// MockTrackingStore_DeleteTraces_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteTraces'
+type MockTrackingStore_DeleteTraces_Call struct {
+	*mock.Call
+}
+
+// DeleteTraces is a helper method to define mock.On call
+//   - ctx context.Context
+//   - experimentId string
+//   - maxTimestampMillis int64
+//   - maxTraces int32
+//   - requestIds []string
+func (_e *MockTrackingStore_Expecter) DeleteTraces(ctx interface{}, experimentId interface{}, maxTimestampMillis interface{}, maxTraces interface{}, requestIds interface{}) *MockTrackingStore_DeleteTraces_Call {
+	return &MockTrackingStore_DeleteTraces_Call{Call: _e.mock.On("DeleteTraces", ctx, experimentId, maxTimestampMillis, maxTraces, requestIds)}
+}
+
+func (_c *MockTrackingStore_DeleteTraces_Call) Run(run func(ctx context.Context, experimentId string, maxTimestampMillis int64, maxTraces int32, requestIds []string)) *MockTrackingStore_DeleteTraces_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(int64), args[3].(int32), args[4].([]string))
+	})
+	return _c
+}
+
+func (_c *MockTrackingStore_DeleteTraces_Call) Return(_a0 int32, _a1 *contract.Error) *MockTrackingStore_DeleteTraces_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockTrackingStore_DeleteTraces_Call) RunAndReturn(run func(context.Context, string, int64, int32, []string) (int32, *contract.Error)) *MockTrackingStore_DeleteTraces_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Destroy provides a mock function with given fields:
+func (_m *MockTrackingStore) Destroy() error {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for Destroy")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func() error); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockTrackingStore_Destroy_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Destroy'
+type MockTrackingStore_Destroy_Call struct {
+	*mock.Call
+}
+
+// Destroy is a helper method to define mock.On call
+func (_e *MockTrackingStore_Expecter) Destroy() *MockTrackingStore_Destroy_Call {
+	return &MockTrackingStore_Destroy_Call{Call: _e.mock.On("Destroy")}
+}
+
+func (_c *MockTrackingStore_Destroy_Call) Run(run func()) *MockTrackingStore_Destroy_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockTrackingStore_Destroy_Call) Return(_a0 error) *MockTrackingStore_Destroy_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockTrackingStore_Destroy_Call) RunAndReturn(run func() error) *MockTrackingStore_Destroy_Call {
 	_c.Call.Return(run)
 	return _c
 }

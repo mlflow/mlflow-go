@@ -55,6 +55,13 @@ type (
 		SetTraceTag(ctx context.Context, requestID, key, value string) error
 		GetTraceTag(ctx context.Context, requestID, key string) (*entities.TraceTag, *contract.Error)
 		DeleteTraceTag(ctx context.Context, tag *entities.TraceTag) *contract.Error
+		DeleteTraces(
+			ctx context.Context,
+			experimentID string,
+			maxTimestampMillis int64,
+			maxTraces int32,
+			requestIDs []string,
+		) (int32, *contract.Error)
 	}
 	MetricTrackingStore interface {
 		LogBatch(
