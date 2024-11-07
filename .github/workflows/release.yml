@@ -1,0 +1,29 @@
+name: Release
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  pypi-publish:
+    name: Upload release to PyPI
+    runs-on: ubuntu-latest
+    environment: testpypi
+    permissions:
+      id-token: write
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          pattern: mlflow-go-wheels-*
+          merge-multiple: true
+          path: wheelhouse
+
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: wheelhouse
+          repository-url: https://test.pypi.org/
+          skip-existing: true
