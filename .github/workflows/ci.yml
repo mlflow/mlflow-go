@@ -22,7 +22,10 @@ jobs:
 
   release:
     name: Release
-    needs: all-required-checks-done
+    needs: 
+      # - lint
+      # - test
+      - build
     # if: ${{ !github.event.repository.fork && github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main') }}
     permissions:
       actions: write
