@@ -45,6 +45,16 @@ func NewMetricFromEntity(runID string, metric *entities.Metric) *Metric {
 	return &model
 }
 
+func (m Metric) ToEntity() *entities.Metric {
+	return &entities.Metric{
+		Key:       m.Key,
+		Value:     m.Value,
+		Timestamp: m.Timestamp,
+		Step:      m.Step,
+		IsNaN:     m.IsNaN,
+	}
+}
+
 func (m Metric) NewLatestMetricFromProto() LatestMetric {
 	return LatestMetric{
 		RunID:     m.RunID,
