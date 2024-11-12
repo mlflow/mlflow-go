@@ -80,6 +80,7 @@ type (
 
 		LogMetric(ctx context.Context, runID string, metric *entities.Metric) *contract.Error
 		LogParam(ctx context.Context, runID string, metric *entities.Param) *contract.Error
+		GetMetricHistory(ctx context.Context, runID, metricKey string) ([]*entities.Metric, *contract.Error)
 	}
 
 	ExperimentTrackingStore interface {

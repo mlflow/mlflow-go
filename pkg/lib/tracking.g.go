@@ -167,6 +167,14 @@ func TrackingServiceSearchRuns(serviceID int64, requestData unsafe.Pointer, requ
 	}
 	return invokeServiceMethod(service.SearchRuns, new(protos.SearchRuns), requestData, requestSize, responseSize)
 }
+//export TrackingServiceGetMetricHistory
+func TrackingServiceGetMetricHistory(serviceID int64, requestData unsafe.Pointer, requestSize C.int, responseSize *C.int) unsafe.Pointer {
+	service, err := trackingServices.Get(serviceID)
+	if err != nil {
+		return makePointerFromError(err, responseSize)
+	}
+	return invokeServiceMethod(service.GetMetricHistory, new(protos.GetMetricHistory), requestData, requestSize, responseSize)
+}
 //export TrackingServiceLogBatch
 func TrackingServiceLogBatch(serviceID int64, requestData unsafe.Pointer, requestSize C.int, responseSize *C.int) unsafe.Pointer {
 	service, err := trackingServices.Get(serviceID)

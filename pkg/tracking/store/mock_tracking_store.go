@@ -349,9 +349,9 @@ func (_c *MockTrackingStore_DeleteTraceTag_Call) RunAndReturn(run func(context.C
 	return _c
 }
 
-// DeleteTraces provides a mock function with given fields: ctx, experimentId, maxTimestampMillis, maxTraces, requestIds
-func (_m *MockTrackingStore) DeleteTraces(ctx context.Context, experimentId string, maxTimestampMillis int64, maxTraces int32, requestIds []string) (int32, *contract.Error) {
-	ret := _m.Called(ctx, experimentId, maxTimestampMillis, maxTraces, requestIds)
+// DeleteTraces provides a mock function with given fields: ctx, experimentID, maxTimestampMillis, maxTraces, requestIDs
+func (_m *MockTrackingStore) DeleteTraces(ctx context.Context, experimentID string, maxTimestampMillis int64, maxTraces int32, requestIDs []string) (int32, *contract.Error) {
+	ret := _m.Called(ctx, experimentID, maxTimestampMillis, maxTraces, requestIDs)
 
 	if len(ret) == 0 {
 		panic("no return value specified for DeleteTraces")
@@ -360,16 +360,16 @@ func (_m *MockTrackingStore) DeleteTraces(ctx context.Context, experimentId stri
 	var r0 int32
 	var r1 *contract.Error
 	if rf, ok := ret.Get(0).(func(context.Context, string, int64, int32, []string) (int32, *contract.Error)); ok {
-		return rf(ctx, experimentId, maxTimestampMillis, maxTraces, requestIds)
+		return rf(ctx, experimentID, maxTimestampMillis, maxTraces, requestIDs)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, string, int64, int32, []string) int32); ok {
-		r0 = rf(ctx, experimentId, maxTimestampMillis, maxTraces, requestIds)
+		r0 = rf(ctx, experimentID, maxTimestampMillis, maxTraces, requestIDs)
 	} else {
 		r0 = ret.Get(0).(int32)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, string, int64, int32, []string) *contract.Error); ok {
-		r1 = rf(ctx, experimentId, maxTimestampMillis, maxTraces, requestIds)
+		r1 = rf(ctx, experimentID, maxTimestampMillis, maxTraces, requestIDs)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(*contract.Error)
@@ -386,15 +386,15 @@ type MockTrackingStore_DeleteTraces_Call struct {
 
 // DeleteTraces is a helper method to define mock.On call
 //   - ctx context.Context
-//   - experimentId string
+//   - experimentID string
 //   - maxTimestampMillis int64
 //   - maxTraces int32
-//   - requestIds []string
-func (_e *MockTrackingStore_Expecter) DeleteTraces(ctx interface{}, experimentId interface{}, maxTimestampMillis interface{}, maxTraces interface{}, requestIds interface{}) *MockTrackingStore_DeleteTraces_Call {
-	return &MockTrackingStore_DeleteTraces_Call{Call: _e.mock.On("DeleteTraces", ctx, experimentId, maxTimestampMillis, maxTraces, requestIds)}
+//   - requestIDs []string
+func (_e *MockTrackingStore_Expecter) DeleteTraces(ctx interface{}, experimentID interface{}, maxTimestampMillis interface{}, maxTraces interface{}, requestIDs interface{}) *MockTrackingStore_DeleteTraces_Call {
+	return &MockTrackingStore_DeleteTraces_Call{Call: _e.mock.On("DeleteTraces", ctx, experimentID, maxTimestampMillis, maxTraces, requestIDs)}
 }
 
-func (_c *MockTrackingStore_DeleteTraces_Call) Run(run func(ctx context.Context, experimentId string, maxTimestampMillis int64, maxTraces int32, requestIds []string)) *MockTrackingStore_DeleteTraces_Call {
+func (_c *MockTrackingStore_DeleteTraces_Call) Run(run func(ctx context.Context, experimentID string, maxTimestampMillis int64, maxTraces int32, requestIDs []string)) *MockTrackingStore_DeleteTraces_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(string), args[2].(int64), args[3].(int32), args[4].([]string))
 	})
@@ -637,6 +637,68 @@ func (_c *MockTrackingStore_GetExperimentByName_Call) Return(_a0 *entities.Exper
 }
 
 func (_c *MockTrackingStore_GetExperimentByName_Call) RunAndReturn(run func(context.Context, string) (*entities.Experiment, *contract.Error)) *MockTrackingStore_GetExperimentByName_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetMetricHistory provides a mock function with given fields: ctx, runID, metricKey
+func (_m *MockTrackingStore) GetMetricHistory(ctx context.Context, runID string, metricKey string) ([]*entities.Metric, *contract.Error) {
+	ret := _m.Called(ctx, runID, metricKey)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetMetricHistory")
+	}
+
+	var r0 []*entities.Metric
+	var r1 *contract.Error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) ([]*entities.Metric, *contract.Error)); ok {
+		return rf(ctx, runID, metricKey)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) []*entities.Metric); ok {
+		r0 = rf(ctx, runID, metricKey)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*entities.Metric)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, string) *contract.Error); ok {
+		r1 = rf(ctx, runID, metricKey)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(*contract.Error)
+		}
+	}
+
+	return r0, r1
+}
+
+// MockTrackingStore_GetMetricHistory_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetMetricHistory'
+type MockTrackingStore_GetMetricHistory_Call struct {
+	*mock.Call
+}
+
+// GetMetricHistory is a helper method to define mock.On call
+//   - ctx context.Context
+//   - runID string
+//   - metricKey string
+func (_e *MockTrackingStore_Expecter) GetMetricHistory(ctx interface{}, runID interface{}, metricKey interface{}) *MockTrackingStore_GetMetricHistory_Call {
+	return &MockTrackingStore_GetMetricHistory_Call{Call: _e.mock.On("GetMetricHistory", ctx, runID, metricKey)}
+}
+
+func (_c *MockTrackingStore_GetMetricHistory_Call) Run(run func(ctx context.Context, runID string, metricKey string)) *MockTrackingStore_GetMetricHistory_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(string))
+	})
+	return _c
+}
+
+func (_c *MockTrackingStore_GetMetricHistory_Call) Return(_a0 []*entities.Metric, _a1 *contract.Error) *MockTrackingStore_GetMetricHistory_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockTrackingStore_GetMetricHistory_Call) RunAndReturn(run func(context.Context, string, string) ([]*entities.Metric, *contract.Error)) *MockTrackingStore_GetMetricHistory_Call {
 	_c.Call.Return(run)
 	return _c
 }

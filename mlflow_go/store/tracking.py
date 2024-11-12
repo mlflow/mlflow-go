@@ -4,6 +4,7 @@ from typing import Dict, Optional
 
 from mlflow.entities import (
     Experiment,
+    Metric,
     Run,
     RunInfo,
     TraceInfo,
@@ -24,6 +25,7 @@ from mlflow.protos.service_pb2 import (
     EndTrace,
     GetExperiment,
     GetExperimentByName,
+    GetMetricHistory,
     GetRun,
     GetTraceInfo,
     LogBatch,
@@ -310,6 +312,13 @@ class _TrackingStore:
         )
         response = self.service.call_endpoint(get_lib().TrackingServiceDeleteTraces, request)
         return response.traces_deleted
+
+    def get_metric_history(self, run_id, metric_key, max_results=None, page_token=None):
+        request = GetMetricHistory(
+            run_id=run_id, metric_key=metric_key, max_results=max_results, page_token=page_token
+        )
+        response = self.service.call_endpoint(get_lib().TrackingServiceGetMetricHistory, request)
+        return PagedList([Metric.from_proto(metric) for metric in response.metrics], None)
 
 
 def TrackingStore(cls):

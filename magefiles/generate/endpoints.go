@@ -32,7 +32,7 @@ var ServiceInfoMap = map[string]ServiceGenerationInfo{
 			"deleteTag",
 			"searchRuns",
 			// "listArtifacts",
-			// "getMetricHistory",
+			"getMetricHistory",
 			// "getMetricHistoryBulkInterval",
 			"logBatch",
 			// "logModel",

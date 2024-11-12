@@ -30,6 +30,7 @@ type TrackingService interface {
 	DeleteTag(ctx context.Context, input *protos.DeleteTag) (*protos.DeleteTag_Response, *contract.Error)
 	GetRun(ctx context.Context, input *protos.GetRun) (*protos.GetRun_Response, *contract.Error)
 	SearchRuns(ctx context.Context, input *protos.SearchRuns) (*protos.SearchRuns_Response, *contract.Error)
+	GetMetricHistory(ctx context.Context, input *protos.GetMetricHistory) (*protos.GetMetricHistory_Response, *contract.Error)
 	LogBatch(ctx context.Context, input *protos.LogBatch) (*protos.LogBatch_Response, *contract.Error)
 	LogInputs(ctx context.Context, input *protos.LogInputs) (*protos.LogInputs_Response, *contract.Error)
 	StartTrace(ctx context.Context, input *protos.StartTrace) (*protos.StartTrace_Response, *contract.Error)
