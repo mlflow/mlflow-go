@@ -9,19 +9,19 @@ import (
 //
 //revive:disable:exported
 type ModelVersion struct {
-	Name            string            `db:"name"              gorm:"column:name;primaryKey"`
-	Version         int32             `db:"version"           gorm:"column:version;primaryKey"`
-	CreationTime    int64             `db:"creation_time"     gorm:"column:creation_time"`
-	LastUpdatedTime int64             `db:"last_updated_time" gorm:"column:last_updated_time"`
-	Description     string            `db:"description"       gorm:"column:description"`
-	UserID          string            `db:"user_id"           gorm:"column:user_id"`
-	CurrentStage    ModelVersionStage `db:"current_stage"     gorm:"column:current_stage"`
-	Source          string            `db:"source"            gorm:"column:source"`
-	RunID           string            `db:"run_id"            gorm:"column:run_id"`
-	Status          string            `db:"status"            gorm:"column:status"`
-	StatusMessage   string            `db:"status_message"    gorm:"column:status_message"`
-	RunLink         string            `db:"run_link"          gorm:"column:run_link"`
-	StorageLocation string            `db:"storage_location"  gorm:"column:storage_location"`
+	Name            string            `gorm:"column:name;primaryKey"`
+	Version         int32             `gorm:"column:version;primaryKey"`
+	CreationTime    int64             `gorm:"column:creation_time"`
+	LastUpdatedTime int64             `gorm:"column:last_updated_time"`
+	Description     string            `gorm:"column:description"`
+	UserID          string            `gorm:"column:user_id"`
+	CurrentStage    ModelVersionStage `gorm:"column:current_stage"`
+	Source          string            `gorm:"column:source"`
+	RunID           string            `gorm:"column:run_id"`
+	Status          string            `gorm:"column:status"`
+	StatusMessage   string            `gorm:"column:status_message"`
+	RunLink         string            `gorm:"column:run_link"`
+	StorageLocation string            `gorm:"column:storage_location"`
 }
 
 const StageDeletedInternal = "Deleted_Internal"

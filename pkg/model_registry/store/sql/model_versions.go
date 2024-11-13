@@ -2,13 +2,16 @@ package sql
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"gorm.io/gorm"
 
 	"github.com/mlflow/mlflow-go/pkg/contract"
+	"github.com/mlflow/mlflow-go/pkg/entities"
 	"github.com/mlflow/mlflow-go/pkg/model_registry/store/sql/models"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 )
@@ -91,4 +94,74 @@ func (m *ModelRegistrySQLStore) GetLatestVersions(
 	}
 
 	return results, nil
+}
+
+func (m *ModelRegistrySQLStore) GetRegisteredModelByName(
+	ctx context.Context, name string,
+) (*entities.RegisteredModel, *contract.Error) {
+	var registeredModel models.RegisteredModel
+	if err := m.db.WithContext(
+		ctx,
+	).Where(
+		"name = ?", name,
+	).First(
+		&registeredModel,
+	).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			//nolint:perfsprint
+			return nil, contract.NewError(
+				protos.ErrorCode_RESOURCE_DOES_NOT_EXIST,
+				fmt.Sprintf("Could not find registered model with name %s", name),
+			)
+		}
+
+		//nolint:perfsprint
+		return nil, contract.NewErrorWith(
+			protos.ErrorCode_INTERNAL_ERROR,
+			fmt.Sprintf("failed to get experiment by name %s", name),
+			err,
+		)
+	}
+
+	return registeredModel.ToEntity(), nil
+}
+
+func (m *ModelRegistrySQLStore) CreateRegisteredModel(
+	ctx context.Context, name, description string, tags []*entities.RegisteredModelTag,
+) (*entities.RegisteredModel, *contract.Error) {
+	registeredModel := models.RegisteredModel{
+		Name:            name,
+		Tags:            make([]models.RegisteredModelTag, 0, len(tags)),
+		CreationTime:    time.Now().UnixMilli(),
+		LastUpdatedTime: time.Now().UnixMilli(),
+	}
+	if description != "" {
+		registeredModel.Description = sql.NullString{String: description, Valid: true}
+	}
+
+	// iterate over unique tags only.
+	uniqueTagMap := map[string]struct{}{}
+	for _, tag := range tags {
+		if _, ok := uniqueTagMap[tag.Key]; !ok {
+			uniqueTagMap[tag.Key] = struct{}{}
+
+			registeredModel.Tags = append(
+				registeredModel.Tags,
+				models.RegisteredModelTagFromEntity(registeredModel.Name, tag),
+			)
+		}
+	}
+
+	if err := m.db.WithContext(ctx).Create(&registeredModel).Error; err != nil {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			return nil, contract.NewError(
+				protos.ErrorCode_RESOURCE_ALREADY_EXISTS,
+				fmt.Sprintf("Registered Model (name=%s) already exists.", registeredModel.Name),
+			)
+		}
+
+		return nil, contract.NewErrorWith(protos.ErrorCode_INTERNAL_ERROR, "failed to create registered model", err)
+	}
+
+	return registeredModel.ToEntity(), nil
 }

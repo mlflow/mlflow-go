@@ -3,8 +3,10 @@ import logging
 
 from mlflow.entities.model_registry import (
     ModelVersion,
+    RegisteredModel,
 )
 from mlflow.protos.model_registry_pb2 import (
+    CreateRegisteredModel,
     GetLatestVersions,
 )
 
@@ -40,6 +42,21 @@ class _ModelRegistryStore:
             get_lib().ModelRegistryServiceGetLatestVersions, request
         )
         return [ModelVersion.from_proto(mv) for mv in response.model_versions]
+
+    def create_registered_model(self, name, tags=None, description=None):
+        request = CreateRegisteredModel(
+            name=name,
+            tags=[tag.to_proto() for tag in tags] if tags else [],
+            description=description,
+        )
+        response = self.service.call_endpoint(
+            get_lib().ModelRegistryServiceCreateRegisteredModel, request
+        )
+        entity = RegisteredModel.from_proto(response.registered_model)
+        if not response.registered_model.HasField("description"):
+            entity.description = None
+
+        return entity
 
 
 def ModelRegistryStore(cls):
