@@ -11,6 +11,17 @@ import (
 )
 
 func RegisterModelRegistryServiceRoutes(service service.ModelRegistryService, parser *parser.HTTPRequestParser, app *fiber.App) {
+	app.Post("/mlflow/registered-models/create", func(ctx *fiber.Ctx) error {
+		input := &protos.CreateRegisteredModel{}
+		if err := parser.ParseBody(ctx, input); err != nil {
+			return err
+		}
+		output, err := service.CreateRegisteredModel(utils.NewContextWithLoggerFromFiberContext(ctx), input)
+		if err != nil {
+			return err
+		}
+		return ctx.JSON(output)
+	})
 	app.Post("/mlflow/registered-models/get-latest-versions", func(ctx *fiber.Ctx) error {
 		input := &protos.GetLatestVersions{}
 		if err := parser.ParseBody(ctx, input); err != nil {
