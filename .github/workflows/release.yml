@@ -3,10 +3,6 @@ name: Release
 on:
   workflow_call:
 
-permissions:
-  contents: read
-  id-token: write
-
 jobs:
   pypi-publish:
     name: Upload release to PyPI
