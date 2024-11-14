@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 license = { file = "LICENSE" }
 
 name = "mlflow-go"
-version = "0.0.2"
+version = "0.1.0"
 description = "MLflow is an open source platform for the complete machine learning lifecycle"
 readme = "README.md"
 keywords = ["mlflow", "ai", "databricks"]
