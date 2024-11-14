@@ -5,14 +5,13 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   pypi-publish:
     name: Upload release to PyPI
     runs-on: ubuntu-latest
-    environment: testpypi
-    permissions:
-      id-token: write
+    environment: release
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v4
