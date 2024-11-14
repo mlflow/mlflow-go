@@ -43,6 +43,13 @@ type (
 		SetTag(ctx context.Context, runID, key, value string) *contract.Error
 	}
 	TraceTrackingStore interface {
+		SetTrace(
+			ctx context.Context,
+			experimentID string,
+			timestampMS int64,
+			metadata []*entities.TraceRequestMetadata,
+			tags []*entities.TraceTag,
+		) (*entities.TraceInfo, error)
 		EndTrace(
 			ctx context.Context,
 			reqeustID string,
@@ -55,6 +62,13 @@ type (
 		SetTraceTag(ctx context.Context, requestID, key, value string) error
 		GetTraceTag(ctx context.Context, requestID, key string) (*entities.TraceTag, *contract.Error)
 		DeleteTraceTag(ctx context.Context, tag *entities.TraceTag) *contract.Error
+		DeleteTraces(
+			ctx context.Context,
+			experimentID string,
+			maxTimestampMillis int64,
+			maxTraces int32,
+			requestIDs []string,
+		) (int32, *contract.Error)
 	}
 	MetricTrackingStore interface {
 		LogBatch(
@@ -66,6 +80,7 @@ type (
 
 		LogMetric(ctx context.Context, runID string, metric *entities.Metric) *contract.Error
 		LogParam(ctx context.Context, runID string, metric *entities.Param) *contract.Error
+		GetMetricHistory(ctx context.Context, runID, metricKey string) ([]*entities.Metric, *contract.Error)
 	}
 
 	ExperimentTrackingStore interface {

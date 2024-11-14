@@ -167,6 +167,14 @@ func TrackingServiceSearchRuns(serviceID int64, requestData unsafe.Pointer, requ
 	}
 	return invokeServiceMethod(service.SearchRuns, new(protos.SearchRuns), requestData, requestSize, responseSize)
 }
+//export TrackingServiceGetMetricHistory
+func TrackingServiceGetMetricHistory(serviceID int64, requestData unsafe.Pointer, requestSize C.int, responseSize *C.int) unsafe.Pointer {
+	service, err := trackingServices.Get(serviceID)
+	if err != nil {
+		return makePointerFromError(err, responseSize)
+	}
+	return invokeServiceMethod(service.GetMetricHistory, new(protos.GetMetricHistory), requestData, requestSize, responseSize)
+}
 //export TrackingServiceLogBatch
 func TrackingServiceLogBatch(serviceID int64, requestData unsafe.Pointer, requestSize C.int, responseSize *C.int) unsafe.Pointer {
 	service, err := trackingServices.Get(serviceID)
@@ -183,6 +191,14 @@ func TrackingServiceLogInputs(serviceID int64, requestData unsafe.Pointer, reque
 	}
 	return invokeServiceMethod(service.LogInputs, new(protos.LogInputs), requestData, requestSize, responseSize)
 }
+//export TrackingServiceStartTrace
+func TrackingServiceStartTrace(serviceID int64, requestData unsafe.Pointer, requestSize C.int, responseSize *C.int) unsafe.Pointer {
+	service, err := trackingServices.Get(serviceID)
+	if err != nil {
+		return makePointerFromError(err, responseSize)
+	}
+	return invokeServiceMethod(service.StartTrace, new(protos.StartTrace), requestData, requestSize, responseSize)
+}
 //export TrackingServiceEndTrace
 func TrackingServiceEndTrace(serviceID int64, requestData unsafe.Pointer, requestSize C.int, responseSize *C.int) unsafe.Pointer {
 	service, err := trackingServices.Get(serviceID)
@@ -198,4 +214,12 @@ func TrackingServiceGetTraceInfo(serviceID int64, requestData unsafe.Pointer, re
 		return makePointerFromError(err, responseSize)
 	}
 	return invokeServiceMethod(service.GetTraceInfo, new(protos.GetTraceInfo), requestData, requestSize, responseSize)
+}
+//export TrackingServiceDeleteTraces
+func TrackingServiceDeleteTraces(serviceID int64, requestData unsafe.Pointer, requestSize C.int, responseSize *C.int) unsafe.Pointer {
+	service, err := trackingServices.Get(serviceID)
+	if err != nil {
+		return makePointerFromError(err, responseSize)
+	}
+	return invokeServiceMethod(service.DeleteTraces, new(protos.DeleteTraces), requestData, requestSize, responseSize)
 }

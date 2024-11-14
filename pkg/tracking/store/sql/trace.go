@@ -12,7 +12,69 @@ import (
 	"github.com/mlflow/mlflow-go/pkg/entities"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 	"github.com/mlflow/mlflow-go/pkg/tracking/store/sql/models"
+	"github.com/mlflow/mlflow-go/pkg/utils"
 )
+
+func (s TrackingSQLStore) SetTrace(
+	ctx context.Context,
+	experimentID string,
+	timestampMS int64,
+	metadata []*entities.TraceRequestMetadata,
+	tags []*entities.TraceTag,
+) (*entities.TraceInfo, error) {
+	traceInfo := &models.TraceInfo{
+		RequestID:            utils.NewUUID(),
+		ExperimentID:         experimentID,
+		TimestampMS:          timestampMS,
+		Status:               models.TraceInfoStatusInProgress,
+		Tags:                 make([]models.TraceTag, 0, len(tags)),
+		TraceRequestMetadata: make([]models.TraceRequestMetadata, 0, len(metadata)),
+	}
+
+	experiment, err := s.GetExperiment(ctx, experimentID)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, tag := range tags {
+		// Very often Python tests mock generation of `request_id` of the flight.
+		// It easily works with Python, but it doesn't work with GO,
+		// so that's why we need to pass `request_id`
+		// from Pythong to Go and override traceInfo.RequestID with value from Python.
+		if tag.Key == "request_id" {
+			traceInfo.RequestID = tag.Value
+		} else {
+			traceInfo.Tags = append(traceInfo.Tags, models.NewTraceTagFromEntity(traceInfo.RequestID, tag))
+		}
+	}
+
+	traceArtifactLocationTag, artifactLocationTagErr := GetTraceArtifactLocationTag(experiment, traceInfo.RequestID)
+	if artifactLocationTagErr != nil {
+		return nil, contract.NewErrorWith(
+			protos.ErrorCode_INTERNAL_ERROR,
+			fmt.Sprintf("failed to create trace for experiment_id %q", experimentID),
+			err,
+		)
+	}
+
+	traceInfo.Tags = append(traceInfo.Tags, traceArtifactLocationTag)
+
+	for _, m := range metadata {
+		traceInfo.TraceRequestMetadata = append(
+			traceInfo.TraceRequestMetadata, models.NewTraceRequestMetadataFromEntity(traceInfo.RequestID, m),
+		)
+	}
+
+	if err := s.db.WithContext(ctx).Create(&traceInfo).Error; err != nil {
+		return nil, contract.NewErrorWith(
+			protos.ErrorCode_INTERNAL_ERROR,
+			fmt.Sprintf("failed to create trace for experiment_id %q", experimentID),
+			err,
+		)
+	}
+
+	return traceInfo.ToEntity(), nil
+}
 
 const (
 	BatchSize = 100
@@ -200,4 +262,61 @@ func (s TrackingSQLStore) createTraceMetadata(
 	}
 
 	return nil
+}
+
+func (s TrackingSQLStore) DeleteTraces(
+	ctx context.Context,
+	experimentID string,
+	maxTimestampMillis int64,
+	maxTraces int32,
+	requestIDs []string,
+) (int32, *contract.Error) {
+	query := s.db.WithContext(
+		ctx,
+	).Where(
+		"experiment_id = ?", experimentID,
+	)
+
+	if maxTimestampMillis != 0 {
+		query = query.Where("timestamp_ms <= ?", maxTimestampMillis)
+	}
+
+	if len(requestIDs) > 0 {
+		query = query.Where("request_id IN (?)", requestIDs)
+	}
+
+	if maxTraces != 0 {
+		query = query.Where(
+			"request_id IN (?)",
+			s.db.Select(
+				"request_id",
+			).Model(
+				&models.TraceInfo{},
+			).Order(
+				"timestamp_ms ASC",
+			).Limit(
+				int(maxTraces),
+			),
+		)
+	}
+
+	var traces []models.TraceInfo
+	if err := query.Debug().Clauses(
+		clause.Returning{
+			Columns: []clause.Column{
+				{Name: "request_id"},
+			},
+		},
+	).Delete(
+		&traces,
+	).Error; err != nil {
+		return 0, contract.NewErrorWith(
+			protos.ErrorCode_INTERNAL_ERROR,
+			fmt.Sprintf("failed to delete traces %v", err),
+			err,
+		)
+	}
+
+	//nolint:gosec
+	return int32(len(traces)), nil
 }

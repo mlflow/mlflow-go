@@ -191,3 +191,27 @@ func (s TrackingSQLStore) LogMetric(ctx context.Context, runID string, metric *e
 
 	return nil
 }
+
+func (s TrackingSQLStore) GetMetricHistory(
+	ctx context.Context, runID, metricKey string,
+) ([]*entities.Metric, *contract.Error) {
+	var metrics []*models.Metric
+	if err := s.db.WithContext(
+		ctx,
+	).Where(
+		"run_uuid = ?", runID,
+	).Where(
+		"key = ?", metricKey,
+	).Find(&metrics).Error; err != nil {
+		return nil, contract.NewError(
+			protos.ErrorCode_INTERNAL_ERROR, fmt.Sprintf("error getting metric history: %v", err),
+		)
+	}
+
+	entityMetrics := make([]*entities.Metric, len(metrics))
+	for i, metric := range metrics {
+		entityMetrics[i] = metric.ToEntity()
+	}
+
+	return entityMetrics, nil
+}

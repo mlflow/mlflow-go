@@ -20,13 +20,10 @@ func (ti TraceInfo) ToProto() *protos.TraceInfo {
 		RequestId:       &ti.RequestID,
 		ExperimentId:    &ti.ExperimentID,
 		TimestampMs:     &ti.TimestampMS,
+		ExecutionTimeMs: ti.ExecutionTimeMS,
 		Status:          utils.PtrTo(protos.TraceStatus(protos.TraceStatus_value[ti.Status])),
 		RequestMetadata: make([]*protos.TraceRequestMetadata, 0, len(ti.Tags)),
 		Tags:            make([]*protos.TraceTag, 0, len(ti.Tags)),
-	}
-
-	if ti.ExecutionTimeMS != nil {
-		traceInfo.ExecutionTimeMs = ti.ExecutionTimeMS
 	}
 
 	for _, tag := range ti.Tags {

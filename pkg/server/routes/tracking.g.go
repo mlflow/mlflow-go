@@ -242,6 +242,17 @@ func RegisterTrackingServiceRoutes(service service.TrackingService, parser *pars
 		}
 		return ctx.JSON(output)
 	})
+	app.Get("/mlflow/metrics/get-history", func(ctx *fiber.Ctx) error {
+		input := &protos.GetMetricHistory{}
+		if err := parser.ParseQuery(ctx, input); err != nil {
+			return err
+		}
+		output, err := service.GetMetricHistory(utils.NewContextWithLoggerFromFiberContext(ctx), input)
+		if err != nil {
+			return err
+		}
+		return ctx.JSON(output)
+	})
 	app.Post("/mlflow/runs/log-batch", func(ctx *fiber.Ctx) error {
 		input := &protos.LogBatch{}
 		if err := parser.ParseBody(ctx, input); err != nil {
@@ -264,6 +275,17 @@ func RegisterTrackingServiceRoutes(service service.TrackingService, parser *pars
 		}
 		return ctx.JSON(output)
 	})
+	app.Post("/mlflow/traces", func(ctx *fiber.Ctx) error {
+		input := &protos.StartTrace{}
+		if err := parser.ParseBody(ctx, input); err != nil {
+			return err
+		}
+		output, err := service.StartTrace(utils.NewContextWithLoggerFromFiberContext(ctx), input)
+		if err != nil {
+			return err
+		}
+		return ctx.JSON(output)
+	})
 	app.Patch("/mlflow/traces/:request_id", func(ctx *fiber.Ctx) error {
 		input := &protos.EndTrace{}
 		if err := parser.ParseBody(ctx, input); err != nil {
@@ -281,6 +303,17 @@ func RegisterTrackingServiceRoutes(service service.TrackingService, parser *pars
 			return err
 		}
 		output, err := service.GetTraceInfo(utils.NewContextWithLoggerFromFiberContext(ctx), input)
+		if err != nil {
+			return err
+		}
+		return ctx.JSON(output)
+	})
+	app.Post("/mlflow/traces/delete-traces", func(ctx *fiber.Ctx) error {
+		input := &protos.DeleteTraces{}
+		if err := parser.ParseBody(ctx, input); err != nil {
+			return err
+		}
+		output, err := service.DeleteTraces(utils.NewContextWithLoggerFromFiberContext(ctx), input)
 		if err != nil {
 			return err
 		}
