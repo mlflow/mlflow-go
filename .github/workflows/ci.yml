@@ -13,20 +13,19 @@ on:
     - cron: "34 1 * * *"
 
 jobs:
-  # lint:
-  #   uses: ./.github/workflows/lint.yml
+  lint:
+    uses: ./.github/workflows/lint.yml
 
-  # test:
-  #   uses: ./.github/workflows/test.yml
+  test:
+    uses: ./.github/workflows/test.yml
 
   build:
     uses: ./.github/workflows/build.yml
 
   release:
     needs: 
-      # - lint
-      # - test
+      - lint
+      - test
       - build
-    # if: ${{ !github.event.repository.fork && github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main') }}
-    if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
+    if: ${{ !github.event.repository.fork && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
     uses: ./.github/workflows/release.yml
