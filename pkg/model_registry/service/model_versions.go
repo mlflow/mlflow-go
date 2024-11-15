@@ -19,3 +19,16 @@ func (m *ModelRegistryService) GetLatestVersions(
 		ModelVersions: latestVersions,
 	}, nil
 }
+
+func (m *ModelRegistryService) UpdateRegisteredModel(
+	ctx context.Context, input *protos.UpdateRegisteredModel,
+) (*protos.UpdateRegisteredModel_Response, *contract.Error) {
+	registeredModel, err := m.store.UpdateRegisteredModel(ctx, input.GetName(), input.GetDescription())
+	if err != nil {
+		return nil, err
+	}
+
+	return &protos.UpdateRegisteredModel_Response{
+		RegisteredModel: registeredModel.ToProto(),
+	}, nil
+}

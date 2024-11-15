@@ -1,11 +1,10 @@
 import json
 import logging
 
-from mlflow.entities.model_registry import (
-    ModelVersion,
-)
+from mlflow.entities.model_registry import ModelVersion, RegisteredModel
 from mlflow.protos.model_registry_pb2 import (
     GetLatestVersions,
+    UpdateRegisteredModel,
 )
 
 from mlflow_go import is_go_enabled
@@ -40,6 +39,13 @@ class _ModelRegistryStore:
             get_lib().ModelRegistryServiceGetLatestVersions, request
         )
         return [ModelVersion.from_proto(mv) for mv in response.model_versions]
+
+    def update_registered_model(self, name, description):
+        request = UpdateRegisteredModel(name=name, description=description)
+        response = self.service.call_endpoint(
+            get_lib().ModelRegistryServiceUpdateRegisteredModel, request
+        )
+        return RegisteredModel.from_proto(response.registered_model)
 
 
 def ModelRegistryStore(cls):
