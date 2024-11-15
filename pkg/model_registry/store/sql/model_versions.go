@@ -2,13 +2,16 @@ package sql
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"gorm.io/gorm"
 
 	"github.com/mlflow/mlflow-go/pkg/contract"
+	"github.com/mlflow/mlflow-go/pkg/entities"
 	"github.com/mlflow/mlflow-go/pkg/model_registry/store/sql/models"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 )
@@ -91,4 +94,56 @@ func (m *ModelRegistrySQLStore) GetLatestVersions(
 	}
 
 	return results, nil
+}
+
+func (m *ModelRegistrySQLStore) GetRegisteredModelByName(
+	ctx context.Context, name string,
+) (*entities.RegisteredModel, *contract.Error) {
+	var registeredModel models.RegisteredModel
+	if err := m.db.WithContext(
+		ctx,
+	).Where(
+		"name = ?", name,
+	).First(
+		&registeredModel,
+	).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, contract.NewError(
+				protos.ErrorCode_RESOURCE_DOES_NOT_EXIST,
+				fmt.Sprintf("Registered Model with name=%s not found", name),
+			)
+		}
+
+		//nolint:perfsprint
+		return nil, contract.NewErrorWith(
+			protos.ErrorCode_INTERNAL_ERROR,
+			fmt.Sprintf("failed to get experiment by name %s", name),
+			err,
+		)
+	}
+
+	return registeredModel.ToEntity(), nil
+}
+
+func (m *ModelRegistrySQLStore) UpdateRegisteredModel(
+	ctx context.Context, name, description string,
+) (*entities.RegisteredModel, *contract.Error) {
+	registeredModel, err := m.GetRegisteredModelByName(ctx, name)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := m.db.WithContext(ctx).Model(
+		&models.RegisteredModel{},
+	).Where(
+		"name = ?", registeredModel.Name,
+	).Updates(&models.RegisteredModel{
+		Name:            name,
+		Description:     sql.NullString{String: description, Valid: true},
+		LastUpdatedTime: time.Now().UnixMilli(),
+	}).Error; err != nil {
+		return nil, contract.NewErrorWith(protos.ErrorCode_INTERNAL_ERROR, "failed to update registered model", err)
+	}
+
+	return registeredModel, nil
 }

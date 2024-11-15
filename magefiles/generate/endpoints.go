@@ -50,7 +50,7 @@ var ServiceInfoMap = map[string]ServiceGenerationInfo{
 		ImplementedEndpoints: []string{
 			// "createRegisteredModel",
 			// "renameRegisteredModel",
-			// "updateRegisteredModel",
+			"updateRegisteredModel",
 			// "deleteRegisteredModel",
 			// "getRegisteredModel",
 			// "searchRegisteredModels",
