@@ -11,6 +11,17 @@ import (
 )
 
 func RegisterModelRegistryServiceRoutes(service service.ModelRegistryService, parser *parser.HTTPRequestParser, app *fiber.App) {
+	app.Post("/mlflow/registered-models/rename", func(ctx *fiber.Ctx) error {
+		input := &protos.RenameRegisteredModel{}
+		if err := parser.ParseBody(ctx, input); err != nil {
+			return err
+		}
+		output, err := service.RenameRegisteredModel(utils.NewContextWithLoggerFromFiberContext(ctx), input)
+		if err != nil {
+			return err
+		}
+		return ctx.JSON(output)
+	})
 	app.Patch("/mlflow/registered-models/update", func(ctx *fiber.Ctx) error {
 		input := &protos.UpdateRegisteredModel{}
 		if err := parser.ParseBody(ctx, input); err != nil {

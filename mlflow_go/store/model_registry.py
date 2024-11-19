@@ -4,6 +4,7 @@ import logging
 from mlflow.entities.model_registry import ModelVersion, RegisteredModel
 from mlflow.protos.model_registry_pb2 import (
     GetLatestVersions,
+    RenameRegisteredModel,
     UpdateRegisteredModel,
 )
 
@@ -44,6 +45,13 @@ class _ModelRegistryStore:
         request = UpdateRegisteredModel(name=name, description=description)
         response = self.service.call_endpoint(
             get_lib().ModelRegistryServiceUpdateRegisteredModel, request
+        )
+        return RegisteredModel.from_proto(response.registered_model)
+
+    def rename_registered_model(self, name, new_name):
+        request = RenameRegisteredModel(name=name, new_name=new_name)
+        response = self.service.call_endpoint(
+            get_lib().ModelRegistryServiceRenameRegisteredModel, request
         )
         return RegisteredModel.from_proto(response.registered_model)
 

@@ -7,6 +7,14 @@ import (
 	"unsafe"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 )
+//export ModelRegistryServiceRenameRegisteredModel
+func ModelRegistryServiceRenameRegisteredModel(serviceID int64, requestData unsafe.Pointer, requestSize C.int, responseSize *C.int) unsafe.Pointer {
+	service, err := modelRegistryServices.Get(serviceID)
+	if err != nil {
+		return makePointerFromError(err, responseSize)
+	}
+	return invokeServiceMethod(service.RenameRegisteredModel, new(protos.RenameRegisteredModel), requestData, requestSize, responseSize)
+}
 //export ModelRegistryServiceUpdateRegisteredModel
 func ModelRegistryServiceUpdateRegisteredModel(serviceID int64, requestData unsafe.Pointer, requestSize C.int, responseSize *C.int) unsafe.Pointer {
 	service, err := modelRegistryServices.Get(serviceID)
