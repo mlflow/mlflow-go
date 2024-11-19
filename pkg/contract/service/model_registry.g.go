@@ -10,6 +10,7 @@ import (
 
 type ModelRegistryService interface {
 	contract.Destroyer
+	RenameRegisteredModel(ctx context.Context, input *protos.RenameRegisteredModel) (*protos.RenameRegisteredModel_Response, *contract.Error)
 	UpdateRegisteredModel(ctx context.Context, input *protos.UpdateRegisteredModel) (*protos.UpdateRegisteredModel_Response, *contract.Error)
 	GetLatestVersions(ctx context.Context, input *protos.GetLatestVersions) (*protos.GetLatestVersions_Response, *contract.Error)
 }

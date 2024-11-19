@@ -32,3 +32,24 @@ func (m *ModelRegistryService) UpdateRegisteredModel(
 		RegisteredModel: registeredModel.ToProto(),
 	}, nil
 }
+
+func (m *ModelRegistryService) RenameRegisteredModel(
+	ctx context.Context, input *protos.RenameRegisteredModel,
+) (*protos.RenameRegisteredModel_Response, *contract.Error) {
+	newName := input.GetNewName()
+	if newName == "" {
+		return nil, contract.NewError(
+			protos.ErrorCode_INVALID_PARAMETER_VALUE,
+			"Registered model name cannot be empty",
+		)
+	}
+
+	registeredModel, err := m.store.RenameRegisteredModel(ctx, input.GetName(), newName)
+	if err != nil {
+		return nil, err
+	}
+
+	return &protos.RenameRegisteredModel_Response{
+		RegisteredModel: registeredModel.ToProto(),
+	}, nil
+}

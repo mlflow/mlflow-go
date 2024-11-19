@@ -147,3 +147,55 @@ func (m *ModelRegistrySQLStore) UpdateRegisteredModel(
 
 	return registeredModel, nil
 }
+
+func (m *ModelRegistrySQLStore) RenameRegisteredModel(
+	ctx context.Context, name, newName string,
+) (*entities.RegisteredModel, *contract.Error) {
+	registeredModel, err := m.GetRegisteredModelByName(ctx, name)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := m.db.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
+		if err := transaction.Model(
+			&models.ModelVersion{},
+		).Where(
+			"name = ?", registeredModel.Name,
+		).Updates(&models.ModelVersion{
+			Name:            newName,
+			LastUpdatedTime: time.Now().UnixMilli(),
+		}).Error; err != nil {
+			return err
+		}
+
+		if err := transaction.Model(
+			&models.RegisteredModel{},
+		).Where(
+			"name = ?", registeredModel.Name,
+		).Updates(&models.RegisteredModel{
+			Name:            newName,
+			LastUpdatedTime: time.Now().UnixMilli(),
+		}).Error; err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			return nil, contract.NewErrorWith(
+				protos.ErrorCode_RESOURCE_ALREADY_EXISTS,
+				fmt.Sprintf("Registered Model (name=%s) already exists", newName),
+				err,
+			)
+		}
+
+		return nil, contract.NewErrorWith(protos.ErrorCode_INTERNAL_ERROR, "failed to rename registered model", err)
+	}
+
+	registeredModel, err = m.GetRegisteredModelByName(ctx, newName)
+	if err != nil {
+		return nil, err
+	}
+
+	return registeredModel, nil
+}
