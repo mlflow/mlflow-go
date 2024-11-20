@@ -23,6 +23,14 @@ func ModelRegistryServiceUpdateRegisteredModel(serviceID int64, requestData unsa
 	}
 	return invokeServiceMethod(service.UpdateRegisteredModel, new(protos.UpdateRegisteredModel), requestData, requestSize, responseSize)
 }
+//export ModelRegistryServiceDeleteRegisteredModel
+func ModelRegistryServiceDeleteRegisteredModel(serviceID int64, requestData unsafe.Pointer, requestSize C.int, responseSize *C.int) unsafe.Pointer {
+	service, err := modelRegistryServices.Get(serviceID)
+	if err != nil {
+		return makePointerFromError(err, responseSize)
+	}
+	return invokeServiceMethod(service.DeleteRegisteredModel, new(protos.DeleteRegisteredModel), requestData, requestSize, responseSize)
+}
 //export ModelRegistryServiceGetLatestVersions
 func ModelRegistryServiceGetLatestVersions(serviceID int64, requestData unsafe.Pointer, requestSize C.int, responseSize *C.int) unsafe.Pointer {
 	service, err := modelRegistryServices.Get(serviceID)

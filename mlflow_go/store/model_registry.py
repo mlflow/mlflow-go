@@ -3,6 +3,7 @@ import logging
 
 from mlflow.entities.model_registry import ModelVersion, RegisteredModel
 from mlflow.protos.model_registry_pb2 import (
+    DeleteRegisteredModel,
     GetLatestVersions,
     RenameRegisteredModel,
     UpdateRegisteredModel,
@@ -54,6 +55,10 @@ class _ModelRegistryStore:
             get_lib().ModelRegistryServiceRenameRegisteredModel, request
         )
         return RegisteredModel.from_proto(response.registered_model)
+
+    def delete_registered_model(self, name):
+        request = DeleteRegisteredModel(name=name)
+        self.service.call_endpoint(get_lib().ModelRegistryServiceDeleteRegisteredModel, request)
 
 
 def ModelRegistryStore(cls):

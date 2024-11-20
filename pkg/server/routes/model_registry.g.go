@@ -33,6 +33,17 @@ func RegisterModelRegistryServiceRoutes(service service.ModelRegistryService, pa
 		}
 		return ctx.JSON(output)
 	})
+	app.Delete("/mlflow/registered-models/delete", func(ctx *fiber.Ctx) error {
+		input := &protos.DeleteRegisteredModel{}
+		if err := parser.ParseBody(ctx, input); err != nil {
+			return err
+		}
+		output, err := service.DeleteRegisteredModel(utils.NewContextWithLoggerFromFiberContext(ctx), input)
+		if err != nil {
+			return err
+		}
+		return ctx.JSON(output)
+	})
 	app.Post("/mlflow/registered-models/get-latest-versions", func(ctx *fiber.Ctx) error {
 		input := &protos.GetLatestVersions{}
 		if err := parser.ParseBody(ctx, input); err != nil {
