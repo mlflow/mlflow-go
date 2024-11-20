@@ -199,3 +199,60 @@ func (m *ModelRegistrySQLStore) RenameRegisteredModel(
 
 	return registeredModel, nil
 }
+
+func (m *ModelRegistrySQLStore) DeleteRegisteredModel(ctx context.Context, name string) *contract.Error {
+	registeredModel, err := m.GetRegisteredModelByName(ctx, name)
+	if err != nil {
+		return err
+	}
+
+	if err := m.db.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
+		if err := transaction.Where(
+			"name = ?", registeredModel.Name,
+		).Delete(
+			models.ModelVersionTag{},
+		).Error; err != nil {
+			return err
+		}
+
+		if err := transaction.Where(
+			"name = ?", registeredModel.Name,
+		).Delete(
+			models.ModelVersion{},
+		).Error; err != nil {
+			return err
+		}
+
+		if err := transaction.Where(
+			"name = ?", registeredModel.Name,
+		).Delete(
+			models.RegisteredModelTag{},
+		).Error; err != nil {
+			return err
+		}
+
+		if err := transaction.Where(
+			"name = ?", registeredModel.Name,
+		).Delete(
+			models.RegisteredModelAlias{},
+		).Error; err != nil {
+			return err
+		}
+
+		if err := transaction.Where(
+			"name = ?", registeredModel.Name,
+		).Delete(
+			models.RegisteredModel{},
+		).Error; err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
+		return contract.NewError(
+			protos.ErrorCode_INTERNAL_ERROR, fmt.Sprintf("error deleting registered model: %v", err),
+		)
+	}
+
+	return nil
+}
