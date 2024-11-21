@@ -42,6 +42,7 @@ jobs:
           chmod +x miniconda.sh
           ./miniconda.sh -b -p $HOME/miniconda
           echo "$HOME/miniconda/bin" >> $GITHUB_PATH
+          export PATH="$HOME/miniconda/bin:$PATH"
           conda --version
       - name: Install uv
         uses: astral-sh/setup-uv@v3
