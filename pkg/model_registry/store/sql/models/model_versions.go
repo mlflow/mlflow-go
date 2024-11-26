@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/mlflow/mlflow-go/pkg/entities"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 	"github.com/mlflow/mlflow-go/pkg/utils"
 )
@@ -45,5 +46,23 @@ func (mv ModelVersion) ToProto() *protos.ModelVersion {
 		Status:               status,
 		StatusMessage:        &mv.StatusMessage,
 		RunLink:              &mv.RunLink,
+	}
+}
+
+func (mv ModelVersion) ToEntity() *entities.ModelVersion {
+	return &entities.ModelVersion{
+		Name:            mv.Name,
+		Version:         mv.Version,
+		CreationTime:    mv.CreationTime,
+		LastUpdatedTime: mv.LastUpdatedTime,
+		Description:     mv.Description,
+		UserID:          mv.UserID,
+		CurrentStage:    mv.CurrentStage.String(),
+		Source:          mv.Source,
+		RunID:           mv.RunID,
+		Status:          mv.Status,
+		StatusMessage:   mv.StatusMessage,
+		RunLink:         mv.RunLink,
+		StorageLocation: mv.StorageLocation,
 	}
 }
