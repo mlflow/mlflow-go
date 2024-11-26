@@ -52,7 +52,7 @@ var ServiceInfoMap = map[string]ServiceGenerationInfo{
 			"renameRegisteredModel",
 			"updateRegisteredModel",
 			"deleteRegisteredModel",
-			// "getRegisteredModel",
+			"getRegisteredModel",
 			// "searchRegisteredModels",
 			"getLatestVersions",
 			// "createModelVersion",
