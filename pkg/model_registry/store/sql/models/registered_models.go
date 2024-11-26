@@ -43,7 +43,7 @@ func (m *RegisteredModel) ToEntity() *entities.RegisteredModel {
 
 	for _, currentVersion := range m.Versions {
 		stage := currentVersion.CurrentStage.String()
-		if stage != "Deleted_Internal" {
+		if stage != StageDeletedInternal {
 			if latestVersion, ok := latestVersionsByStage[stage]; !ok || latestVersion.Version < currentVersion.Version {
 				latestVersionsByStage[stage] = &currentVersion
 			}
