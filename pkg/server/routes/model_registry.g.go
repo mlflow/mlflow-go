@@ -77,4 +77,15 @@ func RegisterModelRegistryServiceRoutes(service service.ModelRegistryService, pa
 		}
 		return ctx.JSON(output)
 	})
+	app.Post("/mlflow/model-versions/create", func(ctx *fiber.Ctx) error {
+		input := &protos.CreateModelVersion{}
+		if err := parser.ParseBody(ctx, input); err != nil {
+			return err
+		}
+		output, err := service.CreateModelVersion(utils.NewContextWithLoggerFromFiberContext(ctx), input)
+		if err != nil {
+			return err
+		}
+		return ctx.JSON(output)
+	})
 }

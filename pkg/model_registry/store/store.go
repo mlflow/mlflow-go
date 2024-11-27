@@ -11,6 +11,12 @@ import (
 type ModelRegistryStore interface {
 	contract.Destroyer
 	GetLatestVersions(ctx context.Context, name string, stages []string) ([]*protos.ModelVersion, *contract.Error)
+	CreateModelVersion(
+		ctx context.Context,
+		name, source, runID string,
+		tags []entities.ModelTag,
+		runLink, description string,
+	) (*entities.ModelVersion, *contract.Error)
 	GetRegisteredModel(ctx context.Context, name string) (*entities.RegisteredModel, *contract.Error)
 	UpdateRegisteredModel(ctx context.Context, name, description string) (*entities.RegisteredModel, *contract.Error)
 	RenameRegisteredModel(ctx context.Context, name, newName string) (*entities.RegisteredModel, *contract.Error)

@@ -47,3 +47,11 @@ func ModelRegistryServiceGetLatestVersions(serviceID int64, requestData unsafe.P
 	}
 	return invokeServiceMethod(service.GetLatestVersions, new(protos.GetLatestVersions), requestData, requestSize, responseSize)
 }
+//export ModelRegistryServiceCreateModelVersion
+func ModelRegistryServiceCreateModelVersion(serviceID int64, requestData unsafe.Pointer, requestSize C.int, responseSize *C.int) unsafe.Pointer {
+	service, err := modelRegistryServices.Get(serviceID)
+	if err != nil {
+		return makePointerFromError(err, responseSize)
+	}
+	return invokeServiceMethod(service.CreateModelVersion, new(protos.CreateModelVersion), requestData, requestSize, responseSize)
+}
