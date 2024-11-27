@@ -3,6 +3,7 @@ import logging
 
 from mlflow.entities.model_registry import ModelVersion, RegisteredModel
 from mlflow.protos.model_registry_pb2 import (
+    CreateModelVersion,
     DeleteRegisteredModel,
     GetLatestVersions,
     GetRegisteredModel,
@@ -32,6 +33,27 @@ class _ModelRegistryStore:
     def __del__(self):
         if hasattr(self, "service"):
             get_lib().DestroyModelRegistryService(self.service.id)
+
+    def create_model_version(
+        self,
+        name,
+        source,
+        run_id=None,
+        tags=None,
+        run_link=None,
+        description=None,
+        local_model_path=None,
+    ):
+        request = CreateModelVersion(
+            name=name,
+            source=source,
+            run_id=run_id,
+            tags=tags,
+            run_link=run_link,
+            description=description,
+            local_model_path=local_model_path,
+        )
+        return self.service.call_endpoint(get_lib().ModelRegistryServiceCreateModelVersion, request)
 
     def get_latest_versions(self, name, stages=None):
         request = GetLatestVersions(
