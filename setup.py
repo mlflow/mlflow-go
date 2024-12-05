@@ -36,6 +36,8 @@ def get_platform():
         return "manylinux_2_17_aarch64.manylinux2014_aarch64.musllinux_1_1_aarch64"
     elif plat == "windows_amd64":
         return "win_amd64"
+    elif plat == "windows_arm64":
+        return "win_arm64"
     else:
         raise ValueError("not supported platform.")
 
