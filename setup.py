@@ -1,5 +1,6 @@
 import os
 import pathlib
+import subprocess
 import sys
 from glob import glob
 from typing import List, Tuple
@@ -23,8 +24,12 @@ def _prune_go_files(path: str):
 
 
 def get_platform():
-    goos = os.getenv("TARGET_GOOS")
-    goarch = os.getenv("TARGET_GOARCH")
+    goos = os.getenv(
+        "TARGET_GOOS", subprocess.check_output(["go", "env", "GOOS"]).strip().decode("utf-8")
+    )
+    goarch = os.getenv(
+        "TARGET_GOARCH", subprocess.check_output(["go", "env", "GOARCH"]).strip().decode("utf-8")
+    )
     plat = f"{goos}_{goarch}"
     if plat == "darwin_amd64":
         return "macosx_10_13_x86_64"
