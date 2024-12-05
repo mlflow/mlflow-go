@@ -53,3 +53,26 @@ func (m *ModelRegistryService) RenameRegisteredModel(
 		RegisteredModel: registeredModel.ToProto(),
 	}, nil
 }
+
+func (m *ModelRegistryService) DeleteRegisteredModel(
+	ctx context.Context, input *protos.DeleteRegisteredModel,
+) (*protos.DeleteRegisteredModel_Response, *contract.Error) {
+	if err := m.store.DeleteRegisteredModel(ctx, input.GetName()); err != nil {
+		return nil, err
+	}
+
+	return &protos.DeleteRegisteredModel_Response{}, nil
+}
+
+func (m *ModelRegistryService) GetRegisteredModel(
+	ctx context.Context, input *protos.GetRegisteredModel,
+) (*protos.GetRegisteredModel_Response, *contract.Error) {
+	registeredModel, err := m.store.GetRegisteredModel(ctx, input.GetName())
+	if err != nil {
+		return nil, err
+	}
+
+	return &protos.GetRegisteredModel_Response{
+		RegisteredModel: registeredModel.ToProto(),
+	}, nil
+}

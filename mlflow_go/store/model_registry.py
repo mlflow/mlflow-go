@@ -3,7 +3,9 @@ import logging
 
 from mlflow.entities.model_registry import ModelVersion, RegisteredModel
 from mlflow.protos.model_registry_pb2 import (
+    DeleteRegisteredModel,
     GetLatestVersions,
+    GetRegisteredModel,
     RenameRegisteredModel,
     UpdateRegisteredModel,
 )
@@ -54,6 +56,28 @@ class _ModelRegistryStore:
             get_lib().ModelRegistryServiceRenameRegisteredModel, request
         )
         return RegisteredModel.from_proto(response.registered_model)
+
+    def delete_registered_model(self, name):
+        request = DeleteRegisteredModel(name=name)
+        self.service.call_endpoint(get_lib().ModelRegistryServiceDeleteRegisteredModel, request)
+
+    def get_registered_model(self, name):
+        request = GetRegisteredModel(name=name)
+        response = self.service.call_endpoint(
+            get_lib().ModelRegistryServiceGetRegisteredModel, request
+        )
+
+        entity = RegisteredModel.from_proto(response.registered_model)
+        if entity.description == "":
+            entity.description = None
+
+        # during convertion to proto, `version` value became a `string` value.
+        # convert it back to `int` value again to satisfy all the Python tests and related logic.
+        for key in entity.aliases:
+            if entity.aliases[key].isnumeric():
+                entity.aliases[key] = int(entity.aliases[key])
+
+        return entity
 
 
 def ModelRegistryStore(cls):

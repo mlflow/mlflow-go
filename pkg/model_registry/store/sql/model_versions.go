@@ -96,7 +96,7 @@ func (m *ModelRegistrySQLStore) GetLatestVersions(
 	return results, nil
 }
 
-func (m *ModelRegistrySQLStore) GetRegisteredModelByName(
+func (m *ModelRegistrySQLStore) GetRegisteredModel(
 	ctx context.Context, name string,
 ) (*entities.RegisteredModel, *contract.Error) {
 	var registeredModel models.RegisteredModel
@@ -104,6 +104,12 @@ func (m *ModelRegistrySQLStore) GetRegisteredModelByName(
 		ctx,
 	).Where(
 		"name = ?", name,
+	).Preload(
+		"Tags",
+	).Preload(
+		"Aliases",
+	).Preload(
+		"Versions",
 	).First(
 		&registeredModel,
 	).Error; err != nil {
@@ -128,7 +134,7 @@ func (m *ModelRegistrySQLStore) GetRegisteredModelByName(
 func (m *ModelRegistrySQLStore) UpdateRegisteredModel(
 	ctx context.Context, name, description string,
 ) (*entities.RegisteredModel, *contract.Error) {
-	registeredModel, err := m.GetRegisteredModelByName(ctx, name)
+	registeredModel, err := m.GetRegisteredModel(ctx, name)
 	if err != nil {
 		return nil, err
 	}
@@ -151,7 +157,7 @@ func (m *ModelRegistrySQLStore) UpdateRegisteredModel(
 func (m *ModelRegistrySQLStore) RenameRegisteredModel(
 	ctx context.Context, name, newName string,
 ) (*entities.RegisteredModel, *contract.Error) {
-	registeredModel, err := m.GetRegisteredModelByName(ctx, name)
+	registeredModel, err := m.GetRegisteredModel(ctx, name)
 	if err != nil {
 		return nil, err
 	}
@@ -192,10 +198,67 @@ func (m *ModelRegistrySQLStore) RenameRegisteredModel(
 		return nil, contract.NewErrorWith(protos.ErrorCode_INTERNAL_ERROR, "failed to rename registered model", err)
 	}
 
-	registeredModel, err = m.GetRegisteredModelByName(ctx, newName)
+	registeredModel, err = m.GetRegisteredModel(ctx, newName)
 	if err != nil {
 		return nil, err
 	}
 
 	return registeredModel, nil
+}
+
+func (m *ModelRegistrySQLStore) DeleteRegisteredModel(ctx context.Context, name string) *contract.Error {
+	registeredModel, err := m.GetRegisteredModel(ctx, name)
+	if err != nil {
+		return err
+	}
+
+	if err := m.db.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
+		if err := transaction.Where(
+			"name = ?", registeredModel.Name,
+		).Delete(
+			models.ModelVersionTag{},
+		).Error; err != nil {
+			return err
+		}
+
+		if err := transaction.Where(
+			"name = ?", registeredModel.Name,
+		).Delete(
+			models.ModelVersion{},
+		).Error; err != nil {
+			return err
+		}
+
+		if err := transaction.Where(
+			"name = ?", registeredModel.Name,
+		).Delete(
+			models.RegisteredModelTag{},
+		).Error; err != nil {
+			return err
+		}
+
+		if err := transaction.Where(
+			"name = ?", registeredModel.Name,
+		).Delete(
+			models.RegisteredModelAlias{},
+		).Error; err != nil {
+			return err
+		}
+
+		if err := transaction.Where(
+			"name = ?", registeredModel.Name,
+		).Delete(
+			models.RegisteredModel{},
+		).Error; err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
+		return contract.NewError(
+			protos.ErrorCode_INTERNAL_ERROR, fmt.Sprintf("error deleting registered model: %v", err),
+		)
+	}
+
+	return nil
 }
