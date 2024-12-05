@@ -36,7 +36,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install uv
-        uses: astral-sh/setup-uv@v3
+        uses: astral-sh/setup-uv@v4
       - name: Set up Python ${{ matrix.python }}
         run: uv python install ${{ matrix.python }}
       - name: Setup Go
