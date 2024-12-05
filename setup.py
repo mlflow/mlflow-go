@@ -1,5 +1,6 @@
 import os
 import pathlib
+import subprocess
 import sys
 from glob import glob
 from typing import List, Tuple
@@ -22,6 +23,24 @@ def _prune_go_files(path: str):
                 pass
 
 
+def get_platform():
+    os = subprocess.check_output(["go", "env", "GOOS"]).strip().decode("utf-8")
+    arch = subprocess.check_output(["go", "env", "GOARCH"]).strip().decode("utf-8")
+    plat = f"{os}_{arch}"
+    if plat == "darwin_amd64":
+        return "macosx_10_13_x86_64"
+    elif plat == "darwin_arm64":
+        return "macosx_11_0_arm64"
+    elif plat == "linux_amd64":
+        return "manylinux_2_17_x86_64.manylinux2014_x86_64.musllinux_1_1_x86_64"
+    elif plat == "linux_arm64":
+        return "manylinux_2_17_aarch64.manylinux2014_aarch64.musllinux_1_1_aarch64"
+    elif plat == "windows_amd64":
+        return "win_amd64"
+    else:
+        raise ValueError("not supported platform.")
+
+
 def finalize_distribution_options(dist: Distribution) -> None:
     dist.has_ext_modules = lambda: True
 
@@ -30,8 +49,7 @@ def finalize_distribution_options(dist: Distribution) -> None:
 
     class bdist_wheel_go(bdist_wheel_base_class):
         def get_tag(self) -> Tuple[str, str, str]:
-            _, _, plat = super().get_tag()
-            return "py3", "none", plat
+            return "py3", "none", get_platform()
 
     dist.cmdclass["bdist_wheel"] = bdist_wheel_go
 
