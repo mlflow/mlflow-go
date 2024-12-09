@@ -4,8 +4,38 @@ import (
 	"context"
 
 	"github.com/mlflow/mlflow-go/pkg/contract"
+	"github.com/mlflow/mlflow-go/pkg/entities"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 )
+
+func (m *ModelRegistryService) CreateModelVersion(
+	ctx context.Context, input *protos.CreateModelVersion,
+) (*protos.CreateModelVersion_Response, *contract.Error) {
+	tags := make([]entities.ModelTag, 0, len(input.Tags))
+	for _, tag := range input.Tags {
+		tags = append(tags, entities.ModelTag{
+			Key:   tag.GetKey(),
+			Value: tag.GetValue(),
+		})
+	}
+
+	modelVersion, err := m.store.CreateModelVersion(
+		ctx,
+		input.GetName(),
+		input.GetSource(),
+		input.GetRunId(),
+		tags,
+		input.GetRunLink(),
+		input.GetDescription(),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &protos.CreateModelVersion_Response{
+		ModelVersion: modelVersion.ToProto(),
+	}, nil
+}
 
 func (m *ModelRegistryService) GetLatestVersions(
 	ctx context.Context, input *protos.GetLatestVersions,

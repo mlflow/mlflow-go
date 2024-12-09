@@ -48,4 +48,7 @@ var validations = map[string]string{
 	"Dataset_Schema":                     "max:1048575",
 	"InputTag_Key":                       "required,max=255",
 	"InputTag_Value":                     "required,max=500",
+	"CreateModelVersion_Name":            "required",
+	"ModelVersionTag_Key":                "required,max=250,validMetricParamOrTagName,pathIsUnique",
+	"ModelVersionTag_Value":              "required,truncate=5000",
 }
