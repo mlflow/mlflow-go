@@ -136,12 +136,13 @@ func (m *ModelRegistrySQLStore) CreateModelVersion(
 	version := GetModelNextVersion(registeredModel)
 	modelVersion := models.ModelVersion{
 		Name:            name,
-		RunID:           runID,
+		RunID:           sql.NullString{String: runID, Valid: runID != ""},
+		Status:          models.ModelVersionStatusReady,
 		Source:          source,
 		RunLink:         runLink,
 		Version:         version,
 		CurrentStage:    models.StageNone,
-		Description:     description,
+		Description:     sql.NullString{String: description, Valid: description != ""},
 		CreationTime:    creationTime,
 		LastUpdatedTime: lastUpdatedTime,
 		StorageLocation: storageLocation,
@@ -158,9 +159,7 @@ func (m *ModelRegistrySQLStore) CreateModelVersion(
 			return fmt.Errorf("failed to update registered model: %w", err)
 		}
 
-		if err = transaction.Create(
-			&modelVersion,
-		).Error; err != nil {
+		if err = transaction.Create(&modelVersion).Error; err != nil {
 			return err
 		}
 
@@ -174,11 +173,11 @@ func (m *ModelRegistrySQLStore) CreateModelVersion(
 			})
 		}
 
-		if err = transaction.CreateInBatches(
-			modelTags, batchSize,
-		).Error; err != nil {
+		if err = transaction.CreateInBatches(modelTags, batchSize).Error; err != nil {
 			return err
 		}
+
+		modelVersion.Tags = append(modelVersion.Tags, modelTags...)
 
 		return nil
 	}); err != nil {

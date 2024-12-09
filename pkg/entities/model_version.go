@@ -16,7 +16,7 @@ type ModelVersion struct {
 	UserID          string
 	CurrentStage    string
 	Source          string
-	RunID           string
+	RunID           *string
 	Status          string
 	StatusMessage   string
 	RunLink         string
@@ -35,7 +35,7 @@ func (mv ModelVersion) ToProto() *protos.ModelVersion {
 		LastUpdatedTimestamp: &mv.LastUpdatedTime,
 		UserId:               &mv.UserID,
 		Source:               &mv.Source,
-		RunId:                &mv.RunID,
+		RunId:                mv.RunID,
 		Status:               utils.PtrTo(protos.ModelVersionStatus(protos.ModelVersionStatus_value[mv.Status])),
 		StatusMessage:        &mv.StatusMessage,
 		RunLink:              &mv.RunLink,

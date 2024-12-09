@@ -95,7 +95,7 @@ class _ModelRegistryStore:
         if entity.description == "":
             entity.description = None
 
-        # during convertion to proto, `version` value became a `string` value.
+        # during conversion to proto, `version` value became a `string` value.
         # convert it back to `int` value again to satisfy all the Python tests and related logic.
         for key in entity.aliases:
             if entity.aliases[key].isnumeric():
