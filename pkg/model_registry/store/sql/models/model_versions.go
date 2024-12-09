@@ -6,6 +6,13 @@ import (
 	"github.com/mlflow/mlflow-go/pkg/utils"
 )
 
+const (
+	StageNone       = "None"
+	StageStaging    = "Staging"
+	StageProduction = "Production"
+	StageArchived   = "Archived"
+)
+
 // ModelVersion mapped from table <model_versions>.
 //
 //revive:disable:exported

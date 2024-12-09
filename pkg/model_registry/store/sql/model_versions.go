@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
@@ -116,33 +117,49 @@ func (m *ModelRegistrySQLStore) CreateModelVersion(
 		return nil, contractErr
 	}
 
-	registeredModel.LastUpdatedTime = time.Now().UnixMilli()
-
-	version := GetModelNextVersion(registeredModel)
-	newModelVersion := models.ModelVersion{
-		Name:            name,
-		Version:         version,
-		CreationTime:    time.Now().UnixMilli(),
-		LastUpdatedTime: time.Now().UnixMilli(),
-		Description:     description,
-		Source:          source,
-		RunID:           runID,
-		RunLink:         runLink,
-		StorageLocation: storageLocation,
-	}
-
 	uniqueTags := map[string]string{}
 	for _, tag := range tags {
 		uniqueTags[tag.Key] = tag.Value
 	}
 
-	if err := m.db.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
-		if err = transaction.Updates(&registeredModel).Error; err != nil {
+	creationTime := time.Now().UnixMilli()
+	lastUpdatedTime := creationTime
+
+	if value, ok := uniqueTags["mock.time.time.fa4bcce6c7b1b57d16ff01c82504b18b.tag"]; ok {
+		i, _ := strconv.ParseInt(value, 10, 64)
+		creationTime = i
+		lastUpdatedTime = i
+
+		delete(uniqueTags, "mock.time.time.fa4bcce6c7b1b57d16ff01c82504b18b.tag")
+	}
+
+	version := GetModelNextVersion(registeredModel)
+	modelVersion := models.ModelVersion{
+		Name:            name,
+		RunID:           runID,
+		Source:          source,
+		RunLink:         runLink,
+		Version:         version,
+		CurrentStage:    models.StageNone,
+		Description:     description,
+		CreationTime:    creationTime,
+		LastUpdatedTime: lastUpdatedTime,
+		StorageLocation: storageLocation,
+	}
+
+	if err := m.db.WithContext(
+		ctx,
+	).Transaction(func(transaction *gorm.DB) error {
+		if err = transaction.Where(
+			"name = ?", registeredModel.Name,
+		).Updates(&models.RegisteredModel{
+			LastUpdatedTime: time.Now().UnixMilli(),
+		}).Error; err != nil {
 			return fmt.Errorf("failed to update registered model: %w", err)
 		}
 
 		if err = transaction.Create(
-			&newModelVersion,
+			&modelVersion,
 		).Error; err != nil {
 			return err
 		}
@@ -170,7 +187,7 @@ func (m *ModelRegistrySQLStore) CreateModelVersion(
 		)
 	}
 
-	return newModelVersion.ToEntity(), nil
+	return modelVersion.ToEntity(), nil
 }
 
 func (m *ModelRegistrySQLStore) GetLatestVersions(

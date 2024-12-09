@@ -7,6 +7,7 @@ from mlflow.protos.model_registry_pb2 import (
     DeleteRegisteredModel,
     GetLatestVersions,
     GetRegisteredModel,
+    ModelVersionTag,
     RenameRegisteredModel,
     UpdateRegisteredModel,
 )
@@ -42,18 +43,19 @@ class _ModelRegistryStore:
         tags=None,
         run_link=None,
         description=None,
-        local_model_path=None,
     ):
         request = CreateModelVersion(
             name=name,
             source=source,
             run_id=run_id,
-            tags=tags,
+            tags=[ModelVersionTag(key=tag.key, value=tag.value) for tag in tags] if tags else [],
             run_link=run_link,
             description=description,
-            local_model_path=local_model_path,
         )
-        return self.service.call_endpoint(get_lib().ModelRegistryServiceCreateModelVersion, request)
+        response = self.service.call_endpoint(
+            get_lib().ModelRegistryServiceCreateModelVersion, request
+        )
+        return ModelVersion.from_proto(response.model_version)
 
     def get_latest_versions(self, name, stages=None):
         request = GetLatestVersions(
