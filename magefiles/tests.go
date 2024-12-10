@@ -31,15 +31,16 @@ func runPythonTests(pytestArgs []string) error {
 		"run",
 		"pytest",
 		// "-s",
-		// "--log-cli-level=DEBUG",
+		"--log-cli-level=DEBUG",
 		"--confcutdir=.",
 		"-k", "not [file",
+		"-p", "no:warnings",
 	}
 	args = append(args, pytestArgs...)
 
 	environmentVariables := map[string]string{
 		"MLFLOW_GO_LIBRARY_PATH": libpath,
-		// "PYTHONLOGGING":          "DEBUG",
+		"PYTHONLOGGING":          "DEBUG",
 	}
 
 	if runtime.GOOS == "windows" {
