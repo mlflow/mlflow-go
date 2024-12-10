@@ -40,7 +40,7 @@ func runPythonTests(pytestArgs []string) error {
 
 	environmentVariables := map[string]string{
 		"MLFLOW_GO_LIBRARY_PATH": libpath,
-		// "PYTHONLOGGING":          "DEBUG",
+		"PYTHONLOGGING":          "DEBUG",
 	}
 
 	if runtime.GOOS == "windows" {
