@@ -39,8 +39,10 @@ def test_search_experiments_max_results_validation(store: SqlAlchemyStore):
     ):
         store.search_experiments(max_results=1_000_000)
 
+
 def test_search_experiments_filter_by_time_attribute(store: SqlAlchemyStore):
     ()
+
 
 def test_search_experiments_order_by_time_attribute(store: SqlAlchemyStore):
     ()

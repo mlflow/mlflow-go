@@ -74,7 +74,7 @@ def pytest_configure(config):
         (
             "tests.store.tracking.test_sqlalchemy_store.test_search_experiments_order_by_time_attribute",
             "tests/override_test_sqlalchemy_store.py",
-        )
+        ),
     ):
         func_name = func_to_patch.rsplit(".", 1)[1]
         new_func_file = (
