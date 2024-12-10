@@ -27,19 +27,30 @@ func runPythonTests(pytestArgs []string) error {
 		return nil
 	}
 
-	args := []string{
-		"run",
-		"pytest",
+	executable := "uv"
+	args := []string{"run", "pytest"}
+
+	// For some reason uv run on Mac in GitHub Actions can return exit code 1,
+	// even when all the tests are passing. That is why we want to run pytest from the virtual directory.
+	if runtime.GOOS == "darwin" {
+		executable = ".venv/bin/pytest"
+		args = []string{}
+	}
+
+	fixedPytestArgs := []string{
 		// "-s",
-		// "--log-cli-level=DEBUG",
+		"--log-cli-level=DEBUG",
 		"--confcutdir=.",
 		"-k", "not [file",
+		"-p", "no:warnings",
 	}
+
+	args = append(args, fixedPytestArgs...)
 	args = append(args, pytestArgs...)
 
 	environmentVariables := map[string]string{
 		"MLFLOW_GO_LIBRARY_PATH": libpath,
-		// "PYTHONLOGGING":          "DEBUG",
+		"PYTHONLOGGING":          "DEBUG",
 	}
 
 	if runtime.GOOS == "windows" {
@@ -48,7 +59,7 @@ func runPythonTests(pytestArgs []string) error {
 
 	//  Run the tests (currently just the server ones)
 	if err := sh.RunWithV(environmentVariables,
-		"uv", args...,
+		executable, args...,
 	); err != nil {
 		return err
 	}
