@@ -44,6 +44,17 @@ func RegisterModelRegistryServiceRoutes(service service.ModelRegistryService, pa
 		}
 		return ctx.JSON(output)
 	})
+	app.Get("/mlflow/registered-models/get", func(ctx *fiber.Ctx) error {
+		input := &protos.GetRegisteredModel{}
+		if err := parser.ParseQuery(ctx, input); err != nil {
+			return err
+		}
+		output, err := service.GetRegisteredModel(utils.NewContextWithLoggerFromFiberContext(ctx), input)
+		if err != nil {
+			return err
+		}
+		return ctx.JSON(output)
+	})
 	app.Post("/mlflow/registered-models/get-latest-versions", func(ctx *fiber.Ctx) error {
 		input := &protos.GetLatestVersions{}
 		if err := parser.ParseBody(ctx, input); err != nil {
