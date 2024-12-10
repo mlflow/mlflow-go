@@ -65,10 +65,10 @@ jobs:
       - name: Build package
         run: uv run -m mlflow_go.lib -- . .
       - name: run pytest
-        run: uv run pytest -vv -p no:warnings --confcutdir=. -k "not [file" .mlflow.repo/tests/tracking/test_rest_tracking.py .mlflow.repo/tests/tracking/test_model_registry.py
+        run: uv run pytest -vv -p no:warnings --confcutdir=. -k "not '[file'" .mlflow.repo/tests/tracking/test_rest_tracking.py .mlflow.repo/tests/tracking/test_model_registry.py
         env:
-          - MLFLOW_GO_LIBRARY_PATH: ${{ github.workspace }}
-          - PYTHONLOGGING: DEBUG
+          MLFLOW_GO_LIBRARY_PATH: ${{ github.workspace }}
+          PYTHONLOGGING: DEBUG
       # - name: Run integration tests
       #   run: mage test:python
       #   if: ${{ !(matrix.python == '3.12' && matrix.runner == 'windows-latest') }}
