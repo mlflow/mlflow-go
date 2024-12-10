@@ -31,7 +31,7 @@ func runPythonTests(pytestArgs []string) error {
 		"run",
 		"pytest",
 		// "-s",
-		// "--log-cli-level=DEBUG",
+		"--log-cli-level=DEBUG",
 		"--confcutdir=.",
 		"-k", "not [file",
 		"-p", "no:warnings",
