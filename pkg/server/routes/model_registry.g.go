@@ -77,6 +77,17 @@ func RegisterModelRegistryServiceRoutes(service service.ModelRegistryService, pa
 		}
 		return ctx.JSON(output)
 	})
+	app.Patch("/mlflow/model-versions/update", func(ctx *fiber.Ctx) error {
+		input := &protos.UpdateModelVersion{}
+		if err := parser.ParseBody(ctx, input); err != nil {
+			return err
+		}
+		output, err := service.UpdateModelVersion(utils.NewContextWithLoggerFromFiberContext(ctx), input)
+		if err != nil {
+			return err
+		}
+		return ctx.JSON(output)
+	})
 	app.Delete("/mlflow/model-versions/delete", func(ctx *fiber.Ctx) error {
 		input := &protos.DeleteModelVersion{}
 		if err := parser.ParseBody(ctx, input); err != nil {

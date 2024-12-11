@@ -86,3 +86,16 @@ func (m *ModelRegistryService) DeleteModelVersion(
 
 	return &protos.DeleteModelVersion_Response{}, nil
 }
+
+func (m *ModelRegistryService) UpdateModelVersion(
+	ctx context.Context, input *protos.UpdateModelVersion,
+) (*protos.UpdateModelVersion_Response, *contract.Error) {
+	modelVersion, err := m.store.UpdateModelVersion(ctx, input.GetName(), input.GetVersion(), input.GetDescription())
+	if err != nil {
+		return nil, err
+	}
+
+	return &protos.UpdateModelVersion_Response{
+		ModelVersion: modelVersion.ToProto(),
+	}, nil
+}
