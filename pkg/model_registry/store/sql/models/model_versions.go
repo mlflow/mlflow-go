@@ -1,6 +1,8 @@
 package models
 
 import (
+	"database/sql"
+
 	"github.com/mlflow/mlflow-go/pkg/entities"
 	"github.com/mlflow/mlflow-go/pkg/protos"
 	"github.com/mlflow/mlflow-go/pkg/utils"
@@ -14,13 +16,13 @@ type ModelVersion struct {
 	Version         int32             `db:"version"           gorm:"column:version;primaryKey"`
 	CreationTime    int64             `db:"creation_time"     gorm:"column:creation_time"`
 	LastUpdatedTime int64             `db:"last_updated_time" gorm:"column:last_updated_time"`
-	Description     string            `db:"description"       gorm:"column:description"`
-	UserID          string            `db:"user_id"           gorm:"column:user_id"`
+	Description     sql.NullString    `db:"description"       gorm:"column:description"`
+	UserID          sql.NullString    `db:"user_id"           gorm:"column:user_id"`
 	CurrentStage    ModelVersionStage `db:"current_stage"     gorm:"column:current_stage"`
 	Source          string            `db:"source"            gorm:"column:source"`
 	RunID           string            `db:"run_id"            gorm:"column:run_id"`
 	Status          string            `db:"status"            gorm:"column:status"`
-	StatusMessage   string            `db:"status_message"    gorm:"column:status_message"`
+	StatusMessage   sql.NullString    `db:"status_message"    gorm:"column:status_message"`
 	RunLink         string            `db:"run_link"          gorm:"column:run_link"`
 	StorageLocation string            `db:"storage_location"  gorm:"column:storage_location"`
 }
@@ -38,13 +40,13 @@ func (mv ModelVersion) ToProto() *protos.ModelVersion {
 		Version:              utils.ConvertInt32PointerToStringPointer(&mv.Version),
 		CreationTimestamp:    &mv.CreationTime,
 		LastUpdatedTimestamp: &mv.LastUpdatedTime,
-		UserId:               &mv.UserID,
+		UserId:               &mv.UserID.String,
 		CurrentStage:         utils.PtrTo(mv.CurrentStage.String()),
-		Description:          &mv.Description,
+		Description:          &mv.Description.String,
 		Source:               &mv.Source,
 		RunId:                &mv.RunID,
 		Status:               status,
-		StatusMessage:        &mv.StatusMessage,
+		StatusMessage:        &mv.StatusMessage.String,
 		RunLink:              &mv.RunLink,
 	}
 }
@@ -55,13 +57,13 @@ func (mv ModelVersion) ToEntity() *entities.ModelVersion {
 		Version:         mv.Version,
 		CreationTime:    mv.CreationTime,
 		LastUpdatedTime: mv.LastUpdatedTime,
-		Description:     mv.Description,
-		UserID:          mv.UserID,
+		Description:     mv.Description.String,
+		UserID:          mv.UserID.String,
 		CurrentStage:    mv.CurrentStage.String(),
 		Source:          mv.Source,
 		RunID:           mv.RunID,
 		Status:          mv.Status,
-		StatusMessage:   mv.StatusMessage,
+		StatusMessage:   mv.StatusMessage.String,
 		RunLink:         mv.RunLink,
 		StorageLocation: mv.StorageLocation,
 	}
