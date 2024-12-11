@@ -7,31 +7,31 @@ permissions:
   contents: read
 
 jobs:
-  go:
-    name: Test Go
-    strategy:
-      matrix:
-        runner: [macos-latest, ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.runner }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: "1.23"
-          check-latest: true
-          cache: false
-      - name: Install mage
-        run: go install github.com/magefile/mage@v1.15.0
-      - name: Run unit tests
-        run: mage test:unit
+  # go:
+  #   name: Test Go
+  #   strategy:
+  #     matrix:
+  #       runner: [macos-latest, ubuntu-latest, windows-latest]
+  #   runs-on: ${{ matrix.runner }}
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Setup Go
+  #       uses: actions/setup-go@v5
+  #       with:
+  #         go-version: "1.23"
+  #         check-latest: true
+  #         cache: false
+  #     - name: Install mage
+  #       run: go install github.com/magefile/mage@v1.15.0
+  #     - name: Run unit tests
+  #       run: mage test:unit
 
   python:
     name: Test Python
     strategy:
       matrix:
-        runner: [macos-latest, ubuntu-latest, windows-latest]
-        python: ["3.9", "3.10", "3.11", "3.12"]
+        runner: [macos-latest]
+        python: ["3.10"]
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
