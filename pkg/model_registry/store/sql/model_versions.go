@@ -123,7 +123,7 @@ func (m *ModelRegistrySQLStore) GetRegisteredModel(
 		//nolint:perfsprint
 		return nil, contract.NewErrorWith(
 			protos.ErrorCode_INTERNAL_ERROR,
-			fmt.Sprintf("failed to get experiment by name %s", name),
+			fmt.Sprintf("failed to get Registered Model by name %s", name),
 			err,
 		)
 	}
@@ -258,6 +258,97 @@ func (m *ModelRegistrySQLStore) DeleteRegisteredModel(ctx context.Context, name 
 		return contract.NewError(
 			protos.ErrorCode_INTERNAL_ERROR, fmt.Sprintf("error deleting registered model: %v", err),
 		)
+	}
+
+	return nil
+}
+
+func (m *ModelRegistrySQLStore) GetModelVersion(
+	ctx context.Context, name, version string,
+) (*entities.ModelVersion, *contract.Error) {
+	var modelVersion models.ModelVersion
+	if err := m.db.WithContext(
+		ctx,
+	).Where(
+		"name = ?", name,
+	).Where(
+		"version = ?", version,
+	).Where(
+		"current_stage != ?", models.StageDeletedInternal,
+	).First(
+		&modelVersion,
+	).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, contract.NewError(
+				protos.ErrorCode_RESOURCE_DOES_NOT_EXIST,
+				fmt.Sprintf("Model Version (name=%s, version=%s) not found", name, version),
+			)
+		}
+
+		return nil, contract.NewErrorWith(
+			protos.ErrorCode_INTERNAL_ERROR,
+			fmt.Sprintf("failed to get Model Version by name %s and version %s", name, version),
+			err,
+		)
+	}
+
+	return modelVersion.ToEntity(), nil
+}
+
+func (m *ModelRegistrySQLStore) DeleteModelVersion(ctx context.Context, name, version string) *contract.Error {
+	registeredModel, err := m.GetRegisteredModel(ctx, name)
+	if err != nil {
+		return err
+	}
+
+	modelVersion, err := m.GetModelVersion(ctx, name, version)
+	if err != nil {
+		return err
+	}
+
+	if err := m.db.WithContext(ctx).Transaction(func(transaction *gorm.DB) error {
+		if err := transaction.Model(
+			&models.RegisteredModel{},
+		).Where(
+			"name = ?", registeredModel.Name,
+		).Updates(&models.RegisteredModel{
+			LastUpdatedTime: time.Now().UnixMilli(),
+		}).Error; err != nil {
+			return err
+		}
+
+		if err := transaction.Where(
+			"name = ?", registeredModel.Name,
+		).Where(
+			"version = ?", version,
+		).Delete(
+			&models.RegisteredModelAlias{},
+		).Error; err != nil {
+			return err
+		}
+
+		if err := transaction.Model(
+			&models.ModelVersion{},
+		).Where(
+			"name = ?", modelVersion.Name,
+		).Where(
+			"version = ?", modelVersion.Version,
+		).Updates(&models.ModelVersion{
+			RunID:           "REDACTED-RUN-ID",
+			UserID:          sql.NullString{Valid: true},
+			Source:          "REDACTED-SOURCE-PATH",
+			RunLink:         "REDACTED-RUN-LINK",
+			CurrentStage:    models.StageDeletedInternal,
+			Description:     sql.NullString{Valid: true},
+			StatusMessage:   sql.NullString{Valid: true},
+			LastUpdatedTime: time.Now().UnixMilli(),
+		}).Error; err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
+		return contract.NewErrorWith(protos.ErrorCode_INTERNAL_ERROR, "error deleting model version", err)
 	}
 
 	return nil
