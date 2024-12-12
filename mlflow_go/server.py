@@ -1,3 +1,4 @@
+import logging
 import json
 from contextlib import contextmanager
 
@@ -12,6 +13,7 @@ def launch_server(**config):
     if ret != 0:
         raise Exception(f"Non-zero exit code: {ret}")
 
+logger = logging.getLogger(__name__)
 
 @contextmanager
 def server(**config):
@@ -20,6 +22,7 @@ def server(**config):
     # start the Go server and check for errors
     id = get_lib().LaunchServerAsync(config_bytes, len(config_bytes))
     if id < 0:
+        logger.error("Could not launch Go server")
         raise Exception(f"Non-zero exit code: {id}")
 
     try:
@@ -28,4 +31,5 @@ def server(**config):
         # stop the Go server and check for errors
         ret = get_lib().StopServer(id)
         if ret != 0:
+            logger.error(f"Go server exited with {ret}")
             raise Exception(f"Non-zero exit code: {ret}")
