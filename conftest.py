@@ -21,10 +21,10 @@ def load_new_function(file_path, func_name):
 
 def pytest_configure(config):
     for func_to_patch, new_func_file_relative in (
-        (
-            "tests.tracking.integration_test_utils._init_server",
-            "tests/override_server.py",
-        ),
+        # (
+        #     "tests.tracking.integration_test_utils._init_server",
+        #     "tests/override_server.py",
+        # ),
         # (
         #     "mlflow.store.tracking.sqlalchemy_store.SqlAlchemyStore",
         #     "tests/override_tracking_store.py",
