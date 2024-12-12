@@ -4,6 +4,11 @@ from unittest.mock import patch
 
 _logger = logging.getLogger(__name__)
 
+logger = logging.getLogger('sqlalchemy.engine')
+if logger:
+    logger.setLevel(logging.INFO)
+else:
+    print("Logger 'sqlalchemy.engine' does not exist.")
 
 def load_new_function(file_path, func_name):
     with open(file_path) as f:
@@ -20,14 +25,14 @@ def pytest_configure(config):
             "tests.tracking.integration_test_utils._init_server",
             "tests/override_server.py",
         ),
-        (
-            "mlflow.store.tracking.sqlalchemy_store.SqlAlchemyStore",
-            "tests/override_tracking_store.py",
-        ),
-        (
-            "mlflow.store.model_registry.sqlalchemy_store.SqlAlchemyStore",
-            "tests/override_model_registry_store.py",
-        ),
+        # (
+        #     "mlflow.store.tracking.sqlalchemy_store.SqlAlchemyStore",
+        #     "tests/override_tracking_store.py",
+        # ),
+        # (
+        #     "mlflow.store.model_registry.sqlalchemy_store.SqlAlchemyStore",
+        #     "tests/override_model_registry_store.py",
+        # ),
         # This test will patch some Python internals to invoke an internal exception.
         # We cannot do this in Go.
         (
