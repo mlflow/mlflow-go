@@ -25,14 +25,14 @@ def pytest_configure(config):
             "tests.tracking.integration_test_utils._init_server",
             "tests/override_server.py",
         ),
-        (
-            "mlflow.store.tracking.sqlalchemy_store.SqlAlchemyStore",
-            "tests/override_tracking_store.py",
-        ),
-        (
-            "mlflow.store.model_registry.sqlalchemy_store.SqlAlchemyStore",
-            "tests/override_model_registry_store.py",
-        ),
+        # (
+        #     "mlflow.store.tracking.sqlalchemy_store.SqlAlchemyStore",
+        #     "tests/override_tracking_store.py",
+        # ),
+        # (
+        #     "mlflow.store.model_registry.sqlalchemy_store.SqlAlchemyStore",
+        #     "tests/override_model_registry_store.py",
+        # ),
         # This test will patch some Python internals to invoke an internal exception.
         # We cannot do this in Go.
         (
