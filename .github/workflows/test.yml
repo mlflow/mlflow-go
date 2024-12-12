@@ -74,5 +74,5 @@ jobs:
           echo status is $?
         continue-on-error: true
         if: ${{ !(matrix.python == '3.12' && matrix.runner == 'windows-latest') }}
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
+      # - name: Setup tmate session
+      #   uses: mxschmitt/action-tmate@v3
