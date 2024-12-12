@@ -44,10 +44,13 @@ jobs:
           echo "$HOME/miniconda/bin" >> $GITHUB_PATH
           export PATH="$HOME/miniconda/bin:$PATH"
           conda --version
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
       - name: Install uv
         uses: astral-sh/setup-uv@v3
-      - name: Set up Python ${{ matrix.python }}
-        run: uv python install ${{ matrix.python }}
+      # - name: Set up Python ${{ matrix.python }}
+      #   run: uv python install ${{ matrix.python }}
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
@@ -59,7 +62,7 @@ jobs:
       - name: Initialize MLflow repo
         run: mage repo:init
       - name: Create virtual environment
-        run: uv venv --python ${{ matrix.python }}
+        run: uv venv
       - name: Install our package in editable mode
         run: uv sync --all-extras
       - name: Run integration tests

@@ -1,0 +1,17 @@
+- Does it crash with our conftest?
+- Try not loading our TrackingStore:
+    disable:
+        (
+            "mlflow.store.tracking.sqlalchemy_store.SqlAlchemyStore",
+            "tests/override_tracking_store.py",
+        ),
+        (
+            "mlflow.store.model_registry.sqlalchemy_store.SqlAlchemyStore",
+            "tests/override_model_registry_store.py",
+        ),
+
+logger = logging.getLogger('sqlalchemy.engine')
+if logger:
+    logger.setLevel(logging.INFO)
+else:
+    print("Logger 'sqlalchemy.engine' does not exist.")
