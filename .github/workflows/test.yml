@@ -64,5 +64,5 @@ jobs:
         run: uv sync --all-extras
       - name: Run integration tests
         # run: mage test:python
-        run: .venv/bin/pytest --log-cli-level=DEBUG --confcutdir=. -k "not [file" -p no:warnings .mlflow.repo/tests/store/model_registry/test_sqlalchemy_store.py::test_get_registered_model
+        run: .venv/bin/pytest --log-cli-level=DEBUG --confcutdir=. -k "not [file" -p no:warnings .mlflow.repo/tests/store/model_registry/test_sqlalchemy_store.py
         if: ${{ !(matrix.python == '3.12' && matrix.runner == 'windows-latest') }}
