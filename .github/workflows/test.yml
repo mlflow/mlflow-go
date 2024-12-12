@@ -66,12 +66,6 @@ jobs:
         run: uv venv
       - name: Install our package in editable mode
         run: uv sync --all-extras
-      - name: run mlflow tests
-        working-directory: .mlflow.repo
-        run: |
-          ulimit -c unlimited
-          ../.venv/bin/pytest -k "not [file" -p no:warnings tests/tracking/test_rest_tracking.py tests/tracking/test_model_registry.py tests/store/tracking/test_sqlalchemy_store.py tests/store/model_registry/test_sqlalchemy_store.py
-          echo status is $?
       - name: Run integration tests
         # run: mage test:python
         run: |
