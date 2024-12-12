@@ -47,6 +47,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
+          check-latest: true
       - name: Install uv
         uses: astral-sh/setup-uv@v3
       # - name: Set up Python ${{ matrix.python }}
@@ -65,6 +66,12 @@ jobs:
         run: uv venv
       - name: Install our package in editable mode
         run: uv sync --all-extras
+      - name: run mlflow tests
+        working-directory: .mlflow-repo
+        run: |
+          ulimit -c unlimited
+          ../.venv/bin/pytest -k "not [file" -p no:warnings .mlflow.repo/tests/tracking/test_rest_tracking.py .mlflow.repo/tests/tracking/test_model_registry.py .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py .mlflow.repo/tests/store/model_registry/test_sqlalchemy_store.py
+          echo status is $?
       - name: Run integration tests
         # run: mage test:python
         run: |
