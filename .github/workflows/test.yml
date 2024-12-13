@@ -66,6 +66,8 @@ jobs:
         run: uv venv
       - name: Install our package in editable mode
         run: uv sync --all-extras
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
       - name: Run test rest tracking
         run: .venv/bin/pytest --log-cli-level=DEBUG --confcutdir=. -k "not [file" -p no:warnings .mlflow.repo/tests/tracking/test_rest_tracking.py
       - name: Run integration tests
