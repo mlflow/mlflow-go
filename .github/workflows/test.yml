@@ -66,6 +66,8 @@ jobs:
         run: uv venv
       - name: Install our package in editable mode
         run: uv sync --all-extras
+      - name: Prelude
+        run: .venv/bin/python prelude.py
       - name: Run integration tests
         # run: mage test:python
         run: |
