@@ -69,12 +69,23 @@ func runPythonTests(pytestArgs []string) error {
 
 // Run mlflow Python tests against the Go backend.
 func (Test) Python() error {
-	return runPythonTests([]string{
-		".mlflow.repo/tests/tracking/test_rest_tracking.py",
-		".mlflow.repo/tests/tracking/test_model_registry.py",
-		".mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py",
-		".mlflow.repo/tests/store/model_registry/test_sqlalchemy_store.py",
-	})
+	if err := runPythonTests([]string{".mlflow.repo/tests/tracking/test_model_registry.py"}); err != nil {
+		return err
+	}
+
+	if err := runPythonTests([]string{".mlflow.repo/tests/tracking/test_rest_tracking.py"}); err != nil {
+		return err
+	}
+
+	if err := runPythonTests([]string{".mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py"}); err != nil {
+		return err
+	}
+
+	if err := runPythonTests([]string{".mlflow.repo/tests/store/model_registry/test_sqlalchemy_store.py"}); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Run specific Python test against the Go backend.

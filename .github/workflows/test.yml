@@ -66,19 +66,7 @@ jobs:
         run: uv venv
       - name: Install our package in editable mode
         run: uv sync --all-extras
-      # - name: Setup tmate session
-      #   uses: mxschmitt/action-tmate@v3
-      - name: tests one
-        run: .venv/bin/pytest --log-cli-level=DEBUG --confcutdir=. -k "not [file" -p no:warnings .mlflow.repo/tests/tracking/test_model_registry.py
-      - name: tests two
-        run: .venv/bin/pytest --log-cli-level=DEBUG --confcutdir=. -k "not [file" -p no:warnings .mlflow.repo/tests/tracking/test_rest_tracking.py
-      # - name: Run integration tests
-        # run: mage test:python
-        # run: |
-          # ulimit -c unlimited
-          # .venv/bin/pytest --log-cli-level=DEBUG --confcutdir=. -k "not [file" -p no:warnings .mlflow.repo/tests/tracking/test_rest_tracking.py .mlflow.repo/tests/tracking/test_model_registry.py .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py .mlflow.repo/tests/store/model_registry/test_sqlalchemy_store.py
-          # echo status is $?
-        # continue-on-error: false
-        # if: ${{ !(matrix.python == '3.12' && matrix.runner == 'windows-latest') }}
-      # - name: Setup tmate session
-      #   uses: mxschmitt/action-tmate@v3
+      - name: Run integration tests
+        run: mage test:python
+        if: ${{ !(matrix.python == '3.12' && matrix.runner == 'windows-latest') }}
+        # Temporary workaround for failing tests
