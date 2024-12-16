@@ -15,3 +15,8 @@ if logger:
     logger.setLevel(logging.INFO)
 else:
     print("Logger 'sqlalchemy.engine' does not exist.")
+
+- Try installing python with github actions instead of uv (do before start UV)
+
+.venv/bin/pytest --log-cli-level=DEBUG --confcutdir=. -k "not [file" -p no:warnings .mlflow.repo/tests/tracking/test_model_registry.py .mlflow.repo/tests/store/tracking/test_sqlalchemy_store.py .mlflow.repo/tests/store/model_registry/test_sqlalchemy_store.py
+          
