@@ -353,3 +353,27 @@ func (m *ModelRegistrySQLStore) DeleteModelVersion(ctx context.Context, name, ve
 
 	return nil
 }
+
+func (m *ModelRegistrySQLStore) UpdateModelVersion(
+	ctx context.Context, name, version, description string,
+) (*entities.ModelVersion, *contract.Error) {
+	modelVersion, err := m.GetModelVersion(ctx, name, version)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := m.db.WithContext(ctx).Model(
+		&models.ModelVersion{},
+	).Where(
+		"name = ?", modelVersion.Name,
+	).Where(
+		"version = ?", modelVersion.Version,
+	).Updates(&models.ModelVersion{
+		Description:     sql.NullString{String: description, Valid: description != ""},
+		LastUpdatedTime: time.Now().UnixMilli(),
+	}).Error; err != nil {
+		return nil, contract.NewErrorWith(protos.ErrorCode_INTERNAL_ERROR, "error updating model version", err)
+	}
+
+	return modelVersion, nil
+}
