@@ -8,12 +8,12 @@ import (
 
 // Metric mapped from table <metrics>.
 type Metric struct {
-	Key       string  `db:"key"       gorm:"column:key;primaryKey"`
-	Value     float64 `db:"value"     gorm:"column:value;primaryKey"`
-	Timestamp int64   `db:"timestamp" gorm:"column:timestamp;primaryKey"`
-	RunID     string  `db:"run_uuid"  gorm:"column:run_uuid;primaryKey"`
-	Step      int64   `db:"step"      gorm:"column:step;primaryKey"`
-	IsNaN     bool    `db:"is_nan"    gorm:"column:is_nan;primaryKey"`
+	Key       string  `gorm:"column:key;primaryKey"`
+	Value     float64 `gorm:"column:value;primaryKey"`
+	Timestamp int64   `gorm:"column:timestamp;primaryKey"`
+	RunID     string  `gorm:"column:run_uuid;primaryKey"`
+	Step      int64   `gorm:"column:step;primaryKey"`
+	IsNaN     bool    `gorm:"column:is_nan;primaryKey"`
 }
 
 func NewMetricFromEntity(runID string, metric *entities.Metric) *Metric {

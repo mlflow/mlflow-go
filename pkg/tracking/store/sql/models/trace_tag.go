@@ -4,9 +4,9 @@ import "github.com/mlflow/mlflow-go/pkg/entities"
 
 // TraceTag mapped from table <trace_tags>.
 type TraceTag struct {
-	Key       string `db:"key"        gorm:"column:key;primaryKey"`
-	Value     string `db:"value"      gorm:"column:value"`
-	RequestID string `db:"request_id" gorm:"column:request_id;primaryKey"`
+	Key       string `gorm:"column:key;primaryKey"`
+	Value     string `gorm:"column:value"`
+	RequestID string `gorm:"column:request_id;primaryKey"`
 }
 
 func (t TraceTag) ToEntity() *entities.TraceTag {

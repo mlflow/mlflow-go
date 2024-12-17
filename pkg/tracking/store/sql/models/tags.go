@@ -6,9 +6,9 @@ import (
 
 // Tag mapped from table <tags>.
 type Tag struct {
-	Key   string `db:"key"      gorm:"column:key;primaryKey"`
-	Value string `db:"value"    gorm:"column:value"`
-	RunID string `db:"run_uuid" gorm:"column:run_uuid;primaryKey"`
+	Key   string `gorm:"column:key;primaryKey"`
+	Value string `gorm:"column:value"`
+	RunID string `gorm:"column:run_uuid;primaryKey"`
 }
 
 func (t Tag) ToEntity() *entities.RunTag {

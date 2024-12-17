@@ -15,11 +15,11 @@ const (
 
 // TraceInfo mapped from table <trace_info>.
 type TraceInfo struct {
-	RequestID            string                 `db:"request_id"             gorm:"column:request_id;primaryKey"`
-	ExperimentID         string                 `db:"experiment_id"          gorm:"column:experiment_id"`
-	TimestampMS          int64                  `db:"timestamp_ms"           gorm:"column:timestamp_ms"`
-	ExecutionTimeMS      sql.NullInt64          `db:"execution_time_ms"      gorm:"column:execution_time_ms"`
-	Status               string                 `db:"status"                 gorm:"column:status"`
+	RequestID            string                 `gorm:"column:request_id;primaryKey"`
+	ExperimentID         string                 `gorm:"column:experiment_id"`
+	TimestampMS          int64                  `gorm:"column:timestamp_ms"`
+	ExecutionTimeMS      sql.NullInt64          `gorm:"column:execution_time_ms"`
+	Status               string                 `gorm:"column:status"`
 	Tags                 []TraceTag             `gorm:"foreignKey:RequestID"`
 	TraceRequestMetadata []TraceRequestMetadata `gorm:"foreignKey:RequestID"`
 }

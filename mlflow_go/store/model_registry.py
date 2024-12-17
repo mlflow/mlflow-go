@@ -6,6 +6,7 @@ from mlflow.protos.model_registry_pb2 import (
     DeleteModelVersion,
     DeleteRegisteredModel,
     GetLatestVersions,
+    GetModelVersion,
     GetRegisteredModel,
     RenameRegisteredModel,
     UpdateRegisteredModel,
@@ -83,6 +84,13 @@ class _ModelRegistryStore:
     def delete_model_version(self, name, version):
         request = DeleteModelVersion(name=name, version=str(version))
         self.service.call_endpoint(get_lib().ModelRegistryServiceDeleteModelVersion, request)
+
+    def get_model_version(self, name, version):
+        request = GetModelVersion(name=name, version=str(version))
+        response = self.service.call_endpoint(
+            get_lib().ModelRegistryServiceGetModelVersion, request
+        )
+        return ModelVersion.from_proto(response.model_version)
 
 
 def ModelRegistryStore(cls):
