@@ -382,7 +382,7 @@ func (m *ModelRegistrySQLStore) DeleteModelVersion(ctx context.Context, name, ve
 func (m *ModelRegistrySQLStore) UpdateModelVersion(
 	ctx context.Context, name, version, description string,
 ) (*entities.ModelVersion, *contract.Error) {
-	modelVersion, err := m.GetModelVersion(ctx, name, version)
+	modelVersion, err := m.GetModelVersion(ctx, name, version, false)
 	if err != nil {
 		return nil, err
 	}
