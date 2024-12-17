@@ -9,6 +9,7 @@ from mlflow.protos.model_registry_pb2 import (
     GetModelVersion,
     GetRegisteredModel,
     RenameRegisteredModel,
+    UpdateModelVersion,
     UpdateRegisteredModel,
 )
 
@@ -91,6 +92,10 @@ class _ModelRegistryStore:
             get_lib().ModelRegistryServiceGetModelVersion, request
         )
         return ModelVersion.from_proto(response.model_version)
+
+      def update_model_version(self, name, version, description=None):
+        request = UpdateModelVersion(name=name, version=str(version), description=description)
+        self.service.call_endpoint(get_lib().ModelRegistryServiceUpdateModelVersion, request)
 
 
 def ModelRegistryStore(cls):
