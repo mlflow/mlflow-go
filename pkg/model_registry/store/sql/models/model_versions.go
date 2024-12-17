@@ -8,26 +8,28 @@ import (
 	"github.com/mlflow/mlflow-go/pkg/utils"
 )
 
+const StageDeletedInternal = "Deleted_Internal"
+
 // ModelVersion mapped from table <model_versions>.
 //
 //revive:disable:exported
 type ModelVersion struct {
-	Name            string            `db:"name"              gorm:"column:name;primaryKey"`
-	Version         int32             `db:"version"           gorm:"column:version;primaryKey"`
-	CreationTime    int64             `db:"creation_time"     gorm:"column:creation_time"`
-	LastUpdatedTime int64             `db:"last_updated_time" gorm:"column:last_updated_time"`
-	Description     sql.NullString    `db:"description"       gorm:"column:description"`
-	UserID          sql.NullString    `db:"user_id"           gorm:"column:user_id"`
-	CurrentStage    ModelVersionStage `db:"current_stage"     gorm:"column:current_stage"`
-	Source          string            `db:"source"            gorm:"column:source"`
-	RunID           string            `db:"run_id"            gorm:"column:run_id"`
-	Status          string            `db:"status"            gorm:"column:status"`
-	StatusMessage   sql.NullString    `db:"status_message"    gorm:"column:status_message"`
-	RunLink         string            `db:"run_link"          gorm:"column:run_link"`
-	StorageLocation string            `db:"storage_location"  gorm:"column:storage_location"`
+	Name            string                 `gorm:"column:name;primaryKey"`
+	Version         int32                  `gorm:"column:version;primaryKey"`
+	CreationTime    int64                  `gorm:"column:creation_time"`
+	LastUpdatedTime int64                  `gorm:"column:last_updated_time"`
+	Description     sql.NullString         `gorm:"column:description"`
+	UserID          sql.NullString         `gorm:"column:user_id"`
+	CurrentStage    ModelVersionStage      `gorm:"column:current_stage"`
+	Source          string                 `gorm:"column:source"`
+	RunID           string                 `gorm:"column:run_id"`
+	Status          string                 `gorm:"column:status"`
+	StatusMessage   sql.NullString         `gorm:"column:status_message"`
+	RunLink         string                 `gorm:"column:run_link"`
+	StorageLocation string                 `gorm:"column:storage_location"`
+	Tags            []ModelVersionTag      `gorm:"foreignKey:Name,Version"`
+	Aliases         []RegisteredModelAlias `gorm:"-"`
 }
-
-const StageDeletedInternal = "Deleted_Internal"
 
 func (mv ModelVersion) ToProto() *protos.ModelVersion {
 	var status *protos.ModelVersionStatus
@@ -52,7 +54,7 @@ func (mv ModelVersion) ToProto() *protos.ModelVersion {
 }
 
 func (mv ModelVersion) ToEntity() *entities.ModelVersion {
-	return &entities.ModelVersion{
+	modelVersion := entities.ModelVersion{
 		Name:            mv.Name,
 		Version:         mv.Version,
 		CreationTime:    mv.CreationTime,
@@ -66,5 +68,17 @@ func (mv ModelVersion) ToEntity() *entities.ModelVersion {
 		StatusMessage:   mv.StatusMessage.String,
 		RunLink:         mv.RunLink,
 		StorageLocation: mv.StorageLocation,
+		Tags:            make([]*entities.ModelVersionTag, 0, len(mv.Tags)),
+		Aliases:         make([]*entities.RegisteredModelAlias, 0, len(mv.Aliases)),
 	}
+
+	for _, tag := range mv.Tags {
+		modelVersion.Tags = append(modelVersion.Tags, tag.ToEntity())
+	}
+
+	for _, alias := range mv.Aliases {
+		modelVersion.Aliases = append(modelVersion.Aliases, alias.ToEntity())
+	}
+
+	return &modelVersion
 }

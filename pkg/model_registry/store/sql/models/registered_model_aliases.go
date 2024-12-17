@@ -8,9 +8,9 @@ import (
 
 // RegisteredModelAlias mapped from table <registered_model_aliases>.
 type RegisteredModelAlias struct {
-	Name    string `db:"name"    gorm:"column:name;primaryKey"`
-	Alias   string `db:"alias"   gorm:"column:alias;primaryKey"`
-	Version int32  `db:"version" gorm:"column:version;not null"`
+	Name    string `gorm:"column:name;primaryKey"`
+	Alias   string `gorm:"column:alias;primaryKey"`
+	Version int32  `gorm:"column:version;not null"`
 }
 
 func (a RegisteredModelAlias) ToEntity() *entities.RegisteredModelAlias {
