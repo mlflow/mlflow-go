@@ -15,4 +15,6 @@ type ModelRegistryStore interface {
 	UpdateRegisteredModel(ctx context.Context, name, description string) (*entities.RegisteredModel, *contract.Error)
 	RenameRegisteredModel(ctx context.Context, name, newName string) (*entities.RegisteredModel, *contract.Error)
 	DeleteRegisteredModel(ctx context.Context, name string) *contract.Error
+	DeleteModelVersion(ctx context.Context, name, version string) *contract.Error
+	UpdateModelVersion(ctx context.Context, name, version, description string) (*entities.ModelVersion, *contract.Error)
 }

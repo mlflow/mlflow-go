@@ -76,3 +76,26 @@ func (m *ModelRegistryService) GetRegisteredModel(
 		RegisteredModel: registeredModel.ToProto(),
 	}, nil
 }
+
+func (m *ModelRegistryService) DeleteModelVersion(
+	ctx context.Context, input *protos.DeleteModelVersion,
+) (*protos.DeleteModelVersion_Response, *contract.Error) {
+	if err := m.store.DeleteModelVersion(ctx, input.GetName(), input.GetVersion()); err != nil {
+		return nil, err
+	}
+
+	return &protos.DeleteModelVersion_Response{}, nil
+}
+
+func (m *ModelRegistryService) UpdateModelVersion(
+	ctx context.Context, input *protos.UpdateModelVersion,
+) (*protos.UpdateModelVersion_Response, *contract.Error) {
+	modelVersion, err := m.store.UpdateModelVersion(ctx, input.GetName(), input.GetVersion(), input.GetDescription())
+	if err != nil {
+		return nil, err
+	}
+
+	return &protos.UpdateModelVersion_Response{
+		ModelVersion: modelVersion.ToProto(),
+	}, nil
+}
