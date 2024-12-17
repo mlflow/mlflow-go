@@ -93,7 +93,7 @@ class _ModelRegistryStore:
         )
         return ModelVersion.from_proto(response.model_version)
 
-      def update_model_version(self, name, version, description=None):
+    def update_model_version(self, name, version, description=None):
         request = UpdateModelVersion(name=name, version=str(version), description=description)
         self.service.call_endpoint(get_lib().ModelRegistryServiceUpdateModelVersion, request)
 
