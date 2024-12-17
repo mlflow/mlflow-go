@@ -91,7 +91,10 @@ class _ModelRegistryStore:
         response = self.service.call_endpoint(
             get_lib().ModelRegistryServiceGetModelVersion, request
         )
-        return ModelVersion.from_proto(response.model_version)
+        entity = ModelVersion.from_proto(response.model_version)
+        if entity.description == "":
+            entity.description = None
+        return entity
 
     def update_model_version(self, name, version, description=None):
         request = UpdateModelVersion(name=name, version=str(version), description=description)
